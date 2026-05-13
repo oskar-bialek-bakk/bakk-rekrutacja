@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Zadanie rekrutacyjne SQL dla kandydatów na praktyki w BAKK.">
+<meta property="og:title" content="Zadanie rekrutacyjne SQL — Praktyki BAKK">
+<meta property="og:description" content="Zadanie SQL dla kandydatów na praktyki. Czas: 5 dni.">
+<meta property="og:type" content="article">
+<title>Zadanie rekrutacyjne SQL — Praktyki BAKK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf8f3;
+  --bg-elevated: #ffffff;
+  --bg-subtle: #f5f2eb;
+  --text: #1a1815;
+  --text-muted: #6b6862;
+  --text-subtle: #94918a;
+  --border: #e7e1d4;
+  --border-strong: #d3cdbe;
+  --accent: #b45309;
+  --accent-dark: #92400e;
+  --accent-soft: #fef3e2;
+  --code-bg: #2a2722;
+  --code-text: #e8e3d5;
+  --code-keyword: #f0a26a;
+  --code-string: #a3c585;
+  --code-comment: #6b6862;
+  --code-number: #d9a55c;
+
+  --badge-base-bg: #ebe6d8;
+  --badge-base-text: #6b5d3f;
+  --badge-ext-bg: #fde68a;
+  --badge-ext-text: #92400e;
+  --badge-chal-bg: #fecaca;
+  --badge-chal-text: #991b1b;
+
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(180, 83, 9, 0.03) 0%, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(180, 83, 9, 0.02) 0%, transparent 50%);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+aside {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 48px 32px 48px 40px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.brand .accent { color: var(--accent); }
+
+.subbrand {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-subtle);
+  margin-bottom: 32px;
+  font-weight: 500;
+}
+
+nav h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-subtle);
+  margin: 24px 0 10px;
+}
+nav h3:first-child { margin-top: 0; }
+
+nav ul { list-style: none; }
+nav ul li { margin: 0; }
+nav a {
+  display: block;
+  padding: 7px 12px;
+  margin-left: -12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+}
+nav a:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+nav a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+main {
+  padding: 64px 72px 120px;
+  max-width: 880px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  padding: 4px 10px;
+  background: var(--accent-soft);
+  border-radius: 4px;
+}
+
+h1 {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.lede {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  max-width: 680px;
+  font-weight: 400;
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 64px 0 8px;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+h2 .task-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-subtle);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+h3 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 32px 0 12px;
+  color: var(--text);
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+p {
+  margin-bottom: 16px;
+  color: var(--text);
+}
+p.muted { color: var(--text-muted); }
+
+strong { font-weight: 600; color: var(--text); }
+em { font-style: italic; }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); transition: border-color 0.15s; }
+a:hover { border-bottom-color: var(--accent); }
+
+ul, ol {
+  margin: 0 0 16px 24px;
+}
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-subtle);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent-dark);
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 20px 24px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 20px 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  border: 1px solid #1a1815;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.kw { color: var(--code-keyword); font-weight: 500; }
+.str { color: var(--code-string); }
+.com { color: var(--code-comment); font-style: italic; }
+.num { color: var(--code-number); }
+.fn { color: #c4a878; }
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  vertical-align: middle;
+  position: relative;
+  top: -3px;
+}
+.badge.base { background: var(--badge-base-bg); color: var(--badge-base-text); }
+.badge.ext  { background: var(--badge-ext-bg);  color: var(--badge-ext-text); }
+.badge.chal { background: var(--badge-chal-bg); color: var(--badge-chal-text); }
+
+.task-block {
+  border-top: 1px solid var(--border);
+  padding-top: 56px;
+  margin-top: 56px;
+}
+.task-block:first-of-type { border-top: none; padding-top: 0; }
+
+.callout {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 18px 22px;
+  margin: 24px 0;
+  border-radius: 0 6px 6px 0;
+}
+.callout.warn {
+  border-left-color: #b91c1c;
+  background: #fef2f2;
+}
+.callout.warn strong { color: #991b1b; }
+.callout p:last-child { margin-bottom: 0; }
+.callout .label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.callout.warn .label { color: #991b1b; }
+
+blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  border-left: 3px solid var(--accent);
+  padding: 8px 0 8px 24px;
+  margin: 20px 0;
+  color: var(--text-muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14.5px;
+}
+th, td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg-subtle);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+td.right { text-align: right; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 48px 0;
+}
+
+footer {
+  margin-top: 80px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0 24px;
+  padding: 18px 22px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+/* Print styles */
+@media print {
+  aside { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  main { padding: 32px; max-width: none; }
+  body { background: white; }
+  pre { background: #f5f5f5; color: #222; border: 1px solid #ddd; }
+  .kw, .str, .com, .num, .fn { color: inherit; }
+  h1, h2 { page-break-after: avoid; }
+  .task-block { page-break-inside: avoid; }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  aside {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 24px;
+  }
+  main { padding: 32px 24px 64px; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">BAKK<span class="accent">.</span></div>
+  <div class="subbrand">Praktyki · Zadanie SQL</div>
+  <nav>
+    <h3>Sekcje</h3>
+    <ul>
+      <li><a href="#o-zadaniu">O zadaniu</a></li>
+      <li><a href="#co-oddasz">Co masz oddać</a></li>
+      <li><a href="#setup">Setup środowiska</a></li>
+    </ul>
+    <h3>Zadania</h3>
+    <ul>
+      <li><a href="#zad-1">1. Rekonesans</a></li>
+      <li><a href="#zad-2">2. Jakość danych</a></li>
+      <li><a href="#zad-3">3. Raporty operacyjne</a></li>
+      <li><a href="#zad-4">4. Skuteczność w czasie</a></li>
+      <li><a href="#zad-5">5. Window functions</a></li>
+      <li><a href="#zad-6">6. Performance</a></li>
+      <li><a href="#zad-7">7. Modelowanie</a></li>
+      <li><a href="#zad-8">8. Otwarte</a></li>
+    </ul>
+    <h3>Ocena</h3>
+    <ul>
+      <li><a href="#co-oceniamy">Co oceniamy</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+  <div class="eyebrow">Rekrutacja · Praktyki wakacyjne</div>
+  <h1>Zadanie rekrutacyjne <em>SQL</em></h1>
+  <p class="lede">Chcemy zobaczyć, jak myślisz przy bazie danych — niekoniecznie pisząc idealne zapytania, ale podchodząc do problemu z głową.</p>
+
+  <section id="o-zadaniu">
+    <h2>O zadaniu</h2>
+    <p>Cieszymy się, że chcesz dołączyć do nas na praktyki. To zadanie ma nam pomóc ocenić Twoje umiejętności pracy z SQL w warunkach zbliżonych do realnych — nie szukamy idealnych odpowiedzi, ale chcemy zobaczyć, <strong>jak myślisz</strong> i jak podchodzisz do pracy z bazą danych.</p>
+    <p><strong>Czas na realizację:</strong> 5 dni od otrzymania zadania.<br>
+       <strong>Środowisko:</strong> SQL Server (dowolna wersja od 2019). Jeśli nie masz lokalnie — zainstaluj darmowe <strong>SQL Server Express LocalDB</strong> + <strong>SSMS</strong> lub <strong>Azure Data Studio</strong>.</p>
+
+    <div class="legend">
+      <div class="legend-item"><span class="badge base">Podstawa</span> Zakres, którego oczekujemy. Brak rozwiązania = słaby sygnał.</div>
+      <div class="legend-item"><span class="badge ext">Rozszerzenie</span> Chcemy zobaczyć Twoje myślenie. Częściowa odpowiedź też jest cenna.</div>
+      <div class="legend-item"><span class="badge chal">Wyzwanie</span> Opcjonalne — dla tych, którzy chcą się wykazać.</div>
+    </div>
+  </section>
+
+  <section id="co-oddasz">
+    <h2>Co masz oddać</h2>
+    <p>Jeden plik ZIP zawierający:</p>
+    <ol>
+      <li><code>rozwiazania.sql</code> — wszystkie Twoje zapytania, każde poprzedzone komentarzem <code>-- Zadanie N</code>.</li>
+      <li><code>notatki.md</code> (lub <code>.txt</code>, <code>.docx</code>, <code>.pdf</code> — jak Ci wygodnie) z odpowiedziami opisowymi i obserwacjami.</li>
+      <li>Schemat bazy w dowolnej formie (rysunek z kartki, screenshot z narzędzia, plik draw.io — cokolwiek czytelnego).</li>
+    </ol>
+  </section>
+
+  <section id="setup">
+    <h2>Setup środowiska</h2>
+    <ol>
+      <li>Zainstaluj <strong>SQL Server Express LocalDB</strong> + <strong>SSMS</strong> lub <strong>Azure Data Studio</strong> (oba darmowe).</li>
+      <li>Pobierz skrypt setupowy: <a href="https://bakkoffice-my.sharepoint.com/:u:/g/personal/oskar_bialek_bakk_com/IQCCalvEiIoVRIz1dtCUhIvgAXsuBbG0z5Gz9Z8usOZrj2Q" target="_blank" rel="noopener"><code>setup.sql</code></a>. Dostęp chroniony hasłem: <strong>sql2026!</strong></li>
+      <li>Otwórz <code>setup.sql</code> w SSMS / Azure Data Studio i uruchom (F5). Skrypt utworzy bazę <code>BakkRecruitment</code> i wypełni ją danymi.</li>
+      <li>Generowanie tabeli <code>Activities</code> może potrwać ~2-5 minut. To normalne — w tej tabeli będzie około 5 mln wierszy, a baza po setupie waży ~2-3 GB.</li>
+    </ol>
+    <p class="muted">Jeśli setup się nie udaje — daj znać, zanim zaczniesz męczyć się sam.</p>
+  </section>
+
+  <hr>
+
+  <section id="zad-1" class="task-block">
+    <h2><span class="task-num">01</span> Rekonesans schematu <span class="badge base">Podstawa</span></h2>
+    <p>Otrzymałeś bazę bez dokumentacji. Twoim pierwszym zadaniem jest zrozumieć, co w niej jest.</p>
+    <h3>Polecenie</h3>
+    <ol>
+      <li>Wypisz wszystkie tabele i ich kolumny (możesz użyć systemowych widoków, np. <code>INFORMATION_SCHEMA.TABLES</code> / <code>COLUMNS</code>).</li>
+      <li>Narysuj prosty diagram pokazujący, jak tabele się ze sobą łączą (jakie kolumny w jakich tabelach pełnią rolę kluczy obcych).</li>
+      <li>Napisz krótko w <code>notatki.md</code> (5–10 zdań), co Twoim zdaniem ta baza opisuje. Jaka to domena? Co reprezentują poszczególne tabele?</li>
+    </ol>
+    <div class="callout">
+      <span class="label">Wskazówka</span>
+      <p>Niektóre relacje nie są zdefiniowane jawnie jako FK w bazie. Musisz ich się domyślić po nazwach kolumn.</p>
+    </div>
+  </section>
+
+  <section id="zad-2" class="task-block">
+    <h2><span class="task-num">02</span> Jakość danych <span class="badge ext">Rozszerzenie</span></h2>
+    <p>W realnych systemach dane są często niekompletne lub zawierają błędy. Twoim zadaniem jest znaleźć w tej bazie wszystko, co wydaje Ci się <strong>podejrzane lub niespójne</strong>.</p>
+    <h3>Polecenie</h3>
+    <p>Napisz zapytania, które wykrywają problemy w danych. Dla każdego problemu w <code>notatki.md</code>:</p>
+    <ul>
+      <li>opisz krótko, na czym polega,</li>
+      <li>podaj zapytanie, które go wykrywa,</li>
+      <li>podaj liczbę rekordów dotkniętych problemem,</li>
+      <li>zaproponuj, co byś z tym zrobił (naprawił? odrzucił? zostawił z flagą?).</li>
+    </ul>
+    <p>Szukaj samodzielnie — nie podaję, co konkretnie ma być nie tak. Postaraj się znaleźć przynajmniej <strong>3 różne rodzaje</strong> problemów.</p>
+  </section>
+
+  <section id="zad-3" class="task-block">
+    <h2><span class="task-num">03</span> Raporty operacyjne <span class="badge base">Podstawa</span></h2>
+    <p>Napisz zapytania zwracające:</p>
+    <h3>3a — Sprawy per windykator</h3>
+    <p>Liczbę spraw przypisanych do każdego windykatora, posortowaną malejąco. Sprawy bez przypisanego windykatora pokaż w osobnym wierszu (np. z opisem „(brak przypisania)").</p>
+    <h3>3b — TOP 10 klientów</h3>
+    <p>Top 10 klientów z największym łącznym saldem zadłużenia (suma <code>CurrentBalance</code> ich wszystkich spraw). Zwróć imię, nazwisko, PESEL i sumę.</p>
+    <h3>3c — Statystyki per status</h3>
+    <p>Dla każdego statusu sprawy pokaż: liczbę spraw, średnią wartość początkową, średni czas trwania w dniach (dla spraw zamkniętych — różnica między <code>ClosedDate</code> a <code>OpenedDate</code>, dla otwartych — różnica między dziś a <code>OpenedDate</code>).</p>
+  </section>
+
+  <section id="zad-4" class="task-block">
+    <h2><span class="task-num">04</span> Skuteczność windykatorów w czasie <span class="badge ext">Rozszerzenie</span></h2>
+    <h3>Polecenie</h3>
+    <p>Napisz zapytanie zwracające dla każdego windykatora i każdego miesiąca 2025 roku:</p>
+    <ul>
+      <li>liczbę wykonanych aktywności typu <code>PHONE_OUT</code>,</li>
+      <li>liczbę aktywności z rezultatem <code>PROMISE</code>,</li>
+      <li>sumę wpłat (<code>Payments.Amount</code>) zaksięgowanych w tym miesiącu na sprawach, do których ten windykator jest przypisany.</li>
+    </ul>
+    <p>Wynik posortuj po windykatorze i miesiącu rosnąco. Uwzględnij tylko windykatorów, którzy w danym miesiącu byli zatrudnieni (<code>HireDate</code> przed końcem miesiąca, <code>TerminationDate</code> po początku miesiąca lub NULL).</p>
+    <p>W <code>notatki.md</code> napisz: który windykator w 2025 miał najlepszy stosunek „obietnic do telefonów wychodzących"? Załóż, że to jakaś miara skuteczności rozmów.</p>
+  </section>
+
+  <section id="zad-5" class="task-block">
+    <h2><span class="task-num">05</span> Window functions <span class="badge ext">Rozszerzenie</span></h2>
+    <h3>Polecenie</h3>
+    <p>Dla każdej sprawy (<code>Cases</code>), która ma co najmniej 3 wpłaty, zwróć:</p>
+    <ul>
+      <li><code>CaseID</code>,</li>
+      <li>datę 1., 2. i 3. wpłaty,</li>
+      <li>liczbę dni między 1. a 2. wpłatą,</li>
+      <li>liczbę dni między 2. a 3. wpłatą.</li>
+    </ul>
+    <p>Następnie: wskaż sprawy, w których odstęp między 2. a 3. wpłatą jest <strong>co najmniej dwukrotnie większy</strong> od odstępu między 1. a 2. wpłatą. Tę listę zapisz osobno.</p>
+    <p>W <code>notatki.md</code> napisz krótko (2–3 zdania): jakie biznesowe znaczenie może mieć taki wzorzec? Co mówi nam o kliencie?</p>
+  </section>
+
+  <section id="zad-6" class="task-block">
+    <h2><span class="task-num">06</span> Performance i indeksowanie <span class="badge ext">Rozszerzenie</span></h2>
+    <div class="callout">
+      <span class="label">Cel</span>
+      <p>To zadanie sprawdza, czy potrafisz zdiagnozować i rozwiązać problem z wydajnością.</p>
+    </div>
+    <h3>Polecenie</h3>
+    <p>Napisz zapytanie zwracające liczbę aktywności typu <code>PHONE_OUT</code>, wykonanych przez windykatora o <code>CollectorID = 5</code> w okresie od <code>2025-01-01</code> do <code>2025-06-30</code>. Jedno zapytanie, jedna liczba w wyniku.</p>
+    <h3>Wymagania</h3>
+    <ol>
+      <li>Uruchom zapytanie z włączonym <code>SET STATISTICS TIME ON</code> i zapisz w <code>notatki.md</code> czas wykonania <strong>przed</strong> zmianami w bazie.</li>
+      <li>Wklej do <code>notatki.md</code> plan wykonania zapytania (możesz zrzucić tekstowo używając <code>SET SHOWPLAN_TEXT ON</code> lub zrobić screenshot z SSMS — opcja „Display Estimated Execution Plan").</li>
+      <li>Doprowadź do sytuacji, w której to samo zapytanie wykonuje się w czasie <strong>poniżej 100 ms</strong> (sto milisekund). Możesz modyfikować bazę — dodawać indeksy, zmieniać strukturę. <strong>Nie wolno usuwać ani modyfikować danych.</strong></li>
+      <li>Zapisz w <code>notatki.md</code> co zrobiłeś, jaki jest nowy czas wykonania i jaki jest plan wykonania po zmianie.</li>
+      <li>Napisz krótko (3–5 zdań): dlaczego ta zmiana zadziałała? Co dokładnie zmieniło się w planie wykonania?</li>
+    </ol>
+    <div class="callout">
+      <span class="label">Uwaga praktyczna</span>
+      <p>SQL Server cache'uje strony — uruchom zapytanie 2–3 razy i mierz drugi/trzeci pomiar (pierwszy zwykle jest wolniejszy z powodu cold cache).</p>
+    </div>
+  </section>
+
+  <section id="zad-7" class="task-block">
+    <h2><span class="task-num">07</span> Modelowanie <span class="badge ext">Rozszerzenie</span></h2>
+    <p>Biznes zgłasza nowe wymaganie:</p>
+    <blockquote>Chcemy do każdej sprawy móc przypisać dowolną liczbę osób współodpowiedzialnych za dług (współdłużnicy). Każda taka osoba jest klientem (czyli już istnieje w <code>Customers</code> albo trzeba ją dodać). Każdy współdłużnik ma określoną rolę: <code>MAIN</code> (główny dłużnik), <code>CO_DEBTOR</code> (współdłużnik), <code>GUARANTOR</code> (poręczyciel). Każda sprawa MUSI mieć dokładnie jednego MAIN i może mieć dowolnie wielu CO_DEBTOR / GUARANTOR.</blockquote>
+    <h3>Polecenie</h3>
+    <ol>
+      <li>Zaproponuj zmianę w schemacie bazy. Napisz skrypt SQL (<code>CREATE TABLE</code> / <code>ALTER TABLE</code>).</li>
+      <li>Napisz skrypt migracyjny, który przeniesie obecne dane (każda sprawa ma teraz jednego klienta poprzez <code>Cases.CustomerID</code>) do nowej struktury bez utraty informacji.</li>
+      <li>W <code>notatki.md</code> opisz krótko (5–10 zdań): jakie założenia przyjąłeś? Czy zostawiasz starą kolumnę <code>Cases.CustomerID</code>, czy ją usuwasz? Dlaczego? Jak baza ma egzekwować zasadę „dokładnie jeden MAIN na sprawę"?</li>
+    </ol>
+  </section>
+
+  <section id="zad-8" class="task-block">
+    <h2><span class="task-num">08</span> Otwarte <span class="badge chal">Wyzwanie</span></h2>
+    <p>Patrząc na dane w tej bazie:</p>
+    <ol>
+      <li>Zadaj sobie <strong>dowolne pytanie biznesowe</strong>, które uznałbyś za sensowne dla osoby pracującej w firmie windykacyjnej. Coś, czego nie ma w poprzednich zadaniach.</li>
+      <li>Napisz zapytanie, które na nie odpowiada.</li>
+      <li>W <code>notatki.md</code> uzasadnij: dlaczego to pytanie jest sensowne? Co biznes mógłby z tej odpowiedzi zrobić?</li>
+    </ol>
+    <p class="muted">Nie ma tu złych odpowiedzi — chcemy zobaczyć, jak myślisz o danych w kontekście biznesowym.</p>
+  </section>
+
+  <hr>
+
+  <section id="co-oceniamy">
+    <h2>Co oceniamy</h2>
+    <ul>
+      <li>Czy zapytania w ogóle działają i zwracają poprawne wyniki.</li>
+      <li>Czy potrafisz czytać dane krytycznie (zadanie 2, 5, 8).</li>
+      <li>Jak piszesz SQL: czytelność, formatowanie, sensowny dobór JOIN-ów.</li>
+      <li>Czy nazwy aliasów i sposób formatowania są spójne i zrozumiałe.</li>
+      <li>Czy potrafisz uzasadnić swoje decyzje (komentarze, notatki).</li>
+      <li>Czy w zadaniu performance pokazałeś realny pomiar i zrozumienie planu wykonania.</li>
+    </ul>
+    <div class="callout">
+      <span class="label">Powodzenia</span>
+      <p>Jeśli masz pytanie do zadania — śmiało pisz na maila. Lepiej dopytać niż się domyślać.</p>
+    </div>
+  </section>
+
+  <footer>
+    BAKK Sp. z o.o. · Praktyki wakacyjne · Zadanie rekrutacyjne SQL
+  </footer>
+</main>
+</div>
+
+<script>
+// Scroll-spy dla nawigacji
+const sections = document.querySelectorAll('main section[id]');
+const navLinks = document.querySelectorAll('aside nav a');
+
+function updateActive() {
+  let current = '';
+  const scrollPos = window.scrollY + 100;
+  sections.forEach(sec => {
+    if (sec.offsetTop <= scrollPos) current = sec.id;
+  });
+  // Fallback: jeśli jesteśmy blisko końca strony, wymuś ostatnią sekcję
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+    current = sections[sections.length - 1].id;
+  }
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+}
+window.addEventListener('scroll', updateActive);
+updateActive();
+</script>
+</body>
+</html>
