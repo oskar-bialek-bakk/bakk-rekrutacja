@@ -1,0 +1,5 @@
+# Materiały poufne — klucz odpowiedzi, skrypt setupowy
+confidential/
+
+# Lokalny skrypt re-szyfrujący eval.html (zawiera hasło w plaintext)
+re-encrypt.ps1

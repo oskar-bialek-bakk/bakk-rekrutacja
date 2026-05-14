@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Zadanie rekrutacyjne SQL dla kandydatów na praktyki w BAKK.">
-<meta property="og:title" content="Zadanie rekrutacyjne SQL — Praktyki BAKK">
-<meta property="og:description" content="Zadanie SQL dla kandydatów na praktyki. Czas: 5 dni.">
+<meta name="description" content="Zadanie rekrutacyjne SQL dla kandydatów do pracy w BAKK.">
+<meta property="og:title" content="Zadanie rekrutacyjne SQL — BAKK">
+<meta property="og:description" content="Zadanie SQL dla kandydatów do pracy w BAKK. Czas: 5 dni.">
 <meta property="og:type" content="article">
-<title>Zadanie rekrutacyjne SQL — Praktyki BAKK</title>
+<title>Zadanie rekrutacyjne SQL — BAKK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -358,6 +358,14 @@ footer {
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
 }
+footer a {
+  color: var(--text-subtle);
+  border-bottom-color: transparent;
+}
+footer a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent-soft);
+}
 
 .legend {
   display: flex;
@@ -409,7 +417,7 @@ footer {
 <div class="layout">
 <aside>
   <div class="brand">BAKK<span class="accent">.</span></div>
-  <div class="subbrand">Praktyki · Zadanie SQL</div>
+  <div class="subbrand">Rekrutacja · Zadanie SQL</div>
   <nav>
     <h3>Sekcje</h3>
     <ul>
@@ -436,13 +444,13 @@ footer {
 </aside>
 
 <main>
-  <div class="eyebrow">Rekrutacja · Praktyki wakacyjne</div>
+  <div class="eyebrow">Rekrutacja · Zadanie domowe</div>
   <h1>Zadanie rekrutacyjne <em>SQL</em></h1>
   <p class="lede">Chcemy zobaczyć, jak myślisz przy bazie danych — niekoniecznie pisząc idealne zapytania, ale podchodząc do problemu z głową.</p>
 
   <section id="o-zadaniu">
     <h2>O zadaniu</h2>
-    <p>Cieszymy się, że chcesz dołączyć do nas na praktyki. To zadanie ma nam pomóc ocenić Twoje umiejętności pracy z SQL w warunkach zbliżonych do realnych — nie szukamy idealnych odpowiedzi, ale chcemy zobaczyć, <strong>jak myślisz</strong> i jak podchodzisz do pracy z bazą danych.</p>
+    <p>Cieszymy się, że chcesz z nami pracować. To zadanie ma nam pomóc ocenić Twoje umiejętności pracy z SQL w warunkach zbliżonych do realnych — nie szukamy idealnych odpowiedzi, ale chcemy zobaczyć, <strong>jak myślisz</strong> i jak podchodzisz do pracy z bazą danych.</p>
     <p><strong>Czas na realizację:</strong> 5 dni od otrzymania zadania.<br>
        <strong>Środowisko:</strong> SQL Server (dowolna wersja od 2019). Jeśli nie masz lokalnie — zainstaluj darmowe <strong>SQL Server Express LocalDB</strong> + <strong>SSMS</strong> lub <strong>Azure Data Studio</strong>.</p>
 
@@ -467,7 +475,7 @@ footer {
     <h2>Setup środowiska</h2>
     <ol>
       <li>Zainstaluj <strong>SQL Server Express LocalDB</strong> + <strong>SSMS</strong> lub <strong>Azure Data Studio</strong> (oba darmowe).</li>
-      <li>Pobierz skrypt setupowy: <a href="https://bakkoffice-my.sharepoint.com/:u:/g/personal/oskar_bialek_bakk_com/IQCCalvEiIoVRIz1dtCUhIvgAXsuBbG0z5Gz9Z8usOZrj2Q" target="_blank" rel="noopener"><code>setup.sql</code></a>. Dostęp chroniony hasłem: <strong>sql2026!</strong></li>
+      <li>Pobierz skrypt setupowy: <a href="https://gist.githubusercontent.com/oskar-bialek-bakk/773916273d78f63742ebf45073dbdd62/raw/setup.sql" download="setup.sql" target="_blank" rel="noopener"><code>setup.sql</code></a>. Jeśli plik otworzy się w przeglądarce jako tekst — zapisz przez <code>Ctrl+S</code> albo kliknij link prawym i wybierz „Zapisz link jako…".</li>
       <li>Otwórz <code>setup.sql</code> w SSMS / Azure Data Studio i uruchom (F5). Skrypt utworzy bazę <code>BakkRecruitment</code> i wypełni ją danymi.</li>
       <li>Generowanie tabeli <code>Activities</code> może potrwać ~2-5 minut. To normalne — w tej tabeli będzie około 5 mln wierszy, a baza po setupie waży ~2-3 GB.</li>
     </ol>
@@ -554,8 +562,8 @@ footer {
     <h3>Wymagania</h3>
     <ol>
       <li>Uruchom zapytanie z włączonym <code>SET STATISTICS TIME ON</code> i zapisz w <code>notatki.md</code> czas wykonania <strong>przed</strong> zmianami w bazie.</li>
-      <li>Wklej do <code>notatki.md</code> plan wykonania zapytania (możesz zrzucić tekstowo używając <code>SET SHOWPLAN_TEXT ON</code> lub zrobić screenshot z SSMS — opcja „Display Estimated Execution Plan").</li>
-      <li>Doprowadź do sytuacji, w której to samo zapytanie wykonuje się w czasie <strong>poniżej 100 ms</strong> (sto milisekund). Możesz modyfikować bazę — dodawać indeksy, zmieniać strukturę. <strong>Nie wolno usuwać ani modyfikować danych.</strong></li>
+      <li>Wklej do <code>notatki.md</code> rzeczywisty plan wykonania zapytania — w SSMS włącz <strong>„Include Actual Execution Plan"</strong> (Ctrl+M lub przycisk na pasku narzędzi) i zrób screenshot, albo zrzuć go tekstowo przez <code>SET STATISTICS PROFILE ON</code> przed zapytaniem.</li>
+      <li>Doprowadź do sytuacji, w której to samo zapytanie wykonuje się <strong>co najmniej 10× szybciej</strong> niż w pomiarze wyjściowym. Na typowej maszynie deweloperskiej powinno to oznaczać czas poniżej 100 ms — na słabszym sprzęcie liczy się przede wszystkim proporcja, nie konkretna wartość. Możesz modyfikować bazę — dodawać indeksy, zmieniać strukturę. <strong>Nie wolno usuwać ani modyfikować danych.</strong></li>
       <li>Zapisz w <code>notatki.md</code> co zrobiłeś, jaki jest nowy czas wykonania i jaki jest plan wykonania po zmianie.</li>
       <li>Napisz krótko (3–5 zdań): dlaczego ta zmiana zadziałała? Co dokładnie zmieniło się w planie wykonania?</li>
     </ol>
@@ -607,7 +615,7 @@ footer {
   </section>
 
   <footer>
-    BAKK Sp. z o.o. · Praktyki wakacyjne · Zadanie rekrutacyjne SQL
+    BAKK Sp. z o.o. · Rekrutacja · Zadanie SQL · <a href="eval.html">Klucz oceniający</a>
   </footer>
 </main>
 </div>
