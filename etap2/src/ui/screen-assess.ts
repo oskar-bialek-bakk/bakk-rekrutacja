@@ -19,6 +19,12 @@ const STATE_CLASS: Record<ReturnType<typeof blockState>, 'done' | 'in-progress' 
   todo: 'todo',
 };
 
+const STATE_LABEL: Record<'done' | 'in-progress' | 'todo', string> = {
+  done: 'oceniony',
+  'in-progress': 'w trakcie',
+  todo: 'do zrobienia',
+};
+
 export function renderAssess(host: HTMLElement): void {
   const a = session.current!;
   const blocks = activeBlocks();
@@ -49,13 +55,19 @@ export function renderAssess(host: HTMLElement): void {
        <div class="readbox">${b.variants[vIdx].read}</div>`;
 
   host.innerHTML = `
+    <div class="stepper-legend">
+      <span class="legend-item"><span class="legend-swatch todo"></span>do zrobienia</span>
+      <span class="legend-item"><span class="legend-swatch in-progress"></span>w trakcie</span>
+      <span class="legend-item"><span class="legend-swatch done"></span>oceniony</span>
+      <span class="legend-item"><span class="legend-flag">✎</span>brak notatki</span>
+    </div>
     <div class="stepper">${(() => {
       const missingNow = new Set(blocksMissingNotes(a.notes, blockIds));
       return blocks.map((x, i) => {
         const state = STATE_CLASS[blockState(a, x.id, session.visited)];
         const current = i === session.cur ? ' current' : '';
         const noNote = missingNow.has(x.id) ? ' no-note' : '';
-        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
     <div class="card"><div class="card-body">
@@ -107,6 +119,11 @@ export function renderAssess(host: HTMLElement): void {
       el.classList.remove('done', 'in-progress', 'todo', 'current');
       el.classList.add(state);
       el.classList.toggle('current', i === session.cur);
+      const stateEl = el.querySelector<HTMLElement>('.step-state');
+      if (stateEl) {
+        stateEl.textContent = STATE_LABEL[state];
+        stateEl.dataset.state = state;
+      }
     });
   };
 
@@ -157,6 +174,7 @@ export function renderAssess(host: HTMLElement): void {
     a.notes[b.id] = (e.target as HTMLTextAreaElement).value;
     const stepEl = stepEls[session.cur];
     if (stepEl) stepEl.classList.toggle('no-note', (a.notes[b.id] ?? '').trim() === '');
+    refreshStepper();
   };
 
   const copyBtn = host.querySelector('#copy-content') as HTMLButtonElement | null;
