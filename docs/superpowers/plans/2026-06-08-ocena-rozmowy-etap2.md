@@ -1356,7 +1356,25 @@ Zrealizowane pozycje (każda osobny feature branch, merge --no-ff):
 - **Dostępność klawiaturowa + aria-live:** cyfry 1-5 = poziom aktywnego bloku (ignoruje gdy focus na input/textarea), strzałki ←/→ = nawigacja bloków, Alt+P = pauza; visually-hidden `#timer-announcement` z aria-live polite, komunikaty tylko przy zmianie poziomu (ok→warn→over), pauza/wznowienie; dyskretna legenda klawiszy pod stepperem. Files: `screen-assess.ts`, `timer-ui.ts`, `index.html`, `theme.css`.
 - **Wariant A-alt (wykresowy):** pole `Assessment.useAChart`; toggle „Tryb A: wykres" na ekranie startowym (chipy A-1/2/3 disabled gdy on); `BLOCK_A_CHART` z inline SVG (7 słupków) i 3-stopniową skalą mapowaną na poziomy 1/3/5 (dziedziczy wagę 15%); handler klawiszy filtruje 2/4 dla A-alt. Files: `content/blocks.ts`, `model.ts`, `migrations.ts`, `screen-start.ts`, `screen-assess.ts`, `theme.css`.
 - **Podsumowanie dla rekrutera (front, bez Traffit-push):** czysta funkcja `buildRecruiterSummary(a, settings) → { text, html }` w `src/domain/recruiter-summary.ts` (sekcje: nagłówek + czas, werdykt, profil per blok z A-alt jako „Blok A (wykres)", flagi, notatki z truncacją 240, decyzja, negocjacje, etap I; marker idempotencji Traffit `<!-- bakk-etap2:${id} -->` na końcu HTML; XSS-safe przez `escapeHtml` przeniesione do `src/domain/escape.ts`); modal podglądu `recruiter-preview-dialog.ts` z `role=dialog aria-modal=true`, focus management, Escape, klik tła; przyciski „Kopiuj jako tekst" (writeText), „Kopiuj jako HTML" (`ClipboardItem` z fallbackiem na writeText(html)), „Zamknij". Przycisk „Podsumowanie dla rekrutera" w `screen-detail` i `screen-summary`. Automatyczny push do Traffit świadomie odłożony — wymaga proxy/Functions z Fazy 4.
-# FAZA 4 — Online: hosting na Azure App Service (wzorzec Intrum docs) (backlog)
+# FAZA 4 — Online: hosting na Azure App Service (wzorzec Intrum docs) (workflows + CI zaimplementowane 2026-06-08, deploy wymaga setupu w Azure portal)
+
+**Stan:** workflows GitHub Actions i guard PR gotowe na `feature/etap2-faza4`. Wariant **B**: dedykowany App Service `bakk-rekrutacja` w RG `rg-bakk-docs`, subpath = root (`https://bakk-rekrutacja.azurewebsites.net/`). Easy Auth/Entra włączany ręcznie w portalu, lustrzanie do `intrum-documentation` (procedura w `etap2/README-deploy.md`). Pierwszy deploy ruszy po wpięciu secretu `AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA`.
+
+Zrealizowane:
+- `.github/workflows/deploy-vite-to-azure.yml` — reużywalny workflow (inputy `app-name`/`resource-group`/`subscription-id`/`app-dir`/`subpath`/`site-base`, secret `azure-publish-profile`), staging do `__artifact/${subpath}/`, `azure/webapps-deploy@v3` z `clean: false`.
+- `.github/workflows/deploy-bakk-rekrutacja-etap2.yml` — caller na push main z paths `etap2/**` + `workflow_dispatch`.
+- `.github/workflows/etap2-ci.yml` — PR guard: `npm ci && npm test && npm run build` na PR z paths `etap2/**`.
+- `etap2/README-deploy.md` — procedura Azure portal (App Service, publish profile, Easy Auth/Entra, smoke test, rollback).
+
+Do zrobienia user-side (poza repo):
+- Utworzenie App Service `bakk-rekrutacja` w Azure portal (wg README-deploy.md).
+- Dodanie GitHub secret `AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA`.
+- Włączenie Easy Auth/Entra mirror `intrum-documentation`.
+- Smoke test URL po pierwszym pushu na main.
+
+---
+
+## Opis fazy (oryginalny)
 
 Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migration/` (MkDocs Material) na **jeden App Service** `intrum-documentation` (RG `rg-bakk-docs`, subscription `28b7c9a4-317a-495c-99ed-6a6cec116a44`) pod **subpathami** `/integration-api` i `/migration`, używając:
 - reużywalnego workflow `.github/workflows/deploy-mkdocs-to-azure.yml` z inputami `app-name`/`resource-group`/`subscription-id`/`mkdocs-dir`/`subpath`/`site-url` i secretem `azure-publish-profile`;
