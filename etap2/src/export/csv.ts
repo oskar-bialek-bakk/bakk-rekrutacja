@@ -1,3 +1,5 @@
+import type { Decision } from '../domain/model';
+
 export interface RosterRow {
   nameOrId: string;
   date: string;
@@ -5,14 +7,23 @@ export interface RosterRow {
   score: number;
   red: number;
   green: number;
-  decision: string;
+  decision: Decision | '';
 }
 
 const BOM = '﻿';
 const CRLF = '\r\n';
-const HEADER = 'Kandydat,Data,Etap I,Wynik II,Flagi czerwone,Flagi zielone,Decyzja';
+const COLUMNS = [
+  'Kandydat',
+  'Data',
+  'Etap I',
+  'Wynik II',
+  'Flagi czerwone',
+  'Flagi zielone',
+  'Decyzja',
+] as const;
+const HEADER = COLUMNS.join(',');
 
-const DECISION_LABELS: Readonly<Record<string, string>> = {
+const DECISION_LABELS: Record<Decision, string> = {
   yes: 'Tak',
   no: 'Nie',
   wait: 'Czekamy',
@@ -30,8 +41,8 @@ function escapeField(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
 }
 
-function mapDecision(decision: string): string {
-  return DECISION_LABELS[decision] ?? '';
+function mapDecision(decision: Decision | ''): string {
+  return DECISION_LABELS[decision as Decision] ?? '';
 }
 
 function rowToLine(row: RosterRow): string {

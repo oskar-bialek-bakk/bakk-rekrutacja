@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { rosterToCsv } from '../src/export/csv';
 import type { RosterRow } from '../src/export/csv';
+import type { Decision } from '../src/domain/model';
 
 const BOM = '﻿';
 const HEADER = 'Kandydat,Data,Etap I,Wynik II,Flagi czerwone,Flagi zielone,Decyzja';
@@ -75,7 +76,8 @@ describe('rosterToCsv row rendering', () => {
   });
 
   it('maps unknown decision to an empty field', () => {
-    const dataLine = lines(rosterToCsv([row({ decision: 'unknown' })]))[1];
+    // Cast an invalid value to prove the runtime fallback handles unexpected input.
+    const dataLine = lines(rosterToCsv([row({ decision: 'unknown' as unknown as Decision })]))[1];
     expect(dataLine.endsWith(',')).toBe(true);
   });
 
