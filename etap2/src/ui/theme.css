@@ -650,3 +650,11 @@
   .chart-svg .chart-day{font-size:12px;fill:var(--muted);text-anchor:middle}
   .vchips.disabled{opacity:.5}
   .vchips.disabled .vchip{cursor:not-allowed}
+  .migration-banner{
+    margin:12px 0 16px;padding:12px 16px;border-radius:8px;
+    background:rgba(127,174,110,.08);border:1px solid rgba(127,174,110,.35);
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  }
+  .migration-banner__text{flex:1 1 280px;display:flex;flex-direction:column;gap:2px;font-size:14px;color:var(--ink)}
+  .migration-banner__text span{color:var(--muted);font-size:13px}
+  .migration-banner__status{flex-basis:100%;font-size:13px;color:var(--muted)}
