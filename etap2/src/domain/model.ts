@@ -19,7 +19,7 @@ export interface Negotiation {
   uwagi: string;
 }
 
-export interface TimerState { elapsedSec: number; paused: boolean; offsetSec: number; }
+export interface TimerState { elapsedSec: number; paused: boolean; offsetSec: number; phase45Notified?: boolean; }
 export interface Flags { red: boolean; green: boolean; }
 
 export interface Assessment {
@@ -58,7 +58,7 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
     id, schemaVersion: SCHEMA_VERSION, candidate,
     selectedVariants: {}, deepenAsked: {}, marks: {}, flags: {}, notes: {},
     decision: null, decisionNote: '', askedQuestions: {}, negotiation: emptyNegotiation(),
-    timer: { elapsedSec: 0, paused: false, offsetSec: 0 },
+    timer: { elapsedSec: 0, paused: false, offsetSec: 0, phase45Notified: false },
     blockTimes: {},
     useE: false, createdAt: now, updatedAt: now,
   };

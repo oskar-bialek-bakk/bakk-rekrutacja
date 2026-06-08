@@ -14,6 +14,7 @@ export function startTimer(): void {
   intervalId = window.setInterval(tick, 1000);
   bindTimerControls();
   syncPauseDom();
+  syncPhaseBannerDom();
   tick();
 }
 
@@ -24,6 +25,35 @@ export function stopTimer(): void {
   }
   const clock = document.getElementById('clock');
   if (clock) clock.style.visibility = 'hidden';
+  const banner = document.getElementById('phase-banner');
+  if (banner) { banner.hidden = true; banner.textContent = ''; }
+}
+
+const PHASE_BANNER_TEXT = '⏱ Czas przejść do pytań kandydata i negocjacji.';
+
+export function maybePhaseBanner(): void {
+  const a = session.current;
+  if (!a) return;
+  if (a.timer.elapsedSec < 45 * 60) return;
+  if (!a.timer.phase45Notified) {
+    a.timer = { ...a.timer, phase45Notified: true };
+  }
+  showPhaseBannerDom();
+}
+
+function showPhaseBannerDom(): void {
+  const el = document.getElementById('phase-banner');
+  if (!el) return;
+  el.textContent = PHASE_BANNER_TEXT;
+  el.hidden = false;
+}
+
+function syncPhaseBannerDom(): void {
+  const a = session.current;
+  if (!a) return;
+  if (a.timer.phase45Notified === true && a.timer.elapsedSec >= 45 * 60) {
+    showPhaseBannerDom();
+  }
 }
 
 /**
@@ -88,6 +118,7 @@ function tick(): void {
     }
   }
   renderClock(session.current.timer.elapsedSec);
+  maybePhaseBanner();
 }
 
 /**

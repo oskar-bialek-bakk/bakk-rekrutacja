@@ -41,6 +41,7 @@ function ensureTimer(t: unknown): TimerState {
     elapsedSec: typeof obj.elapsedSec === 'number' ? obj.elapsedSec : 0,
     paused: typeof obj.paused === 'boolean' ? obj.paused : false,
     offsetSec: typeof obj.offsetSec === 'number' ? obj.offsetSec : 0,
+    phase45Notified: typeof obj.phase45Notified === 'boolean' ? obj.phase45Notified : false,
   };
 }
 
