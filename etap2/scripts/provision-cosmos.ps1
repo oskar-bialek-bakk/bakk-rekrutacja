@@ -22,7 +22,7 @@ $tempDir = [System.IO.Path]::GetTempPath()
 
 $rg   = 'rg-bakk-docs'
 $sub  = '28b7c9a4-317a-495c-99ed-6a6cec116a44'
-$loc  = 'westeurope'
+$loc  = 'polandcentral'  # westeurope notorycznie odrzuca jako "high demand", polandcentral + RODO data residency PL
 $acct = 'bakk-rekrutacja-db'
 $db   = 'etap2'
 
@@ -32,32 +32,48 @@ New-Item -ItemType Directory -Force -Path $env:AZURE_EXTENSION_DIR | Out-Null
 
 az account set --subscription $sub | Out-Null
 
-Write-Host "1/6 Sprawdzam czy konto Cosmos $acct juz istnieje..."
-$existsAcct = az cosmosdb check-name-exists --name $acct -o tsv
-if ($existsAcct -eq 'true') {
-    # check-name-exists zwraca true zarowno jak konto jest moje, jak i zajete przez innych.
-    # Sprawdzam czy istnieje w mojej grupie zasobow.
-    $myAcct = az cosmosdb show -g $rg -n $acct --query name -o tsv 2>$null
-    if ($myAcct -eq $acct) {
-        Write-Host "    Konto istnieje w $rg - pomijam tworzenie."
-    } else {
+Write-Host "0/6 Sprawdzam rejestracje resource provider Microsoft.DocumentDB..."
+$provState = az provider show -n Microsoft.DocumentDB --query registrationState -o tsv
+if ($provState -ne 'Registered') {
+    Write-Host "    Stan: $provState - rejestruje (moze trwac do 2 min)..."
+    az provider register --namespace Microsoft.DocumentDB | Out-Null
+    $tries = 0
+    while ($provState -ne 'Registered' -and $tries -lt 60) {
+        Start-Sleep -Seconds 5
+        $provState = az provider show -n Microsoft.DocumentDB --query registrationState -o tsv
+        $tries++
+    }
+    if ($provState -ne 'Registered') { throw "Provider Microsoft.DocumentDB nie zarejestrowal sie w 5 min. Stan: $provState" }
+    Write-Host "    Zarejestrowany."
+} else {
+    Write-Host "    Juz Registered."
+}
+
+Write-Host "1/6 Sprawdzam czy konto Cosmos $acct juz istnieje w $rg..."
+$accts = @(az cosmosdb list -g $rg --query "[].name" -o tsv)
+if ($accts -contains $acct) {
+    Write-Host "    Konto istnieje w $rg - pomijam tworzenie."
+} else {
+    $existsAcct = az cosmosdb check-name-exists --name $acct -o tsv
+    if ($existsAcct -eq 'true') {
         throw "Nazwa $acct zajeta przez inne konto Cosmos poza $rg. Wybierz inna nazwe i zmien w skrypcie."
     }
-} else {
     Write-Host "    Tworze konto Cosmos $acct (serverless, Session, $loc)..."
+    # isZoneRedundant=False - westeurope ma czesto braki na zone-redundant,
+    # rekrutacja nie potrzebuje multi-AZ.
     az cosmosdb create `
         -g $rg -n $acct `
         --capabilities EnableServerless `
         --default-consistency-level Session `
-        --locations regionName=$loc `
+        --locations regionName=$loc failoverPriority=0 isZoneRedundant=False `
         --only-show-errors | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "az cosmosdb create sie nie powiodlo." }
     Write-Host "    Utworzone."
 }
 
 Write-Host "2/6 Tworze baze SQL $db (jesli nie ma)..."
-$dbExists = az cosmosdb sql database show -g $rg -a $acct -n $db --query name -o tsv 2>$null
-if ($dbExists -eq $db) {
+$dbs = @(az cosmosdb sql database list -g $rg -a $acct --query "[].name" -o tsv)
+if ($dbs -contains $db) {
     Write-Host "    Baza $db istnieje - pomijam."
 } else {
     az cosmosdb sql database create -g $rg -a $acct -n $db --only-show-errors | Out-Null
@@ -74,8 +90,8 @@ $containers = @(
 $stepIdx = 3
 foreach ($c in $containers) {
     Write-Host "$stepIdx/6 Tworze kontener $($c.name) (partition $($c.pk)) jesli nie ma..."
-    $contExists = az cosmosdb sql container show -g $rg -a $acct -d $db -n $c.name --query name -o tsv 2>$null
-    if ($contExists -eq $c.name) {
+    $conts = @(az cosmosdb sql container list -g $rg -a $acct -d $db --query "[].name" -o tsv)
+    if ($conts -contains $c.name) {
         Write-Host "    Istnieje - pomijam."
     } else {
         az cosmosdb sql container create `
