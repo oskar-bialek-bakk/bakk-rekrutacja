@@ -19,6 +19,42 @@ Workflow:
 Persystencja zostaje w `localStorage` przeglądarki (Faza 4). Multi-user,
 Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
+## Faza 5 — backend (in progress)
+
+Backend API w osobnym **Function App `bakk-rekrutacja-api`** (Linux,
+Consumption plan, Node 24, Functions v4), region **germanywestcentral**
+(Linux Consumption nie wspierany w `polandcentral` gdzie jest Cosmos).
+Cosmos DB serverless `bakk-rekrutacja-db` w `polandcentral` (PL data
+residency), kontenery `assessments` / `variantUsage` / `settings`.
+
+Easy Auth (Microsoft Entra) z tym samym app reg co App Service — **BAKK
+Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`), dedykowany secret per
+zasób (per standard Confluence pageId=159417649). `unauthenticatedAction =
+Return401` (API, nie redirect na login). CORS dopuszcza tylko
+`https://bakk-rekrutacja.azurewebsites.net`, `supportCredentials=false`
+(Bearer token, nie cookie).
+
+Frontend (App Service) pobiera access token z `/.auth/me` (audience =
+BAKK Int Apps clientId) i wysyła do Function App jako `Authorization:
+Bearer <token>`. Function App z Easy Auth na tym samym clientId
+akceptuje token i wstawia `X-MS-CLIENT-PRINCIPAL-*` po walidacji.
+
+Sekrety Cosmos i Traffit w app settings Function App (NIE App Service).
+URL: `https://bakk-rekrutacja-api.azurewebsites.net/api/v1/*`.
+
+Koszt szacunkowy Fazy 5:
+- Cosmos serverless: pay-per-RU, < 10 PLN/mc dla typowego ruchu rekrutacji
+- Function App Consumption: ~5-15 PLN/mc
+- Storage account dla Function App: ~1-2 PLN/mc
+- App Service plan `asp-bakk-docs` **zostaje F1 Free** (bez upgrade'u)
+
+Skrypty provisioningowe:
+- `etap2/scripts/provision-cosmos.ps1` — Cosmos DB + 3 kontenery
+- `etap2/scripts/provision-function-app.ps1` — storage + Function App +
+  wpięcie app settings Cosmos (z `%TEMP%/bakk-cosmos-secrets.txt`)
+- `etap2/scripts/configure-function-app-auth.ps1` — redirect URI w BAKK
+  Int Apps, dedykowany secret, `authsettingsV2`, CORS
+
 ## Stan setupu (2026-06-08)
 
 **Zrobione przez Claude:**
