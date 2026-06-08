@@ -35,92 +35,58 @@ Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
 **Do zrobienia po Twojej stronie (Easy Auth / SSO):**
 
-Claude nie ma w tenancie Entra roli pozwalającej na `az ad app create`
-(błąd: „Insufficient privileges"). App Registration musisz założyć
-samodzielnie albo przyznać sobie rolę **Application Administrator** /
-**Application Developer** na tenant `bakk.com` i uruchomić skrypt
-`scripts/enable-easy-auth.ps1` (poniżej).
+Uruchom skrypt `etap2/scripts/enable-easy-auth.ps1` ze swojego konta.
+Reuse istniejącej app registration **`BAKK Ext Apps`**
+(`45198913-b9a9-4ef8-96a2-b6b19a4179d3`), tej samej której używa
+`intrum-documentation` i `kz-test1` — bez nowego app reg, bez nowego
+sekretu, bez Application Administrator. Wymaga jedynie żebyś był ownerem
+`BAKK Ext Apps` (jesteś) i miał dostęp do obu App Services.
 
-Do czasu włączenia Easy Auth URL jest publiczny. Treść to nasza wewnętrzna
-aplikacja oceny, więc zalecam zrobić to przed udostępnieniem URLa
-prowadzącym.
+Claude tego skryptu nie odpalił bo:
+- `az ad app update` na BAKK Ext Apps wymaga owner permission na app reg
+  (mam tylko subskrypcję, nie owner na app);
+- czytanie `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` z `intrum-documentation`
+  (żeby skopiować ten sam secret do `bakk-rekrutacja`) zablokował auto-mode
+  — słusznie, prod credential nie powinien trafić do transkryptu.
 
-## Włączenie Easy Auth — opcja A: skrypt (po nadaniu sobie roli)
+Wszystko co robi skrypt:
 
-Wariant najlżejszy: zaloguj się jako Application Administrator w tenant
-`bakk.com`, potem:
+1. Dodaje `https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback`
+   do redirect URIs `BAKK Ext Apps`.
+2. Czyta `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` z `intrum-documentation`
+   app settings i wpina ten sam value do `bakk-rekrutacja` app settings.
+3. PUT-uje `authsettingsV2` na `bakk-rekrutacja` z `clientId =
+   45198913-b9a9-4ef8-96a2-b6b19a4179d3`, `RedirectToLoginPage`,
+   `tokenStore enabled`, 8h cookie — kopia 1:1 konfiguracji
+   `intrum-documentation`.
+4. Restart App Service.
 
 ```powershell
-$env:AZURE_EXTENSION_DIR = "C:\temp\azext-empty"
-mkdir -Force $env:AZURE_EXTENSION_DIR | Out-Null
-
-# 1. App Registration (osobna pod bakk-rekrutacja)
-$appId = az ad app create `
-  --display-name "bakk-rekrutacja" `
-  --sign-in-audience AzureADMyOrg `
-  --web-redirect-uris "https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback" `
-  --query appId -o tsv
-
-# 2. Client secret (ważny 2 lata)
-$secret = az ad app credential reset --id $appId --display-name "easy-auth" --years 2 --query password -o tsv
-
-# 3. Wrzuć secret jako app setting App Service'a (Easy Auth go odczyta)
-az webapp config appsettings set -g rg-bakk-docs -n bakk-rekrutacja `
-  --settings MICROSOFT_PROVIDER_AUTHENTICATION_SECRET=$secret | Out-Null
-
-# 4. Konfiguracja authsettingsV2 (mirror intrum-documentation: AAD + RedirectToLoginPage)
-$tenantId = az account show --query tenantId -o tsv
-$auth = @{
-  properties = @{
-    globalValidation = @{
-      requireAuthentication = $true
-      unauthenticatedClientAction = "RedirectToLoginPage"
-      redirectToProvider = "azureActiveDirectory"
-    }
-    httpSettings = @{ requireHttps = $true; routes = @{ apiPrefix = "/.auth" } }
-    identityProviders = @{
-      azureActiveDirectory = @{
-        enabled = $true
-        registration = @{
-          clientId = $appId
-          clientSecretSettingName = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-          openIdIssuer = "https://login.microsoftonline.com/$tenantId/v2.0"
-        }
-      }
-    }
-    login = @{
-      cookieExpiration = @{ convention = "FixedTime"; timeToExpiration = "08:00:00" }
-      tokenStore = @{ enabled = $true }
-    }
-  }
-} | ConvertTo-Json -Depth 10
-
-$auth | Out-File -Encoding utf8 -NoNewline $env:TEMP\authV2.json
-
-az rest --method put `
-  --uri "https://management.azure.com/subscriptions/28b7c9a4-317a-495c-99ed-6a6cec116a44/resourceGroups/rg-bakk-docs/providers/Microsoft.Web/sites/bakk-rekrutacja/config/authsettingsV2?api-version=2022-03-01" `
-  --body "@$env:TEMP\authV2.json"
-
-Remove-Item $env:TEMP\authV2.json
+pwsh etap2/scripts/enable-easy-auth.ps1
 ```
 
-Po wykonaniu otwórz `https://bakk-rekrutacja.azurewebsites.net/` — powinno
-przekierować na login BAKK Entra; po zalogowaniu odpowiednia aplikacja
-etap2.
+Idempotentny — drugi run niczego nie psuje. Do czasu uruchomienia URL
+`https://bakk-rekrutacja.azurewebsites.net/` jest publiczny — zalecam
+zrobić to przed udostępnieniem URLa prowadzącym.
 
-## Włączenie Easy Auth — opcja B: portal Azure
+## Włączenie Easy Auth — opcja awaryjna: portal Azure
+
+Jeśli skrypt z jakiegoś powodu padnie:
 
 Portal Azure → `bakk-rekrutacja` → Authentication → Add identity provider:
 
 - Identity provider: **Microsoft**
 - Tenant type: **Workforce**
-- App registration: **Create new app registration** (nazwa
-  `bakk-rekrutacja`)
-- Supported account types: **Current tenant — Single tenant**
+- App registration: **Pick an existing app registration in this directory**
+  → wpisz `BAKK Ext Apps` (45198913-b9a9-4ef8-96a2-b6b19a4179d3).
+- Client secret: ten sam co używa `intrum-documentation`
+  (`MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` app setting — portal sam
+  podłączy, jeśli wybierzesz „use existing").
 - Restrict access: **Require authentication**
 - Unauthenticated requests: **HTTP 302 Found redirect**
 
-Po dodaniu providera redirect URI zostanie zarejestrowany automatycznie.
+Po dodaniu wejdź jeszcze do `BAKK Ext Apps` → Authentication → Redirect URIs
+i dodaj `https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback`.
 
 ## Deployment (automatyczny)
 
