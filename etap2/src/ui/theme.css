@@ -83,11 +83,13 @@
     transition:.18s;position:relative;overflow:hidden;
   }
   .step:hover{border-color:#4a4339}
-  .step.active{border-color:var(--accent);background:var(--panel-2)}
+  .step.current{border-color:var(--accent);background:var(--panel-2)}
+  /* blok w trakcie: wyraźny lewy pasek akcentu i delikatny akcentowy odcień tła, mniej wyrazisty niż done/current */
+  .step.in-progress{border-color:#4a4339;border-left:3px solid color-mix(in srgb,var(--accent) 80%,transparent);background:color-mix(in srgb,var(--accent) 6%,var(--panel))}
   .step.done::after{content:"✓";position:absolute;top:9px;right:11px;color:var(--green);font-size:13px}
   .step .k{font-size:11px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
   .step .t{font-size:13.5px;font-weight:500;color:var(--ink-dim)}
-  .step.active .t{color:var(--ink)}
+  .step.current .t{color:var(--ink)}
   .step .bar{height:3px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
   .step .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
   /* znacznik braku notatki — subtelny, widoczny tylko przy .no-note */
