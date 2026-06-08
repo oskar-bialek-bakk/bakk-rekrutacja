@@ -109,6 +109,10 @@
   .card-head .meta{font-size:12px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;font-weight:600}
   .card-head h2{font-family:'Newsreader',serif;font-weight:600;font-size:27px;letter-spacing:-.015em;line-height:1.15}
   .card-head .right{text-align:right;flex-shrink:0}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex-shrink:0}
+  .roster-status{margin:0 30px;padding:11px 16px;border-radius:10px;font-size:14px;border:1px solid var(--line)}
+  .roster-status.ok{background:rgba(127,174,110,.12);color:#a5cb96;border-color:rgba(127,174,110,.3)}
+  .roster-status.error{background:rgba(207,107,90,.12);color:#e89384;border-color:rgba(207,107,90,.3)}
   .pill{
     display:inline-block;font-size:12px;padding:5px 11px;border-radius:20px;
     border:1px solid var(--line);color:var(--ink-dim);font-family:'JetBrains Mono',Consolas,monospace;

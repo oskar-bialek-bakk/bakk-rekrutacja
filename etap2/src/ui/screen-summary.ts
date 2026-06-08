@@ -7,6 +7,8 @@ import { repo, session } from '../state';
 import { navigate } from '../app';
 import { elapsedStr, stopTimer } from './timer-ui';
 import { escapeHtml } from './escape';
+import { downloadTextFile, safeFilenamePart } from './download';
+import { serializeAssessment } from '../export/json';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
@@ -103,6 +105,7 @@ export function renderSummary(host: HTMLElement): void {
 
         <div class="nav">
           <button class="btn ghost" id="back">← Wróć do oceny</button>
+          <button class="btn ghost" id="export-json">Eksport JSON</button>
           <button class="btn primary" id="save">Zapisz i pokaż zestawienie →</button>
         </div>
       </div>
@@ -129,6 +132,10 @@ export function renderSummary(host: HTMLElement): void {
   bind('#neg-ocz', 'oczekiwania'); bind('#neg-wid', 'widelki'); bind('#neg-forma', 'formaUmowy'); bind('#neg-dost', 'dostepnosc'); bind('#neg-uwagi', 'uwagi');
 
   (host.querySelector('#back') as HTMLButtonElement).onclick = () => navigate('assess');
+  (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {
+    const filename = `ocena_${safeFilenamePart(a.candidate.nameOrId)}.json`;
+    downloadTextFile(filename, 'application/json;charset=utf-8', serializeAssessment(a));
+  };
   (host.querySelector('#save') as HTMLButtonElement).onclick = async () => {
     stopTimer();
     await repo.save(a);
