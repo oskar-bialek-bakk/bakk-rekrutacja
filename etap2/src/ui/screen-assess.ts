@@ -1,6 +1,7 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
 import type { BlockId, Mark } from '../domain/model';
+import { blocksMissingNotes } from '../domain/completeness';
 import { session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
@@ -45,10 +46,14 @@ export function renderAssess(host: HTMLElement): void {
        <div class="readbox">${b.variants[vIdx].read}</div>`;
 
   host.innerHTML = `
-    <div class="stepper">${blocks.map((x, i) => {
-      const state = stepStateClass(x.id, i);
-      return `<button class="step ${state}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div></button>`;
-    }).join('')}</div>
+    <div class="stepper">${(() => {
+      const missingNow = new Set(blocksMissingNotes(a.notes, blocks.map((bb) => bb.id)));
+      return blocks.map((x, i) => {
+        const state = stepStateClass(x.id, i);
+        const noNote = missingNow.has(x.id) ? ' no-note' : '';
+        return `<button class="step ${state}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+      }).join('');
+    })()}</div>
     <div class="card"><div class="card-body">
       <div class="twocol">
         <div>
@@ -145,6 +150,8 @@ export function renderAssess(host: HTMLElement): void {
 
   (host.querySelector('#note') as HTMLTextAreaElement).oninput = (e) => {
     a.notes[b.id] = (e.target as HTMLTextAreaElement).value;
+    const stepEl = stepEls[session.cur];
+    if (stepEl) stepEl.classList.toggle('no-note', (a.notes[b.id] ?? '').trim() === '');
   };
 
   const copyBtn = host.querySelector('#copy-content') as HTMLButtonElement | null;
@@ -161,6 +168,19 @@ export function renderAssess(host: HTMLElement): void {
     if (session.cur > 0) { session.cur--; renderAssess(host); }
   };
   (host.querySelector('#next') as HTMLButtonElement).onclick = () => {
-    if (session.cur < blocks.length - 1) { session.cur++; renderAssess(host); } else { navigate('summary'); }
+    if (session.cur < blocks.length - 1) {
+      session.cur++;
+      renderAssess(host);
+      return;
+    }
+    const missing = blocksMissingNotes(a.notes, blocks.map((bb) => bb.id));
+    if (missing.length > 0) {
+      const labels = missing.join(', ');
+      const ok = window.confirm(
+        `Bloki bez notatki: ${labels}. Notatki ułatwiają porównanie kandydatów. Zakończyć ocenę mimo to?`,
+      );
+      if (!ok) return;
+    }
+    navigate('summary');
   };
 }
