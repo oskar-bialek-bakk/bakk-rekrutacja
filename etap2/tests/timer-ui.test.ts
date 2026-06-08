@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createEmptyAssessment } from '../src/domain/model';
 import { session } from '../src/state';
-import { tickActiveBlock } from '../src/ui/timer-ui';
+import { tickActiveBlock, togglePause, nudgeOffset } from '../src/ui/timer-ui';
 
 describe('tickActiveBlock', () => {
   beforeEach(() => {
@@ -44,5 +44,62 @@ describe('tickActiveBlock', () => {
     tickActiveBlock(0);
     tickActiveBlock(-5);
     expect(session.current!.blockTimes.A).toBeUndefined();
+  });
+});
+
+describe('togglePause', () => {
+  beforeEach(() => {
+    session.current = createEmptyAssessment('t-pause', {
+      nameOrId: 'Y', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.cur = 0;
+    session.screen = 'assess';
+  });
+
+  it('przelacza paused z false na true i z powrotem', () => {
+    expect(session.current!.timer.paused).toBe(false);
+    togglePause();
+    expect(session.current!.timer.paused).toBe(true);
+    togglePause();
+    expect(session.current!.timer.paused).toBe(false);
+  });
+
+  it('no-op gdy session.current null', () => {
+    session.current = null;
+    expect(() => togglePause()).not.toThrow();
+  });
+});
+
+describe('nudgeOffset', () => {
+  beforeEach(() => {
+    session.current = createEmptyAssessment('t-nudge', {
+      nameOrId: 'Z', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.current.timer.elapsedSec = 100;
+    session.cur = 0;
+    session.screen = 'assess';
+  });
+
+  it('+60 zwieksza elapsedSec o 60 i offsetSec o 60', () => {
+    nudgeOffset(60);
+    expect(session.current!.timer.elapsedSec).toBe(160);
+    expect(session.current!.timer.offsetSec).toBe(60);
+  });
+
+  it('-60 zmniejsza elapsedSec o 60', () => {
+    nudgeOffset(-60);
+    expect(session.current!.timer.elapsedSec).toBe(40);
+    expect(session.current!.timer.offsetSec).toBe(-60);
+  });
+
+  it('clamp: -300 przy elapsedSec=100 → elapsedSec=0, offsetSec=-100', () => {
+    nudgeOffset(-300);
+    expect(session.current!.timer.elapsedSec).toBe(0);
+    expect(session.current!.timer.offsetSec).toBe(-100);
+  });
+
+  it('no-op gdy session.current null', () => {
+    session.current = null;
+    expect(() => nudgeOffset(60)).not.toThrow();
   });
 });

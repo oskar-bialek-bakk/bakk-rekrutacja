@@ -1,19 +1,19 @@
 import { session } from '../state';
-import { parseTargetSec, tickBlock, warnLevel } from '../domain/timer';
+import { parseTargetSec, tickBlock, warnLevel, pauseTimer, resumeTimer, adjustOffset } from '../domain/timer';
 import { activeBlocks } from './screen-assess';
 import { BLOCKS } from '../content/blocks';
 
 let intervalId: number | null = null;
-let startMs = 0;
-let prevElapsedSec = 0;
+let lastWallMs = 0;
 
 export function startTimer(): void {
-  startMs = Date.now();
-  prevElapsedSec = session.current?.timer.offsetSec ?? 0;
+  lastWallMs = Date.now();
   const clock = document.getElementById('clock');
   if (clock) clock.style.visibility = 'visible';
   if (intervalId != null) clearInterval(intervalId);
   intervalId = window.setInterval(tick, 1000);
+  bindTimerControls();
+  syncPauseDom();
   tick();
 }
 
@@ -29,7 +29,6 @@ export function stopTimer(): void {
 /**
  * Dolewa deltaSec do bloku aktywnego (session.cur w activeBlocks).
  * Defensywne: no-op gdy brak session.current, paused, lub delta ≤ 0.
- * Wyeksportowane do testów i do użytku z tick().
  */
 export function tickActiveBlock(deltaSec: number): void {
   const a = session.current;
@@ -59,25 +58,85 @@ function updateBlockChipDom(blockId: string): void {
   step.classList.toggle('over', level === 'over');
 }
 
-function tick(): void {
-  if (!session.current) return;
-  const s = Math.floor((Date.now() - startMs) / 1000) + session.current.timer.offsetSec;
-  const delta = s - prevElapsedSec;
-  prevElapsedSec = s;
-  session.current.timer.elapsedSec = s;
+function renderClock(s: number): void {
   const el = document.getElementById('elapsed');
   if (el) el.textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
   const t = document.getElementById('timer');
   if (t) { t.classList.toggle('warn', s >= 45 * 60 && s < 55 * 60); t.classList.toggle('over', s >= 55 * 60); }
-  if (delta > 0 && !session.current.timer.paused && session.screen === 'assess') {
-    const blocks = activeBlocks();
-    const idx = Math.max(0, Math.min(session.cur, blocks.length - 1));
-    const block = blocks[idx];
-    if (block) {
-      session.current.blockTimes = tickBlock(session.current.blockTimes, block.id, delta);
-      updateBlockChipDom(block.id);
+}
+
+function tick(): void {
+  if (!session.current) return;
+  const now = Date.now();
+  const wallDeltaSec = Math.floor((now - lastWallMs) / 1000);
+  if (session.current.timer.paused) {
+    lastWallMs = now;
+    renderClock(session.current.timer.elapsedSec);
+    return;
+  }
+  if (wallDeltaSec > 0) {
+    lastWallMs += wallDeltaSec * 1000;
+    session.current.timer.elapsedSec += wallDeltaSec;
+    if (session.screen === 'assess') {
+      const blocks = activeBlocks();
+      const idx = Math.max(0, Math.min(session.cur, blocks.length - 1));
+      const block = blocks[idx];
+      if (block) {
+        session.current.blockTimes = tickBlock(session.current.blockTimes, block.id, wallDeltaSec);
+        updateBlockChipDom(block.id);
+      }
     }
   }
+  renderClock(session.current.timer.elapsedSec);
+}
+
+/**
+ * Przelacza pauza/wznow zegara globalnego. Wstrzymuje tez per-blok (tick wie o paused).
+ */
+export function togglePause(): void {
+  const a = session.current;
+  if (!a) return;
+  a.timer = a.timer.paused ? resumeTimer(a.timer) : pauseTimer(a.timer);
+  if (!a.timer.paused) lastWallMs = Date.now();
+  syncPauseDom();
+}
+
+/**
+ * Recznie przewija zegar globalny o deltaSec (np. +60/-60). Aktualizuje natychmiast elapsedSec.
+ */
+export function nudgeOffset(deltaSec: number): void {
+  const a = session.current;
+  if (!a) return;
+  const before = a.timer.offsetSec;
+  a.timer = adjustOffset(a.timer, deltaSec);
+  const effective = a.timer.offsetSec - before;
+  a.timer.elapsedSec = Math.max(0, a.timer.elapsedSec + effective);
+  renderClock(a.timer.elapsedSec);
+}
+
+function syncPauseDom(): void {
+  const a = session.current;
+  if (!a) return;
+  const t = document.getElementById('timer');
+  if (t) t.classList.toggle('paused', a.timer.paused);
+  const btn = document.getElementById('btn-pause');
+  if (btn) {
+    btn.setAttribute('aria-pressed', a.timer.paused ? 'true' : 'false');
+    btn.textContent = a.timer.paused ? '▶' : '⏸';
+    btn.setAttribute('title', a.timer.paused ? 'Wznow odliczanie' : 'Pauza odliczania');
+  }
+}
+
+let controlsBound = false;
+function bindTimerControls(): void {
+  if (controlsBound) return;
+  const btnPause = document.getElementById('btn-pause');
+  const btnPlus = document.getElementById('btn-nudge-plus');
+  const btnMinus = document.getElementById('btn-nudge-minus');
+  if (btnPause) btnPause.addEventListener('click', () => togglePause());
+  if (btnPlus) btnPlus.addEventListener('click', () => nudgeOffset(60));
+  if (btnMinus) btnMinus.addEventListener('click', () => nudgeOffset(-60));
+  if (btnPause || btnPlus || btnMinus) controlsBound = true;
 }
 
 export function elapsedStr(): string {
