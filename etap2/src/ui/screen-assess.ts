@@ -4,7 +4,8 @@ import type { Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
 import { blockState } from '../domain/block-state';
 import { parseTargetSec, warnLevel } from '../domain/timer';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
+import { computeScore } from '../domain/scoring';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
@@ -77,7 +78,9 @@ export function renderAssess(host: HTMLElement): void {
         const spent = a.blockTimes[x.id]?.spentSec ?? 0;
         const level = warnLevel(spent, parseTargetSec(x.time));
         const levelCls = level === 'ok' ? '' : ` ${level}`;
-        return `<button class="step ${state}${current}${noNote}${levelCls}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="step-time" data-block-time="${x.id}">${formatMmSs(spent)}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+        const markVal = a.marks[x.id];
+        const scoreBadge = settings.showScoreLive && markVal != null ? `<span class="step-score">${markVal}/5</span>` : '';
+        return `<button class="step ${state}${current}${noNote}${levelCls}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div>${scoreBadge}<span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="step-time" data-block-time="${x.id}">${formatMmSs(spent)}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
     <div class="card"><div class="card-body">
@@ -112,7 +115,13 @@ export function renderAssess(host: HTMLElement): void {
       </div>
       <div class="nav">
         <button class="btn ghost" id="prev" ${session.cur === 0 ? 'disabled' : ''}>← Poprzedni</button>
-        <div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>
+        ${(() => {
+          if (!settings.showScoreLive) {
+            return '<div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>';
+          }
+          const r = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore });
+          return `<div class="live-score" aria-live="polite">Wynik na żywo: <b>${r.score}</b> / 100 (oceniono ${r.scoredCount}/${r.totalWeightedBlocks})</div>`;
+        })()}
         ${editSaveBtn}
         <button class="btn primary" id="next">${session.cur < blocks.length - 1 ? 'Następny blok →' : 'Zakończ ocenę →'}</button>
       </div>
