@@ -1,0 +1,6 @@
+# Etap I (index.html, eval.html) jest publiczny. Etap II i dokumentacja NIE są publikowane.
+exclude:
+  - etap2/
+  - docs/
+  - re-encrypt.ps1
+  - confidential/
