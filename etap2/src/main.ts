@@ -7,6 +7,13 @@ document.getElementById('nav-roster')?.addEventListener('click', () => {
   navigate('roster');
 });
 
-document.getElementById('brand')?.addEventListener('click', () => {
+const brand = document.getElementById('brand');
+brand?.addEventListener('click', () => {
   navigate('roster');
+});
+brand?.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    navigate('roster');
+  }
 });
