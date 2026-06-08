@@ -1,4 +1,4 @@
-import { BLOCKS } from '../content/blocks';
+import { BLOCKS, rotatingBlockIds } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
 import { recordSelectedVariants } from '../domain/variants';
 import { DEFAULT_WEIGHTS } from '../domain/weights.config';
@@ -133,8 +133,7 @@ export function renderSummary(host: HTMLElement): void {
     stopTimer();
     await repo.save(a);
     const usage = await repo.getVariantUsage();
-    const rotating = BLOCKS.filter((b) => b.variants.length > 1).map((b) => b.id);
-    await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotating));
+    await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotatingBlockIds()));
     navigate('roster');
   };
 }
