@@ -83,13 +83,26 @@
   /* ---------- layout ---------- */
   .wrap{max-width:1180px;margin:0 auto;padding:30px 28px 80px}
 
+  /* stepper legend — wyjaśnia znaczenie stanów i znaczników */
+  .stepper-legend{
+    display:flex;flex-wrap:wrap;gap:7px 18px;align-items:center;
+    margin:2px 0 10px;font-size:11.5px;color:var(--ink-dim);
+  }
+  .legend-item{display:inline-flex;align-items:center;gap:7px;line-height:1}
+  .legend-swatch{width:13px;height:13px;border-radius:4px;flex-shrink:0;background:var(--panel);border:1px solid var(--line)}
+  .legend-swatch.todo{background:var(--panel);border:1px solid var(--line)}
+  .legend-swatch.in-progress{background:color-mix(in srgb,var(--accent) 18%,var(--panel));border:1px solid var(--line);border-left:3px solid var(--accent)}
+  .legend-swatch.done{background:color-mix(in srgb,var(--green) 22%,var(--panel));border:1px solid color-mix(in srgb,var(--green) 50%,var(--line));position:relative}
+  .legend-swatch.done::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;line-height:1;color:var(--green)}
+  .legend-flag{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;font-size:12px;line-height:1;color:var(--ink-faint);flex-shrink:0}
+
   /* stepper */
   .stepper{
-    display:flex;gap:6px;margin:6px 0 30px;flex-wrap:wrap;
+    display:flex;gap:6px;margin:0 0 30px;flex-wrap:wrap;
   }
   .step{
     flex:1;min-width:120px;
-    padding:11px 14px;border-radius:10px;
+    padding:11px 14px 13px;border-radius:10px;
     background:var(--panel);border:1px solid var(--line);
     display:flex;flex-direction:column;gap:3px;cursor:pointer;
     transition:.18s;position:relative;overflow:hidden;
@@ -102,6 +115,15 @@
   .step .k{font-size:11px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
   .step .t{font-size:13.5px;font-weight:500;color:var(--ink-dim)}
   .step.current .t{color:var(--ink)}
+  /* tekstowa etykieta stanu — w normalnym przepływie pod tytułem, kolor zależny od stanu */
+  .step .step-state{
+    margin-top:2px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.1;
+  }
+  .step .step-state[data-state="todo"]{color:var(--ink-faint)}
+  .step .step-state[data-state="in-progress"]{color:var(--accent)}
+  .step .step-state[data-state="done"]{color:var(--green)}
+  /* gdy brak notatki, znacznik ✎ siedzi w prawym dolnym rogu — zostaw mu miejsce, by nie nachodził na etykietę */
+  .step.no-note .step-state{padding-right:16px}
   .step .bar{height:3px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
   .step .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
   /* znacznik braku notatki — subtelny, widoczny tylko przy .no-note */
