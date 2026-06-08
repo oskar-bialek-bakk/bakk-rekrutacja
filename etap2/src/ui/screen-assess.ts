@@ -1,7 +1,8 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
-import type { BlockId, Mark } from '../domain/model';
+import type { Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
+import { blockState } from '../domain/block-state';
 import { session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
@@ -11,12 +12,11 @@ function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
 }
 
-function stepStateClass(blockId: BlockId, idx: number): 'done' | 'active' | 'todo' {
-  const a = session.current!;
-  if (a.marks[blockId] != null) return 'done';
-  if (idx === session.cur) return 'active';
-  return 'todo';
-}
+const STATE_CLASS: Record<ReturnType<typeof blockState>, 'done' | 'in-progress' | 'todo'> = {
+  done: 'done',
+  inProgress: 'in-progress',
+  todo: 'todo',
+};
 
 export function renderAssess(host: HTMLElement): void {
   const a = session.current!;
@@ -24,6 +24,7 @@ export function renderAssess(host: HTMLElement): void {
   const blockIds = blocks.map((b) => b.id);
   if (session.cur >= blocks.length) session.cur = blocks.length - 1;
   const b = blocks[session.cur];
+  session.visited.add(b.id);
   const vIdx = a.selectedVariants[b.id] ?? 0;
   const sel = a.marks[b.id];
   const fl = a.flags[b.id] ?? { red: false, green: false };
@@ -50,9 +51,10 @@ export function renderAssess(host: HTMLElement): void {
     <div class="stepper">${(() => {
       const missingNow = new Set(blocksMissingNotes(a.notes, blockIds));
       return blocks.map((x, i) => {
-        const state = stepStateClass(x.id, i);
+        const state = STATE_CLASS[blockState(a, x.id, session.visited)];
+        const current = i === session.cur ? ' current' : '';
         const noNote = missingNow.has(x.id) ? ' no-note' : '';
-        return `<button class="step ${state}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
     <div class="card"><div class="card-body">
@@ -100,9 +102,10 @@ export function renderAssess(host: HTMLElement): void {
   const refreshStepper = () => {
     blocks.forEach((x, i) => {
       const el = stepEls[i];
-      const state = stepStateClass(x.id, i);
-      el.classList.remove('done', 'active', 'todo');
+      const state = STATE_CLASS[blockState(a, x.id, session.visited)];
+      el.classList.remove('done', 'in-progress', 'todo', 'current');
       el.classList.add(state);
+      el.classList.toggle('current', i === session.cur);
     });
   };
 
