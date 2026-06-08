@@ -3,6 +3,10 @@ import { createEmptyAssessment } from '../src/domain/model';
 import { session } from '../src/state';
 import { tickActiveBlock, togglePause, nudgeOffset, maybePhaseBanner } from '../src/ui/timer-ui';
 
+function setupAnnouncementDom(): void {
+  document.body.innerHTML = '<span id="timer-announcement"></span><div id="elapsed"></div><div id="timer"></div>';
+}
+
 describe('tickActiveBlock', () => {
   beforeEach(() => {
     session.current = createEmptyAssessment('t1', {
@@ -145,5 +149,29 @@ describe('maybePhaseBanner (sygnal 45 min)', () => {
     const el = document.getElementById('phase-banner')!;
     expect(el.hidden).toBe(true);
     expect(session.current!.timer.phase45Notified).toBe(false);
+  });
+});
+
+describe('aria-live timer announcement', () => {
+  beforeEach(() => {
+    setupAnnouncementDom();
+    session.current = createEmptyAssessment('t-ann', {
+      nameOrId: 'A', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.cur = 0;
+    session.screen = 'assess';
+  });
+
+  it('togglePause ustawia komunikat zawierajacy "pauz"', () => {
+    togglePause();
+    const el = document.getElementById('timer-announcement')!;
+    expect(el.textContent ?? '').toMatch(/pauz/i);
+  });
+
+  it('togglePause wznowienie ustawia komunikat zawierajacy "wznowi"', () => {
+    togglePause();
+    togglePause();
+    const el = document.getElementById('timer-announcement')!;
+    expect(el.textContent ?? '').toMatch(/wznowi/i);
   });
 });

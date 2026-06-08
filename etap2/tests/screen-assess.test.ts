@@ -79,3 +79,44 @@ describe('renderAssess - live score widget', () => {
     expect(host.querySelector('.step-score')).toBeNull();
   });
 });
+
+describe('renderAssess - klawiatura', () => {
+  beforeEach(async () => {
+    localStorage.clear();
+    document.body.innerHTML = '';
+    session.current = createEmptyAssessment('a-kb', {
+      nameOrId: 'K', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.cur = 0;
+    session.screen = 'assess';
+    session.visited = new Set();
+    session.editing = false;
+    session.detailId = null;
+    session.current.useE = false;
+    await reloadSettings();
+  });
+
+  it('klawisz "3" ustawia ocene aktywnego bloku na 3', () => {
+    mount();
+    const evt = new KeyboardEvent('keydown', { key: '3', bubbles: true });
+    document.dispatchEvent(evt);
+    expect(session.current!.marks.A).toBe(3);
+  });
+
+  it('ArrowRight przesuwa session.cur o 1 (do limitu)', () => {
+    mount();
+    const start = session.cur;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(session.cur).toBe(start + 1);
+  });
+
+  it('klawisz "1" gdy focus na <textarea> nie zmienia oceny (early return)', () => {
+    const host = mount();
+    const ta = host.querySelector('#note') as HTMLTextAreaElement;
+    ta.focus();
+    const evt = new KeyboardEvent('keydown', { key: '1', bubbles: true });
+    Object.defineProperty(evt, 'target', { value: ta });
+    document.dispatchEvent(evt);
+    expect(session.current!.marks.A).toBeUndefined();
+  });
+});
