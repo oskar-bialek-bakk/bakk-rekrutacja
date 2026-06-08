@@ -24,4 +24,22 @@ describe('migrateAssessment v1 → v2', () => {
     const out = migrateAssessment(raw);
     expect(out.blockTimes).toEqual({ A: { spentSec: 42 } });
   });
+
+  it('odrzuca ujemny / niefinitywny spentSec (clamp do 0)', () => {
+    const raw = {
+      id: 'x',
+      schemaVersion: 2,
+      blockTimes: {
+        A: { spentSec: -100 },
+        B: { spentSec: Number.NaN },
+        C: { spentSec: Number.POSITIVE_INFINITY },
+        D: { spentSec: 30 },
+      },
+    };
+    const out = migrateAssessment(raw);
+    expect(out.blockTimes.A?.spentSec).toBe(0);
+    expect(out.blockTimes.B?.spentSec).toBe(0);
+    expect(out.blockTimes.C?.spentSec).toBe(0);
+    expect(out.blockTimes.D?.spentSec).toBe(30);
+  });
 });

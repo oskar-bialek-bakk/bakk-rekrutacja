@@ -22,6 +22,11 @@ describe('parseTargetSec', () => {
     expect(parseTargetSec('abc')).toBeNull();
     expect(parseTargetSec('')).toBeNull();
   });
+  it('parsuje zakres z en-dash i bierze gorna granice', () => {
+    expect(parseTargetSec('9–10 min')).toBe(600);
+    expect(parseTargetSec('9-10 min')).toBe(600);
+    expect(parseTargetSec('2—3 min')).toBe(180);
+  });
 });
 
 describe('warnLevel', () => {

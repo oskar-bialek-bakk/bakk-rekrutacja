@@ -8,7 +8,8 @@ function ensureBlockTimes(b: unknown): BlockTimes {
   for (const [key, val] of Object.entries(b as Record<string, unknown>)) {
     if (key !== 'A' && key !== 'B' && key !== 'C' && key !== 'D' && key !== 'E') continue;
     const v = val as { spentSec?: unknown } | null | undefined;
-    const spent = typeof v?.spentSec === 'number' ? v.spentSec : 0;
+    const raw = typeof v?.spentSec === 'number' ? v.spentSec : 0;
+    const spent = Number.isFinite(raw) ? Math.max(0, raw) : 0;
     out[key] = { spentSec: spent };
   }
   return out;

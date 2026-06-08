@@ -10,20 +10,23 @@ export type WarnLevel = 'ok' | 'warn' | 'over';
 
 /**
  * Parsuje string typu "5 min", "10 min", "30 s", "1 h" do liczby sekund.
+ * Akceptuje też zakresy ("9-10 min", "9–10 min"); dla zakresu bierze górną granicę
+ * (kandydat dostaje cały budżet, ostrzeżenia odpalają po jego przekroczeniu).
  * Zwraca null dla nieparsowalnych. Trimuje i ignoruje wielkość liter.
  */
 export function parseTargetSec(time: string): number | null {
   if (typeof time !== 'string') return null;
-  const m = time.trim().toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(s|min|m|h)$/);
+  const normalized = time.trim().toLowerCase().replace(/[–—]/g, '-');
+  const m = normalized.match(/^(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?\s*(s|min|m|h)$/);
   if (!m) return null;
-  const value = Number(m[1]);
-  if (!Number.isFinite(value)) return null;
-  const unit = m[2];
+  const upper = m[2] != null ? Number(m[2]) : Number(m[1]);
+  if (!Number.isFinite(upper)) return null;
+  const unit = m[3];
   switch (unit) {
-    case 's': return Math.round(value);
+    case 's': return Math.round(upper);
     case 'm':
-    case 'min': return Math.round(value * 60);
-    case 'h': return Math.round(value * 3600);
+    case 'min': return Math.round(upper * 60);
+    case 'h': return Math.round(upper * 3600);
     default: return null;
   }
 }

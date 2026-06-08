@@ -95,7 +95,8 @@ export function renderAssess(host: HTMLElement): void {
   if (session.cur >= blocks.length) session.cur = blocks.length - 1;
   const b = blocks[session.cur];
   session.visited.add(b.id);
-  const vIdx = a.selectedVariants[b.id] ?? 0;
+  const rawVIdx = a.selectedVariants[b.id] ?? 0;
+  const vIdx = rawVIdx >= 0 && rawVIdx < b.variants.length ? rawVIdx : 0;
   const sel = a.marks[b.id];
   const fl = a.flags[b.id] ?? { red: false, green: false };
   const asked = a.askedQuestions[b.id] ?? {};

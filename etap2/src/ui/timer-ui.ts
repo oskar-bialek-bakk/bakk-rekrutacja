@@ -21,6 +21,8 @@ function announce(msg: string): void {
 
 export function startTimer(): void {
   lastWallMs = Date.now();
+  const baseSec = session.current?.timer.elapsedSec ?? 0;
+  prevGlobalLevel = globalLevel(baseSec);
   const clock = document.getElementById('clock');
   if (clock) clock.style.visibility = 'visible';
   if (intervalId != null) clearInterval(intervalId);
@@ -133,8 +135,8 @@ function tick(): void {
   renderClock(session.current.timer.elapsedSec);
   const lvl = globalLevel(session.current.timer.elapsedSec);
   if (lvl !== prevGlobalLevel) {
-    if (lvl === 'warn') announce('Zegar przekroczyl sugerowany czas bloku.');
-    else if (lvl === 'over') announce('Zegar znacznie przekroczony.');
+    if (lvl === 'warn') announce('Minelo 45 minut rozmowy.');
+    else if (lvl === 'over') announce('Minelo 55 minut rozmowy.');
     prevGlobalLevel = lvl;
   }
   maybePhaseBanner();
