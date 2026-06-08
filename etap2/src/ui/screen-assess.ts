@@ -4,6 +4,7 @@ import type { BlockId, Mark } from '../domain/model';
 import { session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
+import { copyToClipboard, htmlToPlain } from './copy';
 
 function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
@@ -28,7 +29,7 @@ export function renderAssess(host: HTMLElement): void {
   const correct = b.variantAnswers?.[vIdx];
 
   const questionsHtml = b.questions
-    ? `<div class="qlist-label">Pula pytań — zaznacz zadane (wybierz 3–4)</div>
+    ? `<div class="label-row"><div class="label">Pula pytań — zaznacz zadane (wybierz 3–4)</div><button type="button" class="copy-btn" id="copy-content" title="Skopiuj treść do wysłania kandydatowi">📋 Kopiuj</button></div>
        <div class="qlist">${b.questions
          .map((q, i) => `<label class="qitem ${asked[i] ? 'on' : ''}" data-q="${i}">
            <input type="checkbox" ${asked[i] ? 'checked' : ''}>
@@ -40,7 +41,7 @@ export function renderAssess(host: HTMLElement): void {
   // Block z pulą pytań (D) nie potrzebuje osobnego readboxa — pula sama w sobie jest treścią do przeczytania.
   const readboxHtml = b.questions
     ? ''
-    : `<div class="label">Przeczytaj kandydatowi</div>
+    : `<div class="label-row"><div class="label">Przeczytaj kandydatowi</div><button type="button" class="copy-btn" id="copy-content" title="Skopiuj treść do wysłania kandydatowi">📋 Kopiuj</button></div>
        <div class="readbox">${b.variants[vIdx].read}</div>`;
 
   host.innerHTML = `
@@ -66,6 +67,7 @@ export function renderAssess(host: HTMLElement): void {
           <div class="keybox"><h4>${b.keyTitle}</h4>
             <ul>${b.keys.map((k) => `<li>${escapeHtml(k)}</li>`).join('')}</ul>
             ${correct ? `<div class="key-answer">Poprawny wynik (${escapeHtml(b.variants[vIdx].label)}): <b>${escapeHtml(correct)}</b></div>` : ''}
+            ${b.exampleAnswers && b.questions ? `<div class="example-answers"><div class="ea-head">Przykładowe „dobre" odpowiedzi (per pytanie z puli)</div><ol>${b.exampleAnswers.map((ex) => `<li>${escapeHtml(ex)}</li>`).join('')}</ol></div>` : ''}
             <div class="flags-divider"></div>
             <div class="flag red">${escapeHtml(b.flagRed)}</div>
             <div class="flag green">${escapeHtml(b.flagGreen)}</div>
@@ -144,6 +146,16 @@ export function renderAssess(host: HTMLElement): void {
   (host.querySelector('#note') as HTMLTextAreaElement).oninput = (e) => {
     a.notes[b.id] = (e.target as HTMLTextAreaElement).value;
   };
+
+  const copyBtn = host.querySelector('#copy-content') as HTMLButtonElement | null;
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      const text = b.questions
+        ? b.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')
+        : htmlToPlain(b.variants[vIdx].read);
+      void copyToClipboard(text, copyBtn);
+    };
+  }
 
   (host.querySelector('#prev') as HTMLButtonElement).onclick = () => {
     if (session.cur > 0) { session.cur--; renderAssess(host); }

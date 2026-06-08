@@ -121,6 +121,18 @@
   /* prompt box — what to read to candidate */
   .label{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:8px}
   .label::before{content:"";width:14px;height:2px;background:var(--accent);border-radius:2px}
+  .label-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+  .label-row .label{margin-bottom:0}
+  .copy-btn{
+    font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;
+    padding:6px 11px;border-radius:7px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink-dim);cursor:pointer;
+    transition:.15s;display:inline-flex;align-items:center;gap:6px;line-height:1;white-space:nowrap;
+  }
+  .copy-btn:hover{border-color:var(--accent);color:var(--ink);background:rgba(217,119,6,.08)}
+  .copy-btn:active{transform:translateY(1px)}
+  .copy-btn.copied{border-color:var(--green);color:#a5cb96;background:rgba(127,174,110,.12)}
+  .copy-btn.failed{border-color:var(--red);color:#e89384;background:rgba(207,107,90,.12)}
   .readbox{
     background:#15120f;border:1px solid var(--line);border-left:3px solid var(--accent);
     border-radius:10px;padding:18px 20px;margin-bottom:22px;
@@ -147,6 +159,10 @@
   .keybox li::before{content:"›";position:absolute;left:2px;color:var(--accent);font-weight:700}
   .keybox .key-answer{margin-top:14px;padding:9px 12px;background:rgba(217,119,6,.10);border:1px solid rgba(217,119,6,.35);border-radius:8px;font-size:12.5px;color:var(--ink);font-family:'JetBrains Mono',Consolas,monospace}
   .keybox .key-answer b{color:var(--accent-soft);font-weight:600}
+  .keybox .example-answers{margin-top:14px;padding:10px 12px;background:rgba(127,174,110,.07);border:1px solid rgba(127,174,110,.25);border-radius:8px;font-size:12.5px;color:var(--ink)}
+  .keybox .example-answers .ea-head{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a5cb96;font-weight:600;margin-bottom:8px}
+  .keybox .example-answers ol{padding-left:22px;display:flex;flex-direction:column;gap:6px;line-height:1.45;color:var(--ink-dim)}
+  .keybox .example-answers ol li::marker{color:var(--accent-soft);font-weight:600}
   .keybox .flags-divider{margin:16px 0 8px;border-top:1px dashed rgba(217,160,102,.25)}
   .keybox .flag{font-size:12.5px;padding-left:20px;position:relative;margin-top:6px;color:var(--ink)}
   .keybox .flag.red::before{content:"⚑";position:absolute;left:0;color:var(--red)}

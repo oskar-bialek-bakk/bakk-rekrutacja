@@ -16,6 +16,8 @@ export interface Block {
   variantAnswers?: string[];
   /** Pula pytań do oznaczania „zadano" (np. blok D). Opcjonalne. */
   questions?: string[];
+  /** Przykładowe „dobre" odpowiedzi / sygnały co warto usłyszeć (np. blok D, gdzie brak jednej poprawnej odpowiedzi). Opcjonalne. */
+  exampleAnswers?: string[];
   flagRed: string;
   flagGreen: string;
   scale: string[];
@@ -25,9 +27,9 @@ export const BLOCKS: Block[] = [
   {
     id: 'A', key: 'Blok A · rozgrzewka', title: 'Śledzenie algorytmu', time: '5 min', weight: 15,
     variants: [
-      { label: 'A-1 · max + parzyste', read: `<p>Trzymamy <span class="mono">wynik</span> = pierwszy element. Dla każdego kolejnego: jeśli <b>większy</b> od <span class="mono">wynik</span> → ustaw <span class="mono">wynik</span> na niego. Jeśli element jest <b>parzysty</b> → zwiększ <span class="mono">parzyste</span> o 1. Zwróć <span class="mono">(wynik, parzyste)</span>.</p><p>Wejście: <span class="mono">[3, 8, 2, 8, 5, 10, 1]</span> → ? &nbsp;<i style="color:var(--ink-faint)">popr. (10, 4)</i></p>` },
-      { label: 'A-2 · min + podz. przez 3', read: `<p>Trzymamy <span class="mono">wynik</span> = pierwszy element. Dla każdego kolejnego: jeśli <b>mniejszy</b> od <span class="mono">wynik</span> → ustaw <span class="mono">wynik</span> na niego. Jeśli element jest <b>podzielny przez 3</b> → zwiększ <span class="mono">licznik</span> o 1. Zwróć <span class="mono">(wynik, licznik)</span>.</p><p>Wejście: <span class="mono">[7, 9, 4, 3, 9, 1, 6]</span> → ? &nbsp;<i style="color:var(--ink-faint)">popr. (1, 4)</i></p>` },
-      { label: 'A-3 · suma długości + inicjały', read: `<p>Trzymamy <span class="mono">suma</span> = 0, <span class="mono">wynik</span> = "". Dla każdego słowa: dodaj jego długość do <span class="mono">suma</span>; jeśli zaczyna się na samogłoskę → doklej pierwszą literę do <span class="mono">wynik</span>. Zwróć <span class="mono">(suma, wynik)</span>.</p><p>Wejście: <span class="mono">["okno","dom","ul","kot","auto"]</span> → ? &nbsp;<i style="color:var(--ink-faint)">popr. (16, "oua")</i></p>` },
+      { label: 'A-1 · max + parzyste', read: `<p><b>Kontekst:</b> prześledź ten algorytm krok po kroku i podaj wynik. Nie chodzi o pamięć — chodzi o to, czy potrafisz iść za logiką.</p><p><b>Algorytm:</b></p><ul><li>Trzymamy <span class="mono">wynik</span> = pierwszy element listy.</li><li>Dla każdego kolejnego elementu: jeśli jest <b>większy</b> od <span class="mono">wynik</span> → ustaw <span class="mono">wynik</span> na niego.</li><li>Jeśli element jest <b>parzysty</b> → zwiększ <span class="mono">parzyste</span> o 1.</li><li>Zwróć parę <span class="mono">(wynik, parzyste)</span>.</li></ul><p><b>Wejście:</b> <span class="mono">[3, 8, 2, 8, 5, 10, 1]</span></p>` },
+      { label: 'A-2 · min + podz. przez 3', read: `<p><b>Kontekst:</b> prześledź ten algorytm krok po kroku i podaj wynik. Nie chodzi o pamięć — chodzi o to, czy potrafisz iść za logiką.</p><p><b>Algorytm:</b></p><ul><li>Trzymamy <span class="mono">wynik</span> = pierwszy element listy.</li><li>Dla każdego kolejnego elementu: jeśli jest <b>mniejszy</b> od <span class="mono">wynik</span> → ustaw <span class="mono">wynik</span> na niego.</li><li>Jeśli element jest <b>podzielny przez 3</b> → zwiększ <span class="mono">licznik</span> o 1.</li><li>Zwróć parę <span class="mono">(wynik, licznik)</span>.</li></ul><p><b>Wejście:</b> <span class="mono">[7, 9, 4, 3, 9, 1, 6]</span></p>` },
+      { label: 'A-3 · suma długości + inicjały', read: `<p><b>Kontekst:</b> prześledź ten algorytm krok po kroku i podaj wynik. Nie chodzi o pamięć — chodzi o to, czy potrafisz iść za logiką.</p><p><b>Algorytm:</b></p><ul><li>Trzymamy <span class="mono">suma</span> = 0 oraz <span class="mono">wynik</span> = "" (pusty napis).</li><li>Dla każdego słowa: dodaj jego długość do <span class="mono">suma</span>.</li><li>Jeśli słowo zaczyna się na samogłoskę → doklej pierwszą literę do <span class="mono">wynik</span>.</li><li>Zwróć parę <span class="mono">(suma, wynik)</span>.</li></ul><p><b>Wejście:</b> <span class="mono">["okno", "dom", "ul", "kot", "auto"]</span></p>` },
     ],
     deepen: 'Co się zmieni, jeśli usuniemy ostatni element? A jeśli lista będzie pusta — co powinien zrobić algorytm?',
     keyTitle: 'Klucz — śledzenie krok po kroku',
@@ -94,6 +96,13 @@ export const BLOCKS: Block[] = [
       'Opowiedz o krytycznym feedbacku do twojego kodu — jak zareagowałeś?',
       'Czego chcesz się nauczyć w pierwszym roku? Jak się uczysz?',
       'Coś technicznego, czego nie umiałeś, a musiałeś ogarnąć — jak podszedłeś?',
+    ],
+    exampleAnswers: [
+      '„Konkretny moment / projekt, w którym .NET/SQL kliknęły" (vs. ogólne „lubię programować").',
+      '„Pyta o stack / klienta / typ projektów" lub odwołuje się do realiów BAKK z opisu oferty (vs. „chciałbym pracować z .NET").',
+      'Konkretny przykład: ktoś coś zwrócił → poprawiłem TO i TO, teraz robię TAK (vs. „dobrze przyjmuję feedback").',
+      'Konkretny sposób nauki: kurs/książka/projekt + co teraz czyta/buduje (vs. „dużo czytam i ćwiczę").',
+      'Krok po kroku: nie umiałem X → zrobiłem Y (dokumentacja, prototyp, pytanie) → rozumiem teraz Z (vs. „ogarnąłem").',
     ],
     flagRed: 'Obwinia innych za feedback; brak ciekawości', flagGreen: 'Konkretny przykład wzięcia poprawki + ciekawość',
     scale: [
