@@ -25,7 +25,9 @@
 
 ---
 
-# FAZA 1 — Używalna aplikacja na localStorage
+# FAZA 1 — Używalna aplikacja na localStorage ✅ ZAKOŃCZONA (2026-06-08, PR #2 → main `cb5a2ee`)
+
+> Zrealizowane subagent-driven w 16 taskach + 3 rundy polishu po review (XSS hardening, dark theme, blok D pula pytań, blok A bez spoilera, przycisk Kopiuj per blok). 34 testy jednostkowe + 1 E2E zielone. Build single-file ~55 kB.
 
 Cel fazy: kompletny przepływ start → ocena → podsumowanie → zestawienie, poprawny scoring, trwałość localStorage, rebranding BAKK, pola negocjacji i wybór wariantu na starcie. Po tej fazie aplikacja nadaje się do realnej rozmowy.
 
