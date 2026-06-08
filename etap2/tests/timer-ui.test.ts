@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createEmptyAssessment } from '../src/domain/model';
 import { session } from '../src/state';
-import { tickActiveBlock, togglePause, nudgeOffset } from '../src/ui/timer-ui';
+import { tickActiveBlock, togglePause, nudgeOffset, maybePhaseBanner } from '../src/ui/timer-ui';
 
 describe('tickActiveBlock', () => {
   beforeEach(() => {
@@ -101,5 +101,49 @@ describe('nudgeOffset', () => {
   it('no-op gdy session.current null', () => {
     session.current = null;
     expect(() => nudgeOffset(60)).not.toThrow();
+  });
+});
+
+describe('maybePhaseBanner (sygnal 45 min)', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="phase-banner" hidden></div>';
+    session.current = createEmptyAssessment('t-phase', {
+      nameOrId: 'P', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.cur = 0;
+    session.screen = 'assess';
+  });
+
+  it('createEmptyAssessment ustawia phase45Notified na false', () => {
+    expect(session.current!.timer.phase45Notified).toBe(false);
+  });
+
+  it('przy elapsedSec = 45*60 i flagi false pokazuje baner i ustawia flage', () => {
+    session.current!.timer.elapsedSec = 45 * 60;
+    maybePhaseBanner();
+    const el = document.getElementById('phase-banner')!;
+    expect(el.hidden).toBe(false);
+    expect(el.textContent).toBe('⏱ Czas przejść do pytań kandydata i negocjacji.');
+    expect(session.current!.timer.phase45Notified).toBe(true);
+  });
+
+  it('drugie wywolanie nie zmienia tekstu ani flagi (idempotencja)', () => {
+    session.current!.timer.elapsedSec = 45 * 60;
+    maybePhaseBanner();
+    const el = document.getElementById('phase-banner')!;
+    const firstText = el.textContent;
+    session.current!.timer.elapsedSec = 46 * 60;
+    maybePhaseBanner();
+    expect(el.textContent).toBe(firstText);
+    expect(el.hidden).toBe(false);
+    expect(session.current!.timer.phase45Notified).toBe(true);
+  });
+
+  it('przy elapsedSec = 30*60 baner pozostaje hidden i flaga nie zmienia sie', () => {
+    session.current!.timer.elapsedSec = 30 * 60;
+    maybePhaseBanner();
+    const el = document.getElementById('phase-banner')!;
+    expect(el.hidden).toBe(true);
+    expect(session.current!.timer.phase45Notified).toBe(false);
   });
 });
