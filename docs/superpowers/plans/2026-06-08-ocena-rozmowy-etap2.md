@@ -1402,11 +1402,11 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - **Wykluczenie z GitHub Pages:** `_config.yml` w korzeniu repo nadal wyklucza `etap2/` z Jekyll (z Fazy 1). Po deployu na Azure publiczny URL etap2 to App Service, nie GitHub Pages.
 - **CI guardrails:** osobny job na PR (push do `feature/*`) buduje `npm --prefix etap2 run build` jako smoke (bez deployu), zapewnia że TS strict + vite build są zielone przed mergem. Deploy tylko z `main`.
 
-# FAZA 5 — Multi-user persistence (finałowa, gotowość do udostępnienia firmowego)
+# FAZA 5 — Finałowa (multi-user persistence + auto-push Traffit, gotowość do udostępnienia firmowego)
 
-**Cel:** każdy rekruter loguje się przez Entra (już działa po Fazie 4), widzi własne rozmowy, dane przeżywają zmianę urządzenia/przeglądarki, lista jest faktycznie współdzielona zespołowo (opcjonalnie filtrowalna „moje / wszystkie"). Po tej fazie aplikacja jest produkcyjnie używalna dla wewnętrznej rekrutacji BAKK.
+**Cel:** każdy rekruter loguje się przez Entra (już działa po Fazie 4), widzi własne rozmowy, dane przeżywają zmianę urządzenia/przeglądarki, lista jest faktycznie współdzielona zespołowo (opcjonalnie filtrowalna „moje / wszystkie"), notatki podsumowujące mogą być jednym kliknięciem dosłane do Traffit. **Po tej fazie aplikacja jest produkcyjnie używalna dla wewnętrznej rekrutacji BAKK i to ostatnia faza.**
 
-**Świadomie poza zakresem:** auto-push notatki do Traffit (wydzielone do Fazy 6 jako opcjonalny dodatek), eksport do Azure SQL, multi-tenant.
+**Poza zakresem już tylko:** eksport do Azure SQL, multi-tenant, advanced monitoring — nie potrzebne do uruchomienia.
 
 ## Decyzje architektoniczne
 
@@ -1529,33 +1529,46 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - [ ] **Step 3:** Smoke test po deployu: `curl https://bakk-rekrutacja.azurewebsites.net/api/health` zwraca 200 z `user.upn` i `cosmos: reachable`.
 - [ ] **Step 4:** Commit + PR: `ci(etap2): deploy Functions razem z frontem`.
 
-### Task 9: Cleanup + dokumentacja
+### Task 9: Auto-push notatek do Traffit
+
+**Files:**
+- Create: `etap2/api/traffit-push/`, `etap2/api/lib/traffit-client.ts`
+- Modify: `etap2/src/ui/recruiter-preview-dialog.ts`
+
+Port klienta z `C:/GIT/traffit-scorer/src/push-notes.js`. Marker idempotencji `<!-- bakk-etap2:${id} -->` już wbudowany w `buildRecruiterSummary` z Fazy 3.
+
+- [ ] **Step 1:** `lib/traffit-client.ts` z auth sesją (env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD` w app settings App Service, dostępne tylko z Functions), auto-relogin na 401/403, retry z backoff.
+- [ ] **Step 2:** `POST /api/v1/traffit/push` body `{ assessmentId }`:
+  - Pobierz Assessment z Cosmos (sprawdź że upn matchuje wykonującego).
+  - Wygeneruj HTML przez `buildRecruiterSummary` (port funkcji domain do `etap2/api/lib/`).
+  - Znajdź kandydata w Traffit przez `POST /api/employee/filter` po `candidate.nameOrId` + email z negocjacji.
+  - Jeśli marker `<!-- bakk-etap2:${id} -->` znaleziony w existing activities → `PUT /api/v2/employees/{id}/notes/{noteId}` (update).
+  - Inaczej → `POST /api/v2/employees/{id}/notes` (create).
+  - Zwróć `{ trafficNoteId, action: 'created'|'updated' }`.
+- [ ] **Step 3:** Sekrety Traffit wpięte do app settings (skrypt `etap2/scripts/set-traffit-secrets.ps1` interactive read + `az webapp config appsettings set`).
+- [ ] **Step 4:** UI: przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts` obok „Kopiuj jako tekst/HTML". Stan disabled w trakcie requestu, toast po sukcesie/błędzie. Jak kandydat nie znaleziony w Traffit → modal z pytaniem o ID Traffit ręcznie.
+- [ ] **Step 5:** Testy: jednostkowe na `traffit-client.ts` z mockiem fetch; E2E flow z mockiem API Traffit.
+- [ ] **Step 6:** Commit: `feat(etap2): auto-push notatki podsumowania do Traffit przez API proxy`.
+
+### Task 10: Cleanup + dokumentacja
 
 **Files:**
 - Modify: `etap2/README-deploy.md`, `docs/superpowers/plans/2026-06-08-ocena-rozmowy-etap2.md`
 
-- [ ] **Step 1:** Dopisać w `README-deploy.md` sekcję „Multi-user persistence (Faza 5)" z opisem stanu, kosztu Cosmos + B1, monitoringu (Application Insights wpięte przez App Service domyślnie).
+- [ ] **Step 1:** Dopisać w `README-deploy.md` sekcję „Faza 5 — multi-user + Traffit" z opisem stanu, kosztu Cosmos + B1, monitoringu (Application Insights wpięte przez App Service domyślnie), procedurą wpięcia sekretów Traffit.
 - [ ] **Step 2:** W planie oznaczyć Fazę 5 jako ✅ ZAKOŃCZONA z datą.
 - [ ] **Step 3:** Commit jako osobny PR docs (jak po Fazach 3 i 4).
 
 ## Self-review Fazy 5
 
-- Pokrycie celu „udostępnienie firmowe": multi-user persistence ✅, autoryzacja per rekruter ✅, migracja danych ✅, koszt akceptowalny (Cosmos serverless < 10 PLN/mc + B1 ~50 PLN/mc dla typowego ruchu).
-- Co poza zakresem (świadomie): auto-push Traffit (Faza 6), eksport do Azure SQL, multi-tenant, advanced monitoring.
+- Pokrycie celu „udostępnienie firmowe": multi-user persistence ✅, autoryzacja per rekruter ✅, migracja danych ✅, auto-push Traffit ✅, koszt akceptowalny (Cosmos serverless < 10 PLN/mc + B1 ~50 PLN/mc dla typowego ruchu).
+- Co poza zakresem (świadomie, nie potrzebne do uruchomienia): eksport do Azure SQL, multi-tenant, advanced monitoring custom dashboardy.
 - Ryzyka:
   - F1 plan nie wspiera Functions inline — Task 2 robi upgrade do B1 (~50 PLN/mc). Alternatywa: osobny Function App na Consumption (~5-15 PLN/mc) ale z osobnym CORS + auth jest bardziej skomplikowane.
   - Easy Auth pass-through działa out-of-the-box dla request do `/api/*` na tym samym hoście. Funkcjonalność potwierdzona przez Azure docs ale do smoke testu (Task 3 health endpoint).
   - Cosmos serverless ma limit 5000 RU/sec na partition — sufficiently nadmiarowe dla rekrutacji.
   - Współdzielony plan App Service z `intrum-documentation` i `kz-test1` — upgrade B1 podniesie koszty wszystkim, ale plan F1 jest darmowy więc każda zmiana = wzrost. Do potwierdzenia z user przed Task 2.
-
-# FAZA 6 — Auto-push notatek do Traffit (backlog, opcjonalna)
-
-Wymaga gotowej Fazy 5 (backend Functions). Dorzucenie endpointu `POST /api/v1/traffit/push` proxy do Traffit z reużyciem `traffit-scorer/src/push-notes.js`. Marker idempotencji `<!-- bakk-etap2:${id} -->` już wbudowany w `buildRecruiterSummary` z Fazy 3.
-
-- **Auth:** session storage (`TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD` w app settings App Service, dostępne tylko z Functions); auto-relogin na 401/403.
-- **Flow:** `POST /api/employee/filter` → znalezienie kandydata po nazwisku/emailu; `POST /api/v2/employees/{id}/notes` lub `PUT .../notes/{noteId}` (update istniejącej przez marker).
-- **UI:** przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts` obok „Kopiuj jako tekst/HTML".
-- **Sekrety wyłącznie po stronie Functions** — frontend nigdy nie widzi credentiali Traffit.
+  - Traffit nie ma oficjalnego API → klient w `traffit-scorer/src/push-notes.js` opiera się na session cookie. Endpoint może się zmienić bez ostrzeżenia. Wbudowany retry/relogin minimalizuje ryzyko, ale nie eliminuje.
 
 ---
 
