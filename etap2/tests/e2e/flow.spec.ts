@@ -6,7 +6,7 @@ test('pełny przepływ: start → ocena → podsumowanie → zestawienie', async
   await page.click('#btn-start');
 
   for (let i = 0; i < 4; i++) {
-    await page.check('input[name="mark"][value="4"]');
+    await page.click('label.lvl[data-lvl="4"]');
     await page.click('#next');
   }
   await expect(page.locator('.scorebig b')).toHaveText('80');

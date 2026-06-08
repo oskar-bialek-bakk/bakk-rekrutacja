@@ -1335,6 +1335,7 @@ Każda pozycja = osobny task w stylu TDD jak wyżej. Pełne rozpisanie na kroki 
 - **Sortowanie / filtrowanie / usuwanie w zestawieniu:** sterowane sortowanie (wynik, data, kierunek), filtr po decyzji, usuwanie rekordu z potwierdzeniem (`repo.delete`). Files: `screen-roster.ts`.
 - **Miękkie egzekwowanie notatek:** znacznik braku notatki/oceny w stepperze + nienachalne ostrzeżenie przy „Zakończ ocenę", bez twardej blokady. Files: `screen-assess.ts`.
 - **Wyraźne stany bloku:** trzeci stan „w trakcie" odróżniony od „do zrobienia" (np. po wejściu w blok lub częściowym wypełnieniu). Files: `screen-assess.ts`, `theme.css`.
+- **Ekran szczegółów kandydata:** klik w wiersz zestawienia → karta read-only z całością rekordu (score + profil per blok, flagi z opisami, notatki per blok, pytania zadane w bloku D, deepen-asked, negocjacje, decyzja + uzasadnienie, czas). Opcje: Edytuj (powrót do oceny tego kandydata) / Eksport / Usuń. Wymaga drobnego rozszerzenia routera o ścieżkę z `id` (np. `screen: 'detail', detailId: string`). Files: `src/ui/screen-detail.ts` (nowy), `src/app.ts`, `src/state.ts`, `screen-roster.ts` (klikalny wiersz).
 
 # FAZA 3 — Ergonomia i ustawienia (backlog)
 

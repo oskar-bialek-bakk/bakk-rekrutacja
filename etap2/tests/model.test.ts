@@ -10,6 +10,7 @@ describe('createEmptyAssessment', () => {
     expect(a.marks).toEqual({});
     expect(a.flags).toEqual({});
     expect(a.notes).toEqual({});
+    expect(a.askedQuestions).toEqual({});
     expect(a.decision).toBeNull();
     expect(a.negotiation.oczekiwania).toBe('');
     expect(a.useE).toBe(false);

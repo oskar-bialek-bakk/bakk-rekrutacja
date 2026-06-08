@@ -31,6 +31,7 @@ export interface Assessment {
   notes: Partial<Record<BlockId, string>>;
   decision: Decision | null;
   decisionNote: string;
+  askedQuestions: Partial<Record<BlockId, Record<number, boolean>>>;
   negotiation: Negotiation;
   timer: TimerState;
   useE: boolean;
@@ -53,7 +54,7 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
   return {
     id, schemaVersion: SCHEMA_VERSION, candidate,
     selectedVariants: {}, deepenAsked: {}, marks: {}, flags: {}, notes: {},
-    decision: null, decisionNote: '', negotiation: emptyNegotiation(),
+    decision: null, decisionNote: '', askedQuestions: {}, negotiation: emptyNegotiation(),
     timer: { elapsedSec: 0, paused: false, offsetSec: 0 },
     useE: false, createdAt: now, updatedAt: now,
   };

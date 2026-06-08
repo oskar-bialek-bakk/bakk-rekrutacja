@@ -12,6 +12,10 @@ export interface Block {
   deepen: string;
   keyTitle: string;
   keys: string[];
+  /** Poprawne wyniki/odpowiedzi per wariant (równolegle do variants[]). Opcjonalne. */
+  variantAnswers?: string[];
+  /** Pula pytań do oznaczania „zadano" (np. blok D). Opcjonalne. */
+  questions?: string[];
   flagRed: string;
   flagGreen: string;
   scale: string[];
@@ -28,6 +32,7 @@ export const BLOCKS: Block[] = [
     deepen: 'Co się zmieni, jeśli usuniemy ostatni element? A jeśli lista będzie pusta — co powinien zrobić algorytm?',
     keyTitle: 'Klucz — śledzenie krok po kroku',
     keys: ['Czy śledzi krok po kroku, czy zgaduje', 'Czy łapie niezależność warunków', 'Pułapka: pominięte powtórzenie → zaniżony licznik (częsty błąd: 3 zamiast 4)', 'Jeśli poda od razu wynik — poproś o myślenie na głos'],
+    variantAnswers: ['(wynik = 10, parzyste = 4)', '(wynik = 1, licznik = 4)', '(suma = 16, wynik = "oua")'],
     flagRed: 'Zgaduje, myli logikę warunków', flagGreen: 'Sam weryfikuje, przelicza drugi raz',
     scale: [
       'Zgaduje, nie potrafi prześledzić nawet po naprowadzeniu; myli logikę warunków.',
@@ -83,6 +88,13 @@ export const BLOCKS: Block[] = [
     deepen: 'Gdybyś za pół roku dostał zadanie kompletnie poza twoją obecną wiedzą — co robisz w pierwszej kolejności?',
     keyTitle: 'Klucz — feedback i ciekawość',
     keys: ['Motywacja własna i konkretna vs. ogólniki', 'Feedback: bierze poprawkę czy usztywnia się (predyktor code review)', 'Realny sposób nauki vs. deklaracje', 'Rozumie realia roli (utrzymanie, klient), nie tylko greenfield'],
+    questions: [
+      'Czemu programowanie i czemu .NET/SQL? Co cię w tym trzyma?',
+      'Czemu nasza firma / ten typ pracy (utrzymanie + rozwój, praca z klientem)?',
+      'Opowiedz o krytycznym feedbacku do twojego kodu — jak zareagowałeś?',
+      'Czego chcesz się nauczyć w pierwszym roku? Jak się uczysz?',
+      'Coś technicznego, czego nie umiałeś, a musiałeś ogarnąć — jak podszedłeś?',
+    ],
     flagRed: 'Obwinia innych za feedback; brak ciekawości', flagGreen: 'Konkretny przykład wzięcia poprawki + ciekawość',
     scale: [
       'Ogólniki, brak własnej motywacji; do feedbacku obronny/lekceważący.',
@@ -95,7 +107,7 @@ export const BLOCKS: Block[] = [
   {
     id: 'E', key: 'Blok E · zapas (bez wagi)', title: 'Projekt: podlewanie', time: 'jeśli zostanie czas', weight: 0, optional: true,
     variants: [
-      { label: 'E · układ podlewania', read: `<p>Masz poprowadzić podlewanie między 8 doniczkami. Dysponujesz: rurą, emiterami (po jednym na doniczkę) i trójnikami do rozgałęzień.</p><p>Opisz albo naszkicuj, jak je połączysz.</p>` },
+      { label: 'E · układ podlewania', read: `<p><b>Kontekst:</b> to uproszczony projekt systemu z gotowych klocków — interesuje nas <i>struktura</i> rozwiązania, nie hydraulika. Nie potrzebujesz wiedzy o ogrodnictwie.</p><p><b>Zadanie:</b> zaprojektuj układ podlewania dla 8 doniczek. Opisz słownie albo naszkicuj.</p><p><b>Dostępne elementy:</b></p><ul><li><span class="mono">rura</span> — pojedyncza magistrala doprowadzająca wodę ze źródła</li><li><span class="mono">trójniki</span> — rozgałęziają rurę (1 wejście → 2 wyjścia)</li><li><span class="mono">emitery</span> — dozują wodę do pojedynczej doniczki (po jednym na doniczkę)</li></ul>` },
     ],
     deepen: 'A gdyby doniczek było 50 i stały w dwóch rzędach — co zmieniłbyś w podejściu?',
     keyTitle: 'Klucz — projektowanie z klocków (jakościowo, bez punktów do wyniku)',

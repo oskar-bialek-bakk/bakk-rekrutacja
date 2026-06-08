@@ -45,6 +45,7 @@ export function migrateAssessment(raw: unknown): Assessment {
     notes: (r.notes ?? {}) as Assessment['notes'],
     decision: (r.decision ?? null) as Assessment['decision'],
     decisionNote: typeof r.decisionNote === 'string' ? r.decisionNote : '',
+    askedQuestions: (r.askedQuestions ?? {}) as Assessment['askedQuestions'],
     negotiation: ensureNegotiation(r.negotiation),
     timer: ensureTimer(r.timer),
     useE: typeof r.useE === 'boolean' ? r.useE : false,

@@ -27,11 +27,16 @@ export async function renderStart(host: HTMLElement): Promise<void> {
       <button class="btn primary" id="btn-start">Rozpocznij rozmowę →</button>
     </div>`;
 
+  const displayLabel = (label: string): string => {
+    const idx = label.indexOf(' · ');
+    return idx >= 0 ? label.slice(idx + 3) : label;
+  };
+
   const vp = host.querySelector('#variant-pick')!;
   vp.innerHTML = BLOCKS.filter((b) => b.variants.length > 1).map((b) => `
     <div class="field"><label>${b.title} — wariant</label>
       <div class="vchips" data-block="${b.id}">
-        ${b.variants.map((v, i) => `<button type="button" class="vchip ${i === suggested[b.id] ? 'on' : ''}" data-idx="${i}">${v.label}</button>`).join('')}
+        ${b.variants.map((v, i) => `<button type="button" class="vchip ${i === suggested[b.id] ? 'on' : ''}" data-idx="${i}">${displayLabel(v.label)}</button>`).join('')}
       </div></div>`).join('');
 
   vp.querySelectorAll<HTMLElement>('.vchips').forEach((row) => {
