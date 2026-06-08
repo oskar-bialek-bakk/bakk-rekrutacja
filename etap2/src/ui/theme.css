@@ -90,6 +90,9 @@
   .step.active .t{color:var(--ink)}
   .step .bar{height:3px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
   .step .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+  /* znacznik braku notatki — subtelny, widoczny tylko przy .no-note */
+  .step .note-flag{display:none;position:absolute;bottom:8px;right:11px;font-size:12px;line-height:1;color:var(--ink-faint);opacity:.7;pointer-events:none}
+  .step.no-note .note-flag{display:block}
 
   /* card */
   .card{
