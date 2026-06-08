@@ -1,0 +1,22 @@
+name: Deploy etap2 → bakk-rekrutacja (root)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'etap2/**'
+      - '.github/workflows/deploy-bakk-rekrutacja-etap2.yml'
+      - '.github/workflows/deploy-vite-to-azure.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-vite-to-azure.yml
+    with:
+      app-name: bakk-rekrutacja
+      resource-group: rg-bakk-docs
+      subscription-id: 28b7c9a4-317a-495c-99ed-6a6cec116a44
+      app-dir: etap2
+      subpath: ""
+    secrets:
+      azure-publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA }}
