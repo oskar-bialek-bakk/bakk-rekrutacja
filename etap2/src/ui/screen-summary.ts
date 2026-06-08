@@ -138,9 +138,14 @@ export function renderSummary(host: HTMLElement): void {
   };
   (host.querySelector('#save') as HTMLButtonElement).onclick = async () => {
     stopTimer();
+    const isFirstSave = (await repo.get(a.id)) === null;
     await repo.save(a);
-    const usage = await repo.getVariantUsage();
-    await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotatingBlockIds()));
+    if (isFirstSave) {
+      // Licznik rotacji podbijamy tylko przy pierwszym zapisie oceny.
+      // Edycja istniejącego rekordu (z ekranu szczegółów) nie zwiększa go ponownie.
+      const usage = await repo.getVariantUsage();
+      await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotatingBlockIds()));
+    }
     navigate('roster');
   };
 }

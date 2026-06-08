@@ -7,6 +7,7 @@ import { renderRoster } from './ui/screen-roster';
 import { renderDetail } from './ui/screen-detail';
 
 export function navigate(screen: Session['screen']): void {
+  if (screen !== 'detail') session.detailId = null;
   session.screen = screen;
   render();
 }
