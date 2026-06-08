@@ -136,3 +136,57 @@ export const BLOCKS: Block[] = [
 export function rotatingBlockIds(): BlockId[] {
   return BLOCKS.filter((b) => b.variants.length > 1).map((b) => b.id);
 }
+
+// Wariant A-alt (wykresowy): alternatywa dla A-1/A-2/A-3, 3-stopniowa skala 1/3/5.
+// Włączany togglem na ekranie startowym (Assessment.useAChart).
+const CHART_VALUES: readonly number[] = [3, 8, 5, 12, 9, 6, 11];
+const CHART_DAYS: readonly string[] = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
+
+function buildChartSvg(): string {
+  const max = Math.max(...CHART_VALUES);
+  const barW = 36;
+  const gap = 12;
+  const padX = 24;
+  const padTop = 16;
+  const chartH = 160;
+  const labelH = 28;
+  const width = padX * 2 + CHART_VALUES.length * barW + (CHART_VALUES.length - 1) * gap;
+  const height = padTop + chartH + labelH;
+  const bars = CHART_VALUES.map((v, i) => {
+    const x = padX + i * (barW + gap);
+    const h = Math.round((v / max) * chartH);
+    const y = padTop + (chartH - h);
+    const labelY = padTop + chartH + 18;
+    return `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" class="chart-bar" /><text x="${x + barW / 2}" y="${y - 6}" class="chart-val">${v}</text><text x="${x + barW / 2}" y="${labelY}" class="chart-day">${CHART_DAYS[i]}</text>`;
+  }).join('');
+  return `<svg class="chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Wykres słupkowy: wartości dla 7 dni tygodnia"><g>${bars}</g></svg>`;
+}
+
+export const BLOCK_A_CHART: Block = {
+  id: 'A',
+  key: 'Blok A · rozgrzewka',
+  title: 'Odczyt wykresu',
+  time: '5 min',
+  weight: 15,
+  variants: [
+    {
+      label: 'A-chart · trend i ekstrema',
+      read: `<p><b>Kontekst:</b> spójrz na wykres. Nie chodzi o liczenie w pamięci, chodzi o to, czy potrafisz odczytać trend i ekstrema. Mów na głos, co widzisz.</p>${buildChartSvg()}<p><b>Podaj:</b></p><ul><li>który dzień miał największą wartość,</li><li>ile wynosi przybliżona suma,</li><li>czy trend rośnie, maleje, czy jest mieszany.</li></ul>`,
+    },
+  ],
+  deepen: 'A gdyby brakowało jednego słupka (np. środa) — jak byś oszacował jego wartość?',
+  keyTitle: 'Klucz — odczyt wykresu',
+  keys: [
+    'Czy poprawnie wskazuje ekstremum (czwartek = 12)',
+    'Czy szacuje sumę (≈54) zamiast się gubić w dokładnym liczeniu',
+    'Czy opisuje trend (mieszany, z lekkim wzrostem)',
+    'Czy mówi na głos co robi, czy zgaduje',
+  ],
+  flagRed: 'Zgaduje, myli słupki, nie potrafi opisać trendu',
+  flagGreen: 'Sam wskazuje ekstremum, szacuje sumę, klarownie opisuje trend',
+  scale: [
+    'Nie potrafi odczytać wykresu, gubi się przy wskazaniu maksimum.',
+    'Odczytuje wartości poprawnie, ale opisuje trend chaotycznie lub myli kierunki.',
+    'Sam wskazuje ekstremum, sumę przybliża, opisuje trend jasno i spokojnie.',
+  ],
+};

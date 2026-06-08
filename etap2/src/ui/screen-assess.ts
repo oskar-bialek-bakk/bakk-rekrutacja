@@ -1,6 +1,6 @@
-import { BLOCKS } from '../content/blocks';
+import { BLOCKS, BLOCK_A_CHART } from '../content/blocks';
 import type { Block } from '../content/blocks';
-import type { Mark } from '../domain/model';
+import type { Assessment, Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
 import { blockState } from '../domain/block-state';
 import { parseTargetSec, warnLevel } from '../domain/timer';
@@ -26,6 +26,8 @@ function installKeyboardHandlers(host: HTMLElement): void {
       const blocks = activeBlocks();
       const b = blocks[session.cur];
       if (b) {
+        const allowed = markLevels(b);
+        if (!allowed.includes(mark)) return;
         a.marks[b.id] = mark;
         e.preventDefault();
         renderAssess(host);
@@ -56,8 +58,17 @@ function installKeyboardHandlers(host: HTMLElement): void {
   });
 }
 
+export function effectiveBlock(b: Block, a: Assessment): Block {
+  return b.id === 'A' && a.useAChart ? BLOCK_A_CHART : b;
+}
+
 export function activeBlocks(): Block[] {
-  return BLOCKS.filter((b) => !b.optional || session.current!.useE);
+  const a = session.current!;
+  return BLOCKS.filter((b) => !b.optional || a.useE).map((b) => effectiveBlock(b, a));
+}
+
+function markLevels(b: Block): number[] {
+  return b.scale.length === 3 ? [1, 3, 5] : [1, 2, 3, 4, 5];
 }
 
 function formatMmSs(sec: number): string {
@@ -135,8 +146,13 @@ export function renderAssess(host: HTMLElement): void {
           ${readboxHtml}
           ${questionsHtml}
           <div class="label" style="margin-top:18px">Ocena — wybierz poziom</div>
-          <fieldset class="scale" id="scale">${b.scale.map((d, i) =>
-            `<label class="lvl ${sel === i + 1 ? 'sel' : ''}" data-lvl="${i + 1}"><input type="radio" name="mark" value="${i + 1}" ${sel === i + 1 ? 'checked' : ''}><span class="num">${i + 1}</span><span class="desc">${d}</span></label>`).join('')}</fieldset>
+          <fieldset class="scale" id="scale">${(() => {
+            const levels = markLevels(b);
+            return b.scale.map((d, i) => {
+              const lvl = levels[i];
+              return `<label class="lvl ${sel === lvl ? 'sel' : ''}" data-lvl="${lvl}"><input type="radio" name="mark" value="${lvl}" ${sel === lvl ? 'checked' : ''}><span class="num">${lvl}</span><span class="desc">${d}</span></label>`;
+            }).join('');
+          })()}</fieldset>
           <label class="deepen ${a.deepenAsked[b.id] ? 'is-asked' : ''}" id="deepen-box">
             <div class="dh">Pytanie pogłębiające <span class="tag">jeśli zostanie czas</span></div>
             <div class="dq">„${b.deepen}”</div>

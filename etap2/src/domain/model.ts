@@ -38,6 +38,7 @@ export interface Assessment {
   timer: TimerState;
   blockTimes: BlockTimes;
   useE: boolean;
+  useAChart: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,6 +61,6 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
     decision: null, decisionNote: '', askedQuestions: {}, negotiation: emptyNegotiation(),
     timer: { elapsedSec: 0, paused: false, offsetSec: 0, phase45Notified: false },
     blockTimes: {},
-    useE: false, createdAt: now, updatedAt: now,
+    useE: false, useAChart: false, createdAt: now, updatedAt: now,
   };
 }
