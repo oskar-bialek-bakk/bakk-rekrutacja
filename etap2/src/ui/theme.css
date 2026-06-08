@@ -113,6 +113,19 @@
   .roster-status{margin:0 30px;padding:11px 16px;border-radius:10px;font-size:14px;border:1px solid var(--line)}
   .roster-status.ok{background:rgba(127,174,110,.12);color:#a5cb96;border-color:rgba(127,174,110,.3)}
   .roster-status.error{background:rgba(207,107,90,.12);color:#e89384;border-color:rgba(207,107,90,.3)}
+  .roster-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 30px 0}
+  .roster-controls label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  .roster-controls select{
+    background:#15120f;border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-family:'IBM Plex Sans';font-size:14px;padding:8px 11px;
+  }
+  .roster-controls select:focus{outline:none;border-color:var(--accent)}
+  #sort-dir{min-width:40px;padding:8px 12px;font-size:15px;line-height:1}
+  .row-del{
+    background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;
+    padding:5px 9px;font-size:14px;line-height:1;color:var(--ink-dim);transition:.15s;
+  }
+  .row-del:hover{border-color:var(--red);background:rgba(207,107,90,.1)}
   .pill{
     display:inline-block;font-size:12px;padding:5px 11px;border-radius:20px;
     border:1px solid var(--line);color:var(--ink-dim);font-family:'JetBrains Mono',Consolas,monospace;
