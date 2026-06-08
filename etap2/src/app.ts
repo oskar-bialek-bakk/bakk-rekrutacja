@@ -14,7 +14,7 @@ export function render(): void {
   const host = document.getElementById('app')!;
   host.innerHTML = '';
   switch (session.screen) {
-    case 'start': renderStart(host); break;
+    case 'start': void renderStart(host); break;
     case 'assess': renderAssess(host); break;
     case 'summary': renderSummary(host); break;
     case 'roster': renderRoster(host); break;
