@@ -21,6 +21,9 @@ export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
   } = options;
 
   return new Promise<boolean>((resolve) => {
+    // Zapamiętaj fokus sprzed otwarcia dialogu, aby przywrócić go po zamknięciu.
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     const backdrop = document.createElement('div');
     backdrop.className = 'modal-backdrop';
 
@@ -36,11 +39,16 @@ export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
       titleEl.textContent = title;
       dialog.setAttribute('aria-labelledby', 'modal-title');
       dialog.appendChild(titleEl);
+    } else {
+      // Bez tytułu dialog nadal potrzebuje nazwy dostępnej dla czytników ekranu.
+      dialog.setAttribute('aria-label', 'Potwierdzenie');
     }
 
     const messageEl = document.createElement('div');
     messageEl.className = 'modal-message';
+    messageEl.id = 'modal-message';
     messageEl.textContent = message;
+    dialog.setAttribute('aria-describedby', 'modal-message');
     dialog.appendChild(messageEl);
 
     const actions = document.createElement('div');
@@ -69,6 +77,10 @@ export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
       settled = true;
       document.removeEventListener('keydown', onKeydown);
       backdrop.remove();
+      // Przywróć fokus na element aktywny sprzed otwarcia dialogu.
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+        previouslyFocused.focus();
+      }
       resolve(result);
     };
 

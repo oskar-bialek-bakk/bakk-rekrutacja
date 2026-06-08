@@ -68,11 +68,11 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       ? `<tr><td class="roster-empty" colspan="7">${emptyMessage}</td></tr>`
       : processed
           .map(
-            (r) => `<tr class="row-link" data-open-id="${escapeHtml(r.a.id)}">
+            (r) => `<tr class="row-link" data-open-id="${escapeHtml(r.a.id)}" tabindex="0" role="button" aria-label="Otwórz szczegóły kandydata: ${escapeHtml(r.a.candidate.nameOrId)}">
           <td class="name">${escapeHtml(r.a.candidate.nameOrId)}</td><td>${escapeHtml(r.a.candidate.date)}</td>
           <td>${escapeHtml(r.a.candidate.stage1Result) || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
           <td>${'🔴'.repeat(r.red)}${'🟢'.repeat(r.green) || (r.red ? '' : '—')}</td><td>${decTag(r.a.decision)}</td>
-          <td><button class="row-del" data-id="${escapeHtml(r.a.id)}" title="Usuń">🗑</button></td>
+          <td><button type="button" class="row-del" data-id="${escapeHtml(r.a.id)}" title="Usuń" aria-label="Usuń ocenę kandydata: ${escapeHtml(r.a.candidate.nameOrId)}">🗑</button></td>
         </tr>`
           )
           .join('');
@@ -122,11 +122,20 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
   };
 
   host.querySelectorAll<HTMLTableRowElement>('tr.row-link').forEach((row) => {
-    row.onclick = (event) => {
-      // Nie otwieraj szczegółów, gdy klik trafił w przycisk usuwania.
-      if ((event.target as HTMLElement).closest('.row-del')) return;
+    // Otwórz szczegóły, chyba że zdarzenie trafiło w przycisk usuwania.
+    const openUnlessOnDelete = (target: EventTarget | null): void => {
+      if ((target as HTMLElement | null)?.closest('.row-del')) return;
       const id = row.dataset.openId;
       if (id) openDetail(id);
+    };
+    row.onclick = (event) => openUnlessOnDelete(event.target);
+    row.onkeydown = (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      // Przycisk usuwania sam obsługuje klawiaturę, więc go pomijamy.
+      if ((event.target as HTMLElement | null)?.closest('.row-del')) return;
+      // Zapobiegaj przewijaniu strony spacją podczas aktywacji wiersza.
+      event.preventDefault();
+      openUnlessOnDelete(event.target);
     };
   });
 
