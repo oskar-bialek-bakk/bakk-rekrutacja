@@ -15,7 +15,7 @@ async function copyTextSafe(text: string): Promise<boolean> {
 
 async function copyHtmlSafe(html: string, text: string): Promise<boolean> {
   // Spróbuj zapisać HTML i tekst równolegle (text/html + text/plain).
-  // ClipboardItem może nie być dostępny (jsdom, starsze przeglądarki) — wtedy fallback do writeText(html).
+  // ClipboardItem może nie być dostępny (jsdom, starsze przeglądarki); wtedy fallback do writeText(html).
   const clip = navigator.clipboard as Clipboard & {
     write?: (data: ClipboardItem[]) => Promise<void>;
   };
