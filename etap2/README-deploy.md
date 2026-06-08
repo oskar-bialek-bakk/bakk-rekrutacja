@@ -2,9 +2,12 @@
 
 Aplikacja oceny II etapu hostowana na dedykowanym Azure App Service
 `bakk-rekrutacja` (RG `rg-bakk-docs`, subskrypcja
-`28b7c9a4-317a-495c-99ed-6a6cec116a44`). Wzorzec lustrzany do
-`intrum-documentation` (zob. repo Intrum). SSO przez Microsoft Entra („Easy
-Auth" App Service) z tego samego tenanta co `intrum-documentation`.
+`28b7c9a4-317a-495c-99ed-6a6cec116a44`, plan `asp-bakk-docs` F1 Free dzielony
+z `intrum-documentation`). Wzorzec lustrzany do `intrum-documentation` (zob.
+repo Intrum). SSO przez Microsoft Entra („Easy Auth" App Service) z tego
+samego tenanta co `intrum-documentation`.
+
+URL: `https://bakk-rekrutacja.azurewebsites.net/`.
 
 Workflow:
 - reusable `.github/workflows/deploy-vite-to-azure.yml` (build Vite + deploy
@@ -16,121 +19,75 @@ Workflow:
 Persystencja zostaje w `localStorage` przeglądarki (Faza 4). Multi-user,
 Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
-## Setup jednorazowy (Azure portal)
+## Stan setupu (2026-06-08)
 
-Wymagane uprawnienia: Owner / Contributor na subskrypcji
-`28b7c9a4-317a-495c-99ed-6a6cec116a44` oraz prawa do tenant Entra (lub osoba,
-która skonfigurowała Easy Auth dla `intrum-documentation` — odtwarzamy
-identyczną konfigurację).
+**Zrobione przez Claude:**
+- ✅ App Service `bakk-rekrutacja` utworzony na planie `asp-bakk-docs`
+  (Windows F1 Free, ten sam plan co `intrum-documentation` — zero
+  dodatkowego kosztu).
+- ✅ HTTPS only włączone (default w nowych App Service).
+- ✅ Basic publishing credentials (SCM + FTP) włączone — wymagane przez
+  `azure/webapps-deploy@v3`.
+- ✅ Publish profile pobrany i wpięty do GitHub jako secret
+  `AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA`.
+- ✅ Pierwszy deploy z `main` przeszedł zielony, smoke test `curl` zwraca
+  HTTP 200 + tytuł „Ocena rozmowy — II etap · BAKK" (single-file 99 kB).
 
-### 1. Utwórz App Service `bakk-rekrutacja`
+- ✅ Easy Auth (Microsoft Entra) włączony — reuse Enterprise Application
+  **BAKK Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`, single-tenant,
+  tylko pracownicy BAKK) zgodnie ze standardem z Confluence pageId=159417649.
+  Redirect URI dodany do BAKK Int Apps, dedykowany secret (per standard
+  „każda App Service ma własny secret") wygenerowany i wpięty do
+  `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`, `authsettingsV2`
+  skonfigurowane (`RedirectToLoginPage`, tokenStore on, cookie 8h),
+  App Service zrestartowany.
+- ✅ Smoke test: `curl -A Mozilla https://bakk-rekrutacja.azurewebsites.net/`
+  zwraca HTTP 302 → `login.microsoftonline.com/c21db186-.../oauth2/v2.0/authorize`
+  z `client_id=5d588d76-...`.
 
-Portal Azure → Create resource → Web App:
+**Tym samym Faza 4 jest zamknięta — nie ma już zadań user-side dla samego
+hostingu. Otwórz URL z konta BAKK i zweryfikuj pełen przepływ.**
 
-- Subscription: `28b7c9a4-317a-495c-99ed-6a6cec116a44`
-- Resource group: `rg-bakk-docs`
-- Name: `bakk-rekrutacja`
-- Publish: **Code**
-- Runtime stack: **Node 20 LTS**
-- Operating System: **Linux**
-- Region: ten sam co `intrum-documentation`
-- Pricing plan: ten sam plan co `intrum-documentation` (jeżeli ma wolne sloty,
-  można dosiąść; w razie potrzeby B1/F1)
+## Reprodukcja od zera (gdyby trzeba)
 
-Po utworzeniu URL aplikacji: `https://bakk-rekrutacja.azurewebsites.net/`.
+W razie odtworzenia tej konfiguracji (np. nowy podobny App Service):
 
-### 2. Pobierz publish profile
+1. Utworzenie App Service na planie `asp-bakk-docs`:
+   ```bash
+   az webapp create -g rg-bakk-docs -p asp-bakk-docs -n <NAZWA>
+   ```
+2. Włączenie basic publishing creds (inaczej `azure/webapps-deploy@v3` padnie):
+   ```bash
+   az resource update -g rg-bakk-docs --name scm --namespace Microsoft.Web \
+     --resource-type basicPublishingCredentialsPolicies \
+     --parent sites/<NAZWA> --set properties.allow=true
+   az resource update -g rg-bakk-docs --name ftp --namespace Microsoft.Web \
+     --resource-type basicPublishingCredentialsPolicies \
+     --parent sites/<NAZWA> --set properties.allow=true
+   ```
+3. Publish profile → GitHub secret:
+   ```bash
+   az webapp deployment list-publishing-profiles -g rg-bakk-docs -n <NAZWA> --xml \
+     | gh secret set AZURE_PUBLISH_PROFILE_<NAZWA_UPPER> --repo <ORG>/<REPO>
+   ```
+4. Easy Auth: `etap2/scripts/enable-easy-auth.ps1` (zmień `$dstApp` i URI).
+   Aplikacja używa **BAKK Int Apps** (pracownicy BAKK) zgodnie z artykułem
+   Confluence pageId=159417649. Dla aplikacji dla użytkowników zewnętrznych
+   trzeba podstawić `BAKK Ext Apps` (`45198913-...`) i dodatkowo ustawić
+   `WEBSITE_AUTH_AAD_ALLOWED_TENANTS` per artykuł.
 
-App Service `bakk-rekrutacja` → Overview → **Get publish profile** (pobierze
-plik `.PublishSettings` XML).
-
-### 3. Dodaj GitHub secret
-
-Repo `oskar-bialek-bakk/bakk-rekrutacja` → Settings → Secrets and variables
-→ Actions → New repository secret:
-
-- Name: `AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA`
-- Value: pełna treść XML z `.PublishSettings`
-
-### 4. Włącz Easy Auth (Microsoft Entra)
-
-Lustro konfiguracji `intrum-documentation`.
-
-App Service `bakk-rekrutacja` → Authentication → Add identity provider:
-
-- Identity provider: **Microsoft**
-- Tenant type: **Workforce**
-- App registration: **Create new app registration** (nazwa
-  `bakk-rekrutacja-auth`) albo **Pick an existing app registration** jeżeli
-  centralnie zarządzana
-- Supported account types: ten sam wybór co w `intrum-documentation`
-  (zazwyczaj „Current tenant only")
-- Restrict access: **Require authentication**
-- Unauthenticated requests: **HTTP 302 Found redirect: recommended for
-  websites**
-- Token store: enabled
-
-Po dodaniu providera:
-
-- W App registration (Entra ID → App registrations →
-  `bakk-rekrutacja-auth` → Authentication) sprawdź redirect URI
-  `https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback`.
-- W „Authentication" App Service → Identity provider → Edit → przejdź do
-  zakładki „Permissions" i nadaj te same scopes co
-  `intrum-documentation` (`openid profile email User.Read`).
-
-### 5. Nadanie dostępu prowadzącym rozmowy
-
-Wariant prostszy (jak w `intrum-documentation`, jeśli tam tak jest):
-wszyscy użytkownicy tenanta BAKK mają dostęp przy zalogowaniu — Easy Auth
-sprawdza tylko ważny token Entra, bez dodatkowej autoryzacji per grupa.
-
-Wariant z grupą AAD (jeśli `intrum-documentation` używa grupy):
-- Entra ID → Groups → utwórz grupę `bakk-rekrutacja-users` (lub reuse grupy
-  używanej w `intrum-documentation`).
-- App registration `bakk-rekrutacja-auth` → Enterprise applications →
-  `bakk-rekrutacja-auth` → Properties → **Assignment required: Yes**.
-- Users and groups → Add user/group → wybierz grupę.
-
-Decyzję który wariant odtworzyć podejmij po sprawdzeniu, jak skonfigurowane
-jest `intrum-documentation` w portalu.
-
-## Deployment
-
-Po jednorazowym setupie deploy jest automatyczny:
+## Deployment (automatyczny)
 
 - Push na `main` z dotknięciem `etap2/**` → workflow
   `deploy-bakk-rekrutacja-etap2` uruchamia reusable, buduje `etap2/dist/`,
-  pakuje do zipa i wrzuca na App Service (`clean: false`, więc późniejsze
-  siostrzane subpathy się nie nadpisują).
+  pakuje do zipa i wrzuca na App Service (`clean: false`).
 - Ręczny deploy: GitHub → Actions → workflow „Deploy etap2 → bakk-rekrutacja
   (root)" → Run workflow → branch `main`.
 
 PR na `etap2/**` uruchamia `etap2-ci`: `npm ci`, `npm test`, `npm run build`.
-Zielony build jest warunkiem mergea (skonfiguruj w Settings → Branches →
-Branch protection rules → `main` → Require status checks: `test-and-build`).
-
-## Smoke test po pierwszym deployu
-
-1. Po zakończonym workflow otwórz `https://bakk-rekrutacja.azurewebsites.net/`.
-2. Zaloguj się przez Entra (powinno zażądać tokena BAKK).
-3. Po zalogowaniu otwiera się ekran startowy etap2 (formularz kandydata,
-   wybór wariantów, toggle bloku E).
-4. Wypełnij dane testowe → „Rozpocznij rozmowę" → przejdź blok A → zapisz
-   ocenę → „Podsumowanie" → „Zestawienie kandydatów" (rekord widoczny na
-   liście).
-5. Odśwież stronę → kandydat dalej na liście (localStorage trzyma dane).
-6. Otwórz devtools → Application → Local Storage →
-   `https://bakk-rekrutacja.azurewebsites.net` → klucze
-   `etap2.assessments`, `etap2.variantUsage`, `etap2.settings` istnieją.
-
-Jeżeli aplikacja nie ładuje assetów (białe okno + 404 w sieci):
-
-- Sprawdź w `vite.config.ts` wartość `base`. Single-file build (`base: './'`)
-  powinien działać pod rootem.
-- Jeżeli chcesz w przyszłości subpath (np. `/etap2/`), uruchom caller
-  workflow z inputem `site-base: '/etap2/'`; reusable workflow nadpisze
-  `base` w `vite.config.ts` sed-em przed buildem.
+Zielony build jest warunkiem mergea (do skonfigurowania w Settings →
+Branches → Branch protection rules → `main` → Require status checks:
+`test-and-build`).
 
 ## Rollback
 
@@ -141,5 +98,25 @@ W razie problemu po deployu:
 - W GitHub → Actions → wybierz wcześniejszy zielony run workflow
   `deploy-bakk-rekrutacja-etap2` → „Re-run all jobs".
 
-Dla większej bezpieczeństwa warto włączyć deployment slots (jeśli plan
-pricing pozwala): staging slot + swap. Do rozważenia po stabilizacji.
+Dla większego bezpieczeństwa warto włączyć deployment slots (jeśli plan
+pricing pozwala — F1 ich nie ma, wymaga B1+): staging slot + swap. Do
+rozważenia po stabilizacji.
+
+## Skąd się wzięły basic credentials
+
+Nowe App Service w naszej subskrypcji mają domyślnie **wyłączone** basic
+auth (SCM + FTP). `azure/webapps-deploy@v3` korzysta z publish profile,
+który bez basic auth nie zawiera credentiali → deploy pada „Publish profile
+is invalid". Setup włączający:
+
+```bash
+az resource update -g rg-bakk-docs --name scm --namespace Microsoft.Web \
+  --resource-type basicPublishingCredentialsPolicies \
+  --parent sites/bakk-rekrutacja --set properties.allow=true
+az resource update -g rg-bakk-docs --name ftp --namespace Microsoft.Web \
+  --resource-type basicPublishingCredentialsPolicies \
+  --parent sites/bakk-rekrutacja --set properties.allow=true
+```
+
+Alternatywa „enterprise-grade": OIDC z federated identity zamiast publish
+profile. Do rozważenia w Fazie 5.
