@@ -1,9 +1,8 @@
 import { BLOCKS, rotatingBlockIds } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
 import { recordSelectedVariants } from '../domain/variants';
-import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import type { Decision } from '../domain/model';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
 import { navigate } from '../app';
 import { elapsedStr, stopTimer } from './timer-ui';
 import { escapeHtml } from './escape';
@@ -12,7 +11,7 @@ import { serializeAssessment } from '../export/json';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
-  const r = computeScore(a.marks, DEFAULT_WEIGHTS);
+  const r = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore });
   const verdict = r.score >= 75 ? 'Wysoki wynik względny' : r.score >= 55 ? 'Średni wynik względny' : 'Niski wynik względny';
   const incomplete = !r.complete
     ? `<div class="callout warn">Ocena niepełna: oceniono ${r.scoredCount}/${r.totalWeightedBlocks} bloków ważonych. Wynik liczony tylko z ocenionych.</div>`

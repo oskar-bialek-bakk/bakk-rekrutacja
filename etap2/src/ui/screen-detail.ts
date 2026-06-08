@@ -1,9 +1,8 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
-import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import type { Assessment } from '../domain/model';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { confirmDialog } from './confirm-dialog';
@@ -137,7 +136,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
   }
 
   const blocks = BLOCKS.filter((b) => !b.optional || a!.useE);
-  const score = computeScore(a.marks, DEFAULT_WEIGHTS).score;
+  const score = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore }).score;
   const stage1 = a.candidate.stage1Result.trim() ? escapeHtml(a.candidate.stage1Result) : '—';
   const stage1Note = a.candidate.stage1Note.trim() ? escapeHtml(a.candidate.stage1Note) : '—';
 
