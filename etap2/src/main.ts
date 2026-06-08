@@ -11,6 +11,10 @@ document.getElementById('nav-roster')?.addEventListener('click', () => {
   navigate('roster');
 });
 
+document.getElementById('btn-settings')?.addEventListener('click', () => {
+  navigate('settings');
+});
+
 const brand = document.getElementById('brand');
 brand?.addEventListener('click', () => {
   navigate('roster');
