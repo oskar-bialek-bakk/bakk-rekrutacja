@@ -1,5 +1,18 @@
 import type { Assessment, Candidate, Negotiation, TimerState } from '../domain/model';
 import { SCHEMA_VERSION } from '../domain/model';
+import type { BlockTimes } from '../domain/timer';
+
+function ensureBlockTimes(b: unknown): BlockTimes {
+  if (!b || typeof b !== 'object') return {};
+  const out: BlockTimes = {};
+  for (const [key, val] of Object.entries(b as Record<string, unknown>)) {
+    if (key !== 'A' && key !== 'B' && key !== 'C' && key !== 'D' && key !== 'E') continue;
+    const v = val as { spentSec?: unknown } | null | undefined;
+    const spent = typeof v?.spentSec === 'number' ? v.spentSec : 0;
+    out[key] = { spentSec: spent };
+  }
+  return out;
+}
 
 function ensureCandidate(c: unknown): Candidate {
   const obj = (c ?? {}) as Partial<Candidate>;
@@ -48,6 +61,7 @@ export function migrateAssessment(raw: unknown): Assessment {
     askedQuestions: (r.askedQuestions ?? {}) as Assessment['askedQuestions'],
     negotiation: ensureNegotiation(r.negotiation),
     timer: ensureTimer(r.timer),
+    blockTimes: ensureBlockTimes(r.blockTimes),
     useE: typeof r.useE === 'boolean' ? r.useE : false,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,

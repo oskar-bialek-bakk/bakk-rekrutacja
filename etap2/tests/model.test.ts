@@ -14,6 +14,8 @@ describe('createEmptyAssessment', () => {
     expect(a.decision).toBeNull();
     expect(a.negotiation.oczekiwania).toBe('');
     expect(a.useE).toBe(false);
+    expect(a.blockTimes).toEqual({});
+    expect(SCHEMA_VERSION).toBe(2);
     expect(typeof a.createdAt).toBe('string');
   });
 });
