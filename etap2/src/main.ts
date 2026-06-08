@@ -1,4 +1,12 @@
 import './ui/theme.css';
-import { render } from './app';
+import { navigate, render } from './app';
 
 render();
+
+document.getElementById('nav-roster')?.addEventListener('click', () => {
+  navigate('roster');
+});
+
+document.getElementById('brand')?.addEventListener('click', () => {
+  navigate('roster');
+});

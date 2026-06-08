@@ -46,13 +46,25 @@
     backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand{display:flex;align-items:baseline;gap:12px;cursor:pointer}
+  .brand:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .brand .mark{
     font-family:'Newsreader',serif;font-weight:600;font-size:19px;letter-spacing:-.01em;
     color:var(--ink);
   }
   .brand .mark span{color:var(--accent)}
   .brand .sub{font-size:12px;color:var(--ink-faint);letter-spacing:.04em;text-transform:uppercase}
+
+  .topnav{display:flex;align-items:center}
+  .topnav-btn{
+    font-family:inherit;font-size:13px;font-weight:500;letter-spacing:.01em;
+    color:var(--ink-dim);background:transparent;
+    border:1px solid var(--line);border-radius:7px;
+    padding:7px 14px;cursor:pointer;
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  .topnav-btn:hover{color:var(--ink);border-color:var(--accent);background:var(--panel)}
+  .topnav-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   .clock{
     margin-left:auto;display:flex;align-items:center;gap:18px;
