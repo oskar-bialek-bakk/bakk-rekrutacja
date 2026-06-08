@@ -1,4 +1,4 @@
-import type { BlockId } from './model';
+import type { BlockId, TimerState } from './model';
 
 export interface BlockTime {
   spentSec: number;
@@ -63,4 +63,30 @@ export function totalSpentSec(times: BlockTimes): number {
     sum += times[key]?.spentSec ?? 0;
   }
   return sum;
+}
+
+/**
+ * Immutable: zwraca nowy TimerState z paused=true.
+ */
+export function pauseTimer(t: TimerState): TimerState {
+  return { ...t, paused: true };
+}
+
+/**
+ * Immutable: zwraca nowy TimerState z paused=false.
+ */
+export function resumeTimer(t: TimerState): TimerState {
+  return { ...t, paused: false };
+}
+
+/**
+ * Immutable: koryguje offsetSec o deltaSec (moze byc ujemne).
+ * Invariant: elapsedSec to wartosc wynikowa pokazywana na ekranie (zawiera juz offset).
+ * Aby elapsedSec po korekcie nie spadlo ponizej 0, deltaSec jest clampowane do
+ * dolnej granicy -elapsedSec. Przyklad: elapsedSec=10, deltaSec=-30 → effective=-10.
+ */
+export function adjustOffset(t: TimerState, deltaSec: number): TimerState {
+  if (!Number.isFinite(deltaSec) || deltaSec === 0) return { ...t };
+  const effective = deltaSec < 0 ? Math.max(deltaSec, -t.elapsedSec) : deltaSec;
+  return { ...t, offsetSec: t.offsetSec + effective };
 }

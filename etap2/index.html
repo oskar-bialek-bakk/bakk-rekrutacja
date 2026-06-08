@@ -17,7 +17,14 @@
   </div>
   <nav class="topnav"><button class="topnav-btn" id="nav-roster" type="button">Porównanie kandydatów</button></nav>
   <div class="clock" id="clock" style="visibility:hidden">
-    <div class="timer" id="timer"><span class="dot"></span><b id="elapsed">00:00</b></div>
+    <div class="timer" id="timer">
+      <span class="dot"></span><b id="elapsed">00:00</b>
+      <span class="timer-controls">
+        <button type="button" id="btn-nudge-minus" title="-1 min" aria-label="Odejmij minute od zegara">&minus;1m</button>
+        <button type="button" id="btn-pause" aria-pressed="false" title="Pauza odliczania" aria-label="Pauza lub wznow zegar">&#9208;</button>
+        <button type="button" id="btn-nudge-plus" title="+1 min" aria-label="Dodaj minute do zegara">+1m</button>
+      </span>
+    </div>
     <div class="total">/ 60:00 · oceniana 40:00</div>
   </div>
 </div>
