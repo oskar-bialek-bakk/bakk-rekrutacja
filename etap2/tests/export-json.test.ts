@@ -4,16 +4,18 @@ import { createEmptyAssessment } from '../src/domain/model';
 import type { Assessment } from '../src/domain/model';
 
 function sample(id: string, name: string): Assessment {
-  const a = createEmptyAssessment(id, {
+  const base = createEmptyAssessment(id, {
     nameOrId: name,
     date: '2026-06-08',
     stage1Result: '80%',
     stage1Note: '',
   });
-  a.marks.A = 4;
-  a.decision = 'yes';
-  a.negotiation.widelki = '8-10k';
-  return a;
+  return {
+    ...base,
+    marks: { ...base.marks, A: 4 },
+    decision: 'yes',
+    negotiation: { ...base.negotiation, widelki: '8-10k' },
+  };
 }
 
 describe('serializeAssessment / serializeAll', () => {
@@ -70,7 +72,7 @@ describe('parseImport round-trip', () => {
 
 describe('parseImport validation', () => {
   it('throws on invalid JSON', () => {
-    expect(() => parseImport('{ not json')).toThrow('Nieprawidłowy plik JSON (nie udalo sie sparsowac).');
+    expect(() => parseImport('{ not json')).toThrow('Nieprawidłowy plik JSON (nie udało się sparsować).');
   });
 
   it('throws format error on a JSON number', () => {

@@ -1,8 +1,8 @@
 import type { Assessment } from '../domain/model';
 import { migrateAssessment } from '../persistence/migrations';
 
-export function serializeAssessment(a: Assessment): string {
-  return JSON.stringify(a, null, 2);
+export function serializeAssessment(assessment: Assessment): string {
+  return JSON.stringify(assessment, null, 2);
 }
 
 export function serializeAll(list: Assessment[]): string {
@@ -22,7 +22,7 @@ export function parseImport(text: string): Assessment[] {
   try {
     parsed = JSON.parse(text);
   } catch {
-    throw new Error('Nieprawidłowy plik JSON (nie udalo sie sparsowac).');
+    throw new Error('Nieprawidłowy plik JSON (nie udało się sparsować).');
   }
 
   let entries: unknown[];
