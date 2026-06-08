@@ -1410,22 +1410,32 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 ## Decyzje architektoniczne
 
-- **Backend:** API endpoints **w tym samym App Service `bakk-rekrutacja`** jako Azure Functions w trybie „same-app" — wykorzystujemy mechanizm App Service do hostowania Functions obok stronicy SPA, **żeby zachować Easy Auth pass-through bez osobnego CORS i osobnego app reg**. Alternatywa odrzucona: osobny Function App (wymagałby osobnego CORS, osobnego app reg + double-hop auth).
-- **Język Functions:** **TypeScript Node 20** — spójność typów modelu `Assessment`/`VariantUsage`/`Settings` z frontem; w `etap2/api/` osobny `package.json`, wspólny typ z `etap2/src/domain/model.ts` przez relative import w buildzie.
-- **Baza:** **Cosmos DB serverless**, jedno konto `bakk-rekrutacja-db` w `rg-bakk-docs`, baza `etap2`, kontenery:
-  - `assessments` — partition key `/userPrincipalName`, dokument = `Assessment` (`id` to `id` Assessment); user widzi tylko własne, admin (do decyzji) cross-partition.
-  - `variantUsage` — partition key `/scope` (`global` na początek), prosty licznik.
+### Decyzje zatwierdzone przez usera (sesja 2026-06-08)
+
+1. **Widoczność rozmów:** toggle „moje / wszystkie", default = **moje**.
+2. **`VariantUsage`:** **globalny dla zespołu** (jeden licznik), żeby kandydat nie dostał tego samego wariantu od dwóch rekruterów.
+3. **Retencja RODO:** **pomijamy automatyczne kasowanie** — `DELETE /api/v1/assessments/{id}` robi hard delete na żądanie usera, brak soft-delete (`archivedAt`), brak job retencji.
+4. **Build flag:** `VITE_PERSISTENCE=local|azure` z fallbackiem do `LocalStore` dla `npm run dev` i Vitest. Prod build ustawia `azure`.
+5. **Hosting backendu:** **osobny Function App Consumption** `bakk-rekrutacja-api` zamiast inline w App Service.
+
+### Architektura wynikowa
+
+- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region westeurope. Storage account `stbakkrekrutacjaapi` (lub współdzielony z istniejącym). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
+- **Język Functions:** **TypeScript Node 20**, model v4 (`@azure/functions` 4.x). W `etap2/api/` osobny `package.json` i `tsconfig.json`. Wspólne typy `Assessment`/`VariantUsage`/`Settings` przez relative import z `etap2/src/domain/model.ts`.
+- **Baza:** **Cosmos DB serverless**, konto `bakk-rekrutacja-db` w `rg-bakk-docs`, baza `etap2`, kontenery:
+  - `assessments` — partition key `/userPrincipalName`. Lista filtruje per upn (scope=mine) lub cross-partition (scope=team).
+  - `variantUsage` — partition key `/scope`, dokument `id=global`, struktura `{ counts: { A: [n,n,n,n], B: [n,n,n], C: [n,n,n,n,n], D: [n,n,n] } }`.
   - `settings` — partition key `/userPrincipalName`, jeden dokument per user.
-  - Cosmos serverless: pay-per-RU, koszt rzędu < 10 PLN/miesiąc dla typowego ruchu rekrutacji.
-- **Autoryzacja:** **Easy Auth pass-through** — Functions czytają nagłówki `X-MS-CLIENT-PRINCIPAL-NAME` (UPN), `X-MS-CLIENT-PRINCIPAL-ID` (oid), `X-MS-CLIENT-PRINCIPAL` (base64 JSON z claims). Brak MSAL we froncie, brak tokenów w localStorage. Helper `getCurrentUser(req)` w `etap2/api/lib/auth.ts`.
-- **Format URL API:** `https://bakk-rekrutacja.azurewebsites.net/api/v1/*` — wbudowane w App Service, brak osobnego endpointu, Easy Auth chroni cały host.
+  - Koszt: pay-per-RU, < 10 PLN/mc dla ruchu rekrutacji.
+- **Autoryzacja cross-origin (Bearer):**
+  - Oba zasoby używają tego samego app reg **BAKK Int Apps `5d588d76-2173-49d8-ad6e-4c50b0ca6983`** jako `clientId` w Easy Auth. Token wystawiony dla App Service'u ma `aud = 5d588d76-...` i jest akceptowany przez Function App (też walidującego ten sam audience).
+  - Frontend pobiera access token z `https://bakk-rekrutacja.azurewebsites.net/.auth/me` (zwraca aktualny token z sesji Easy Auth) i wysyła do API jako `Authorization: Bearer <token>`.
+  - Function App ma Easy Auth on z `unauthenticatedAction=Return401` (nie redirect, bo to API), walidacja JWT przez platformę. Po walidacji wstawia te same nagłówki `X-MS-CLIENT-PRINCIPAL-*`, więc helper `getCurrentUser(req)` z `etap2/api/lib/auth.ts` czyta je tak samo jak inline.
+  - **CORS** na Function App: `allowedOrigins = ['https://bakk-rekrutacja.azurewebsites.net']`, `supportCredentials = false` (Bearer, nie cookie).
+  - Brak MSAL we froncie, brak tokenów w localStorage. Token pobierany tuż przed requestem przez `AzureStore` (cache na 30 min z early refresh).
+- **Format URL API:** `https://bakk-rekrutacja-api.azurewebsites.net/api/v1/*`. Stała w `etap2/src/persistence/azure-store.ts` (`VITE_API_BASE_URL` env).
 - **Migracja z localStorage:** UI „Importuj z localStorage" na ekranie startowym (widoczny gdy nieskonsumowany localStorage istnieje), wywołuje POST `/api/v1/migrate` z całą zawartością.
-- **Otwarte decyzje wymagające potwierdzenia przed Taskiem 1:**
-  1. **Widoczność rozmów:** (a) każdy widzi tylko swoje, (b) każdy widzi wszystkie w zespole, (c) toggle „moje / wszystkie". Rekomendacja: **(c)**, default = moje.
-  2. **`VariantUsage`:** (a) globalny per rekruter, (b) globalny dla zespołu (jedno wskaźnik dla wszystkich). Rekomendacja: **(b)** — rotacja wariantów ma sens dla całego zespołu (kandydat nie powinien dostać tego samego wariantu od dwóch rekruterów).
-  3. **Retencja danych (RODO):** ile czasu trzymamy zakończone oceny? Rekomendacja: **24 miesiące od daty rozmowy**, potem soft-delete (flaga `archivedAt`); twarde usuwanie ręczne. Otwarte do decyzji.
-  4. **Build flag fallback do localStorage:** zachować `LocalStore` jako tryb dev (np. `VITE_PERSISTENCE=local` w dev, `azure` w prod)? Rekomendacja: **tak**, dla testów lokalnych bez Cosmos.
-  5. **F1 plan vs upgrade:** plan `asp-bakk-docs` to F1 Free, nie wspiera Functions inline w App Service. Opcje: (i) upgrade planu do B1 (~50 PLN/mc, supports Functions inline), (ii) osobny Function App na Consumption plan + CORS. Rekomendacja: **(i)** — prostszy auth (Easy Auth pass-through działa bez double-hop), mniejszy operational overhead.
+- **Sekrety Cosmos i Traffit:** wpięte do **app settings Function App** (nie App Service). Function App ma osobne `COSMOS_ENDPOINT`, `COSMOS_KEY`, `TRAFFIT_BASE_URL`, `TRAFFIT_EMAIL`, `TRAFFIT_PASSWORD`.
 
 ## Taski
 
@@ -1434,7 +1444,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 **Files:**
 - Create: `etap2/scripts/provision-cosmos.ps1`
 
-- [ ] **Step 1:** Potwierdzenie 5 decyzji powyżej (AskUserQuestion przed kodem).
+- [x] **Step 1:** Potwierdzenie 5 decyzji (zrobione w sesji 2026-06-08, sekcja „Decyzje zatwierdzone").
 - [ ] **Step 2:** Skrypt provisioning idempotentny:
   ```powershell
   $rg='rg-bakk-docs'; $acct='bakk-rekrutacja-db'; $db='etap2'
@@ -1444,30 +1454,53 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
   az cosmosdb sql container create -g $rg -a $acct -d $db -n variantUsage --partition-key-path /scope
   az cosmosdb sql container create -g $rg -a $acct -d $db -n settings --partition-key-path /userPrincipalName
   ```
-- [ ] **Step 3:** Po utworzeniu pobranie endpoint + primary key, wpięcie do app settings `bakk-rekrutacja` jako `COSMOS_ENDPOINT` i `COSMOS_KEY` (lub managed identity — preferowane jeśli udaje się przyznać `Cosmos DB Built-in Data Contributor` dla service principal App Service).
-- [ ] **Step 4:** Smoke test: `az cosmosdb sql container list` zwraca trzy kontenery.
-- [ ] **Step 5:** Commit: `chore(etap2): skrypt provisioning Cosmos DB serverless dla etap2`.
+- [ ] **Step 3:** Po utworzeniu endpoint + primary key zachowane w pliku tymczasowym; wpięcie do **app settings Function App `bakk-rekrutacja-api`** (Task 2) jako `COSMOS_ENDPOINT` i `COSMOS_KEY`. NIE wpinamy do App Service `bakk-rekrutacja`. Docelowo: managed identity dla Function App z rolą `Cosmos DB Built-in Data Contributor` (jako follow-up po smoke teście).
+- [ ] **Step 4:** Seed dokumentu `variantUsage` (`id=global`, `scope=global`, `counts={ A: [0,0,0,0], B: [0,0,0], C: [0,0,0,0,0], D: [0,0,0] }`) przez `az cosmosdb sql ... ` lub przez health endpoint w Task 3.
+- [ ] **Step 5:** Smoke test: `az cosmosdb sql container list` zwraca trzy kontenery.
+- [ ] **Step 6:** Commit: `chore(etap2): skrypt provisioning Cosmos DB serverless dla etap2`.
 
-### Task 2: Upgrade App Service do planu wspierającego Functions
+### Task 2: Provisioning Function App `bakk-rekrutacja-api` na Consumption + Easy Auth + CORS
 
 **Files:**
-- Create: `etap2/scripts/upgrade-app-service-plan.ps1`
+- Create: `etap2/scripts/provision-function-app.ps1`
+- Create: `etap2/scripts/configure-function-app-auth.ps1`
 
-- [ ] **Step 1:** Skrypt `az appservice plan update -g rg-bakk-docs -n asp-bakk-docs --sku B1` (lub utworzenie nowego planu i przeniesienie aplikacji, do decyzji).
-- [ ] **Step 2:** Weryfikacja: `intrum-documentation` i `kz-test1` dalej działają (shared plan).
-- [ ] **Step 3:** Commit + README-deploy update z notą o koszcie B1.
+- [ ] **Step 1:** Skrypt provisioning idempotentny:
+  ```powershell
+  $rg='rg-bakk-docs'; $loc='westeurope'
+  $func='bakk-rekrutacja-api'; $stg='stbakkrekrutacjaapi'
+  az storage account create -g $rg -n $stg -l $loc --sku Standard_LRS
+  az functionapp create -g $rg -n $func --consumption-plan-location $loc `
+    --runtime node --runtime-version 20 --functions-version 4 `
+    --storage-account $stg --os-type Linux
+  ```
+- [ ] **Step 2:** Easy Auth Entra na Function App z tym samym BAKK Int Apps app reg (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`):
+  - Pobierz dedykowany secret z BAKK Int Apps (osobny od secretu dla `bakk-rekrutacja`, zgodnie ze standardem BAKK).
+  - `az webapp auth update -g $rg -n $func --enabled true --action Return401 --redirect-provider azureactivedirectory`
+  - `az webapp auth microsoft update -g $rg -n $func --client-id 5d588d76-... --client-secret <secret> --tenant-id c21db186-... --issuer https://login.microsoftonline.com/c21db186-.../v2.0`
+  - **Lokalny az CLI authV2 bypass** (uszkodzony extension): `$env:AZURE_EXTENSION_DIR = "$env:TEMP/azext-empty"` przed wywołaniem.
+  - Weryfikacja: `curl https://bakk-rekrutacja-api.azurewebsites.net/api/health` bez tokenu zwraca **401**, nie 302.
+- [ ] **Step 3:** CORS na Function App:
+  - `az functionapp cors add -g $rg -n $func --allowed-origins https://bakk-rekrutacja.azurewebsites.net`
+  - `supportCredentials = false` (Bearer w `Authorization`, nie cookie).
+- [ ] **Step 4:** Wpięcie sekretów Cosmos z Task 1:
+  - `az functionapp config appsettings set -g $rg -n $func --settings COSMOS_ENDPOINT=... COSMOS_KEY=... COSMOS_DB=etap2`
+- [ ] **Step 5:** Confluence pageId=159417649 (BAKK app standard): zaznaczyć w README-deploy że Function App używa dedykowanego secretu z BAKK Int Apps (osobny od App Service bakk-rekrutacja).
+- [ ] **Step 6:** Smoke test: GET `https://bakk-rekrutacja-api.azurewebsites.net` zwraca placeholder Functions runtime; `/api/health` (po Task 3) zwraca 401 bez tokenu.
+- [ ] **Step 7:** Commit: `chore(etap2): provisioning Function App bakk-rekrutacja-api + Easy Auth + CORS`.
 
 ### Task 3: Functions skeleton w `etap2/api/`
 
 **Files:**
 - Create: `etap2/api/host.json`, `etap2/api/package.json`, `etap2/api/tsconfig.json`, `etap2/api/local.settings.json.example`, `etap2/api/.gitignore`, `etap2/api/health/function.json`, `etap2/api/health/index.ts`, `etap2/api/lib/auth.ts`, `etap2/api/lib/cosmos.ts`
 
-- [ ] **Step 1:** Struktura projektu Functions v4 model, Node 20 TS. `host.json` z `extensionBundle` `[4.*, 5.0.0)`. `package.json` z `@azure/functions` 4.x, `@azure/cosmos` 4.x.
-- [ ] **Step 2:** `lib/auth.ts` z `getCurrentUser(req): { upn: string, oid: string, name: string } | null` czytający Easy Auth headers + fallback do mock w dev.
-- [ ] **Step 3:** `lib/cosmos.ts` z singleton `CosmosClient`, factory metod `assessments()` / `variantUsage()` / `settings()`.
-- [ ] **Step 4:** `health/index.ts` zwracający `{ ok: true, user: getCurrentUser(req)?.upn, cosmos: 'reachable' }` po ping cosmos.
-- [ ] **Step 5:** Lokalny test: `func start` w `etap2/api/`, `curl http://localhost:7071/api/health` zwraca 200.
-- [ ] **Step 6:** Commit: `feat(etap2): skeleton Functions Node 20 TS + auth + cosmos lib`.
+- [ ] **Step 1:** Struktura projektu Functions v4 model, Node 20 TS. `host.json` z `extensionBundle` `[4.*, 5.0.0)`. `package.json` z `@azure/functions` 4.x, `@azure/cosmos` 4.x, `zod` 3.x. `tsconfig.json` z `target: ES2022`, `module: NodeNext`, `outDir: dist`.
+- [ ] **Step 2:** `lib/auth.ts` z `getCurrentUser(req): { upn: string, oid: string, name: string } | null` czytający Easy Auth headers `X-MS-CLIENT-PRINCIPAL-NAME` / `X-MS-CLIENT-PRINCIPAL-ID` / `X-MS-CLIENT-PRINCIPAL` (base64 JSON, claims w `claims[]`). Easy Auth na Function App wstawia te nagłówki po walidacji Bearer tokenu, więc handler nie waliduje JWT samodzielnie. Fallback dla `npm run dev` z `local.settings.json`: `MOCK_USER_UPN`.
+- [ ] **Step 3:** `lib/cosmos.ts` z singleton `CosmosClient` (z `COSMOS_ENDPOINT` + `COSMOS_KEY`), factory metod `assessmentsContainer()` / `variantUsageContainer()` / `settingsContainer()`.
+- [ ] **Step 4:** `health/index.ts` zwracający `{ ok: true, user: getCurrentUser(req)?.upn, cosmos: 'reachable' }` po ping cosmos (np. `database.read()`).
+- [ ] **Step 5:** `local.settings.json.example` z `AzureWebJobsStorage=UseDevelopmentStorage=true`, `FUNCTIONS_WORKER_RUNTIME=node`, `MOCK_USER_UPN=os.bialek@bakk.com`, pola Cosmos. `.gitignore` ignoruje `local.settings.json`.
+- [ ] **Step 6:** Lokalny test: `func start` w `etap2/api/`, `curl http://localhost:7071/api/health` zwraca 200 z mock userem.
+- [ ] **Step 7:** Commit: `feat(etap2): skeleton Functions Node 20 TS + auth + cosmos lib`.
 
 ### Task 4: Endpointy CRUD assessments
 
@@ -1475,14 +1508,15 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - Create: `etap2/api/assessments-list/`, `etap2/api/assessments-get/`, `etap2/api/assessments-upsert/`, `etap2/api/assessments-delete/`
 - Test: `etap2/api/tests/assessments.test.ts`
 
-- [ ] **Step 1:** Testy integracyjne na lokalnym emulatorze Cosmos (Azure Cosmos DB Emulator albo `@azure/cosmos`-mock).
+- [ ] **Step 1:** Testy jednostkowe handlerów z mockiem `@azure/cosmos` (Vitest, `vi.mock('@azure/cosmos')`). Bez emulatora Cosmos w CI.
 - [ ] **Step 2:** Implementacje:
-  - `GET /api/v1/assessments?scope=mine|team` — list (filtrowane per upn lub cross-partition gdy `scope=team`).
-  - `GET /api/v1/assessments/{id}` — get jeden (sprawdza że upn matchuje albo `scope=team`).
-  - `PUT /api/v1/assessments/{id}` — upsert całego dokumentu; backend wstrzykuje `userPrincipalName`, `updatedAt`.
-  - `DELETE /api/v1/assessments/{id}` — soft-delete (`archivedAt`).
-- [ ] **Step 3:** Walidacja payload przez Zod (`AssessmentSchema` współdzielona z frontem).
-- [ ] **Step 4:** Commit: `feat(etap2): API CRUD assessments z partition per-user + scope=team`.
+  - `GET /api/v1/assessments?scope=mine|team` — `scope=mine` (default) filtruje przez partition `/userPrincipalName = upn`, `scope=team` cross-partition (`enableCrossPartitionQuery`). Każdy rekord wzbogacany o `ownerUpn` z dokumentu (bez ujawniania innych claims).
+  - `GET /api/v1/assessments/{id}` — wymaga `partitionKey` query param albo cross-partition lookup; sprawdza, że upn matchuje albo żądanie `scope=team`.
+  - `PUT /api/v1/assessments/{id}` — upsert; backend nadpisuje `userPrincipalName` z auth (klient nie może ustawić cudzego), wstawia `updatedAt = now`. Tworzenie wymaga `createdAt`, edycja zachowuje `createdAt` z dokumentu w Cosmos.
+  - `DELETE /api/v1/assessments/{id}` — **hard delete** (bez soft-delete, zgodnie z decyzją 3). Wymaga, żeby upn matchowało `userPrincipalName` z dokumentu (nie pozwala kasować cudzych w trybie `scope=team`). Zwraca 204.
+- [ ] **Step 3:** Walidacja payload przez Zod. `AssessmentSchema` współdzielona z frontem przez relative import z `../../src/domain/model-schema.ts` (do utworzenia w tym Tasku — wyciągnięcie schematów Zod z istniejących typów TS jeśli jeszcze brak).
+- [ ] **Step 4:** Edge cases: 404 gdy `id` nie istnieje, 403 gdy próba edycji/usuwania cudzego dokumentu, 400 gdy payload nie przechodzi walidacji.
+- [ ] **Step 5:** Commit: `feat(etap2): API CRUD assessments z partition per-user + scope=team`.
 
 ### Task 5: Endpointy VariantUsage + Settings
 
@@ -1501,11 +1535,15 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - Modify: `etap2/src/state.ts`, `etap2/vite.config.ts`
 - Test: `etap2/tests/azure-store.test.ts` (z mockowanym fetch)
 
-- [ ] **Step 1:** `AzureStore` implementuje `Repository`, każda metoda = `fetch('/api/v1/...', { credentials: 'include' })` (Easy Auth wysyła cookie automatycznie).
-- [ ] **Step 2:** W `state.ts`: `export const repo: Repository = import.meta.env.VITE_PERSISTENCE === 'azure' ? new AzureStore() : new LocalStore();` (default = local w dev, azure w prod build).
-- [ ] **Step 3:** W `vite.config.ts` lub `.env.production`: `VITE_PERSISTENCE=azure`.
-- [ ] **Step 4:** Testy: 5 testów lustrzanych do `local-store.test.ts` z mockiem fetch.
-- [ ] **Step 5:** Commit: `feat(etap2): AzureStore + przelacznik build-flag VITE_PERSISTENCE`.
+- [ ] **Step 1:** Helper `getAccessToken()` w `etap2/src/auth/access-token.ts`:
+  - `fetch('/.auth/me', { credentials: 'include' })` na **bieżącym** hoście (App Service `bakk-rekrutacja`), zwraca tablicę z `access_token`, `expires_on`.
+  - Cache w pamięci modułu (`{ token, expiresAt }`); refresh gdy `expiresAt - now < 5 min`.
+  - Przy 401 z `/.auth/me`: redirect do `/.auth/login/aad?post_login_redirect_url=<current>`.
+- [ ] **Step 2:** `AzureStore` implementuje `Repository`. Każda metoda buduje URL `${VITE_API_BASE_URL}/api/v1/...`, dodaje header `Authorization: Bearer ${await getAccessToken()}` i wywołuje `fetch` **bez** `credentials: 'include'` (Bearer, nie cookie). Mapowanie odpowiedzi: 204 → `void`, 401 → wymuszony refresh tokenu + 1 retry, 403/404/400 → throw `ApiError` z `status` i body.
+- [ ] **Step 3:** W `state.ts`: `export const repo: Repository = import.meta.env.VITE_PERSISTENCE === 'azure' ? new AzureStore() : new LocalStore();` (default = `local` w dev, `azure` w prod build).
+- [ ] **Step 4:** `.env.production` (committed): `VITE_PERSISTENCE=azure`, `VITE_API_BASE_URL=https://bakk-rekrutacja-api.azurewebsites.net`. `.env.example` dokumentuje obie zmienne.
+- [ ] **Step 5:** Testy: 5+ testów lustrzanych do `local-store.test.ts` z mockiem `fetch` i `getAccessToken` zwracającym fake JWT. Pokrycie 401 retry, 403 throw, 204 void, list per scope.
+- [ ] **Step 6:** Commit: `feat(etap2): AzureStore z Bearer auth + przelacznik build-flag VITE_PERSISTENCE`.
 
 ### Task 7: UI migracji z localStorage
 
@@ -1519,15 +1557,40 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - [ ] **Step 4:** Test E2E (Playwright) na pełen migration flow: seed localStorage, otwórz UI, kliknij, sprawdź że API dostało payload (mock).
 - [ ] **Step 5:** Commit: `feat(etap2): UI jednorazowej migracji z localStorage do chmury`.
 
-### Task 8: Deployment Functions (extend istniejący workflow)
+### Task 8: Deployment Function App (nowy workflow GitHub Actions)
 
 **Files:**
-- Modify: `.github/workflows/deploy-vite-to-azure.yml` (lub nowy `deploy-bakk-rekrutacja-api.yml`)
+- Create: `.github/workflows/deploy-bakk-rekrutacja-api.yml`
+- Modify: `etap2/README-deploy.md`
 
-- [ ] **Step 1:** W reusable workflow dodać krok budowania `etap2/api/` (`npm ci && npm run build`).
-- [ ] **Step 2:** Stage `etap2/api/dist/` do `__artifact/api/` (App Service kombinowany SPA + Functions wymaga specyficznej struktury — sprawdzić w docs Azure czy potrzebne osobne deployment slot albo run-from-package).
-- [ ] **Step 3:** Smoke test po deployu: `curl https://bakk-rekrutacja.azurewebsites.net/api/health` zwraca 200 z `user.upn` i `cosmos: reachable`.
-- [ ] **Step 4:** Commit + PR: `ci(etap2): deploy Functions razem z frontem`.
+- [ ] **Step 1:** Nowy workflow triggerowany push na `main` z paths `etap2/api/**`:
+  ```yaml
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with: { node-version: '20' }
+        - run: npm ci && npm run build
+          working-directory: etap2/api
+        - uses: azure/login@v2
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        - uses: Azure/functions-action@v1
+          with:
+            app-name: bakk-rekrutacja-api
+            package: etap2/api
+  ```
+  OIDC federated credential w app reg dla GitHub Actions (już używane przez deploy-bakk-rekrutacja-etap2.yml).
+- [ ] **Step 2:** PR guard dla `etap2/api/**`: dodać do istniejącego `etap2-ci.yml` matrix step: `npm ci && npm run build && npm test` w `etap2/api/`.
+- [ ] **Step 3:** Smoke test po deployu (manual w `README-deploy.md` jako instrukcja):
+  - `curl https://bakk-rekrutacja-api.azurewebsites.net/api/health` → **401** bez tokenu.
+  - Z poziomu zalogowanej sesji w App Service (DevTools `/.auth/me` → token → curl z Bearer) → 200 z `{ ok: true, user: <upn>, cosmos: 'reachable' }`.
+- [ ] **Step 4:** README-deploy update: sekcja „Function App `bakk-rekrutacja-api`" z opisem (Consumption plan, Easy Auth z BAKK Int Apps, sekrety Cosmos/Traffit, link do Confluence pageId=159417649).
+- [ ] **Step 5:** Commit + PR: `ci(etap2): nowy workflow deploy-bakk-rekrutacja-api dla Function App`.
 
 ### Task 9: Auto-push notatek do Traffit
 
@@ -1537,7 +1600,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 Port klienta z `C:/GIT/traffit-scorer/src/push-notes.js`. Marker idempotencji `<!-- bakk-etap2:${id} -->` już wbudowany w `buildRecruiterSummary` z Fazy 3.
 
-- [ ] **Step 1:** `lib/traffit-client.ts` z auth sesją (env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD` w app settings App Service, dostępne tylko z Functions), auto-relogin na 401/403, retry z backoff.
+- [ ] **Step 1:** `lib/traffit-client.ts` z auth sesją (env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD` w app settings **Function App `bakk-rekrutacja-api`**, NIE App Service), auto-relogin na 401/403, retry z backoff.
 - [ ] **Step 2:** `POST /api/v1/traffit/push` body `{ assessmentId }`:
   - Pobierz Assessment z Cosmos (sprawdź że upn matchuje wykonującego).
   - Wygeneruj HTML przez `buildRecruiterSummary` (port funkcji domain do `etap2/api/lib/`).
@@ -1545,7 +1608,7 @@ Port klienta z `C:/GIT/traffit-scorer/src/push-notes.js`. Marker idempotencji `<
   - Jeśli marker `<!-- bakk-etap2:${id} -->` znaleziony w existing activities → `PUT /api/v2/employees/{id}/notes/{noteId}` (update).
   - Inaczej → `POST /api/v2/employees/{id}/notes` (create).
   - Zwróć `{ trafficNoteId, action: 'created'|'updated' }`.
-- [ ] **Step 3:** Sekrety Traffit wpięte do app settings (skrypt `etap2/scripts/set-traffit-secrets.ps1` interactive read + `az webapp config appsettings set`).
+- [ ] **Step 3:** Sekrety Traffit wpięte do app settings Function App (skrypt `etap2/scripts/set-traffit-secrets.ps1`: interactive read + `az functionapp config appsettings set -g rg-bakk-docs -n bakk-rekrutacja-api --settings TRAFFIT_BASE_URL=... TRAFFIT_EMAIL=... TRAFFIT_PASSWORD=...`).
 - [ ] **Step 4:** UI: przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts` obok „Kopiuj jako tekst/HTML". Stan disabled w trakcie requestu, toast po sukcesie/błędzie. Jak kandydat nie znaleziony w Traffit → modal z pytaniem o ID Traffit ręcznie.
 - [ ] **Step 5:** Testy: jednostkowe na `traffit-client.ts` z mockiem fetch; E2E flow z mockiem API Traffit.
 - [ ] **Step 6:** Commit: `feat(etap2): auto-push notatki podsumowania do Traffit przez API proxy`.
@@ -1555,20 +1618,21 @@ Port klienta z `C:/GIT/traffit-scorer/src/push-notes.js`. Marker idempotencji `<
 **Files:**
 - Modify: `etap2/README-deploy.md`, `docs/superpowers/plans/2026-06-08-ocena-rozmowy-etap2.md`
 
-- [ ] **Step 1:** Dopisać w `README-deploy.md` sekcję „Faza 5 — multi-user + Traffit" z opisem stanu, kosztu Cosmos + B1, monitoringu (Application Insights wpięte przez App Service domyślnie), procedurą wpięcia sekretów Traffit.
+- [ ] **Step 1:** Dopisać w `README-deploy.md` sekcję „Faza 5 — multi-user + Traffit" z opisem stanu (osobny Function App Consumption + Cosmos serverless, cross-origin Bearer auth z BAKK Int Apps), kosztu (Function App Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc + Cosmos serverless < 10 PLN/mc), monitoringu (Application Insights wpięte do Function App), procedurą wpięcia sekretów Traffit, instrukcją rotacji secretu BAKK Int Apps dla Function App.
 - [ ] **Step 2:** W planie oznaczyć Fazę 5 jako ✅ ZAKOŃCZONA z datą.
 - [ ] **Step 3:** Commit jako osobny PR docs (jak po Fazach 3 i 4).
 
 ## Self-review Fazy 5
 
-- Pokrycie celu „udostępnienie firmowe": multi-user persistence ✅, autoryzacja per rekruter ✅, migracja danych ✅, auto-push Traffit ✅, koszt akceptowalny (Cosmos serverless < 10 PLN/mc + B1 ~50 PLN/mc dla typowego ruchu).
-- Co poza zakresem (świadomie, nie potrzebne do uruchomienia): eksport do Azure SQL, multi-tenant, advanced monitoring custom dashboardy.
+- Pokrycie celu „udostępnienie firmowe": multi-user persistence ✅, autoryzacja per rekruter ✅, migracja danych ✅, auto-push Traffit ✅, koszt akceptowalny (Cosmos serverless < 10 PLN/mc + Function App Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc, bez ruszania F1 plan App Service).
+- Co poza zakresem (świadomie, nie potrzebne do uruchomienia): eksport do Azure SQL, multi-tenant, advanced monitoring custom dashboardy, auto-retencja RODO (decyzja: hard delete na żądanie, bez job retencji).
 - Ryzyka:
-  - F1 plan nie wspiera Functions inline — Task 2 robi upgrade do B1 (~50 PLN/mc). Alternatywa: osobny Function App na Consumption (~5-15 PLN/mc) ale z osobnym CORS + auth jest bardziej skomplikowane.
-  - Easy Auth pass-through działa out-of-the-box dla request do `/api/*` na tym samym hoście. Funkcjonalność potwierdzona przez Azure docs ale do smoke testu (Task 3 health endpoint).
-  - Cosmos serverless ma limit 5000 RU/sec na partition — sufficiently nadmiarowe dla rekrutacji.
-  - Współdzielony plan App Service z `intrum-documentation` i `kz-test1` — upgrade B1 podniesie koszty wszystkim, ale plan F1 jest darmowy więc każda zmiana = wzrost. Do potwierdzenia z user przed Task 2.
-  - Traffit nie ma oficjalnego API → klient w `traffit-scorer/src/push-notes.js` opiera się na session cookie. Endpoint może się zmienić bez ostrzeżenia. Wbudowany retry/relogin minimalizuje ryzyko, ale nie eliminuje.
+  - **Cross-origin auth Bearer:** front pobiera token z `/.auth/me` App Service'u, Function App waliduje audience. Wymaga aby oba miały **ten sam clientId** w Easy Auth (BAKK Int Apps `5d588d76-...`). Smoke test (Task 3+8) potwierdza, że token z App Service jest akceptowany przez Function App.
+  - **F1 plan zostaje** — nie ruszamy `intrum-documentation` ani `kz-test1`. Function App ma osobny Consumption plan, niezależny od `asp-bakk-docs`.
+  - **Cosmos serverless** ma limit 5000 RU/sec na partition — nadmiarowe dla rekrutacji.
+  - **Brak retencji RODO:** dane utrzymują się bez automatycznego soft-delete. Reakcja na żądanie usunięcia danych = ręczne `DELETE /api/v1/assessments/{id}` z UI. Świadomie poza zakresem Fazy 5.
+  - **Traffit** nie ma oficjalnego API → klient w `traffit-scorer/src/push-notes.js` opiera się na session cookie. Endpoint może się zmienić bez ostrzeżenia. Wbudowany retry/relogin minimalizuje ryzyko, ale nie eliminuje.
+  - **Token z `/.auth/me`:** Easy Auth domyślnie wystawia token z audience = clientId aplikacji (tu BAKK Int Apps). Należy zweryfikować w Task 6, że App Service nie zwraca tokenu z audience Graph (`https://graph.microsoft.com`) — wtedy Function App go odrzuci. Jeśli tak, konfiguracja `additionalLoginParams: ['resource=5d588d76-...']` w authsettingsV2 App Service.
 
 ---
 
