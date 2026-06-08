@@ -6,6 +6,7 @@ import type { Assessment } from '../domain/model';
 import { repo, session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
+import { confirmDialog } from './confirm-dialog';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
 
@@ -204,13 +205,14 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
   };
 
   (host.querySelector('#delete') as HTMLButtonElement).onclick = async () => {
-    if (
-      !confirm(
-        `Czy na pewno usunąć ocenę kandydata "${record.candidate.nameOrId}"? Tej operacji nie można cofnąć.`,
-      )
-    ) {
-      return;
-    }
+    const ok = await confirmDialog({
+      title: 'Usunąć ocenę?',
+      message: `Czy na pewno usunąć ocenę kandydata "${record.candidate.nameOrId}"? Tej operacji nie można cofnąć.`,
+      okLabel: 'Usuń',
+      cancelLabel: 'Anuluj',
+      tone: 'danger',
+    });
+    if (!ok) return;
     try {
       await repo.delete(record.id);
       navigate('roster');

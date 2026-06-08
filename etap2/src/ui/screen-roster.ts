@@ -10,6 +10,7 @@ import {
 import { repo, session } from '../state';
 import { navigate, openDetail } from '../app';
 import { escapeHtml } from './escape';
+import { confirmDialog } from './confirm-dialog';
 import { stopTimer } from './timer-ui';
 import { downloadTextFile } from './download';
 import { rosterToCsv, type RosterRow } from '../export/csv';
@@ -136,7 +137,14 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       if (!id) return;
       const target = processed.find((r) => r.a.id === id);
       const name = target ? target.a.candidate.nameOrId : 'kandydata';
-      if (!confirm(`Czy na pewno usunąć ocenę kandydata "${name}"? Tej operacji nie można cofnąć.`)) return;
+      const ok = await confirmDialog({
+        title: 'Usunąć ocenę?',
+        message: `Czy na pewno usunąć ocenę kandydata "${name}"? Tej operacji nie można cofnąć.`,
+        okLabel: 'Usuń',
+        cancelLabel: 'Anuluj',
+        tone: 'danger',
+      });
+      if (!ok) return;
       try {
         await repo.delete(id);
         await renderRoster(host);
