@@ -1,0 +1,18 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "COSMOS_ENDPOINT": "https://bakk-rekrutacja-db.documents.azure.com:443/",
+    "COSMOS_KEY": "<paste-from-temp-bakk-cosmos-secrets-txt>",
+    "COSMOS_DB": "etap2",
+    "MOCK_USER_UPN": "os.bialek@bakk.com",
+    "MOCK_USER_NAME": "Oskar Białek",
+    "MOCK_USER_OID": "00000000-0000-0000-0000-000000000001"
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*"
+  }
+}
