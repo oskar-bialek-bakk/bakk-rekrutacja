@@ -627,3 +627,5 @@
     color:var(--green);font-size:13px;
   }
   .toast-ok[hidden]{display:none}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .kbd-help{margin:6px 2px 0;font-size:11px;color:var(--muted);opacity:.7;letter-spacing:.02em}

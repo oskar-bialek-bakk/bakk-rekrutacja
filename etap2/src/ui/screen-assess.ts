@@ -10,6 +10,51 @@ import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
 import { confirmDialog } from './confirm-dialog';
+import { togglePause } from './timer-ui';
+
+let kbInstalled = false;
+function installKeyboardHandlers(host: HTMLElement): void {
+  if (kbInstalled) return;
+  kbInstalled = true;
+  document.addEventListener('keydown', (e) => {
+    if (session.screen !== 'assess' || !session.current) return;
+    const tgt = e.target as HTMLElement | null;
+    if (tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA' || tgt.isContentEditable)) return;
+    if (e.key >= '1' && e.key <= '5') {
+      const mark = Number(e.key) as Mark;
+      const a = session.current;
+      const blocks = activeBlocks();
+      const b = blocks[session.cur];
+      if (b) {
+        a.marks[b.id] = mark;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.key === 'ArrowRight') {
+      const blocks = activeBlocks();
+      if (session.cur < blocks.length - 1) {
+        session.cur++;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.key === 'ArrowLeft') {
+      if (session.cur > 0) {
+        session.cur--;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+      togglePause();
+      e.preventDefault();
+    }
+  });
+}
 
 export function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
@@ -83,6 +128,7 @@ export function renderAssess(host: HTMLElement): void {
         return `<button class="step ${state}${current}${noNote}${levelCls}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div>${scoreBadge}<span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="step-time" data-block-time="${x.id}">${formatMmSs(spent)}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
+    <div class="kbd-help" aria-hidden="true">Klawisze: 1-5 ocena, ←/→ blok, Alt+P pauza</div>
     <div class="card"><div class="card-body">
       <div class="twocol">
         <div>
@@ -262,4 +308,6 @@ export function renderAssess(host: HTMLElement): void {
     }
     navigate('summary');
   };
+
+  installKeyboardHandlers(host);
 }

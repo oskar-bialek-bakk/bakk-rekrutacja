@@ -5,6 +5,19 @@ import { BLOCKS } from '../content/blocks';
 
 let intervalId: number | null = null;
 let lastWallMs = 0;
+type GlobalLevel = 'ok' | 'warn' | 'over';
+let prevGlobalLevel: GlobalLevel = 'ok';
+
+function globalLevel(elapsedSec: number): GlobalLevel {
+  if (elapsedSec >= 55 * 60) return 'over';
+  if (elapsedSec >= 45 * 60) return 'warn';
+  return 'ok';
+}
+
+function announce(msg: string): void {
+  const el = document.getElementById('timer-announcement');
+  if (el) el.textContent = msg;
+}
 
 export function startTimer(): void {
   lastWallMs = Date.now();
@@ -118,6 +131,12 @@ function tick(): void {
     }
   }
   renderClock(session.current.timer.elapsedSec);
+  const lvl = globalLevel(session.current.timer.elapsedSec);
+  if (lvl !== prevGlobalLevel) {
+    if (lvl === 'warn') announce('Zegar przekroczyl sugerowany czas bloku.');
+    else if (lvl === 'over') announce('Zegar znacznie przekroczony.');
+    prevGlobalLevel = lvl;
+  }
   maybePhaseBanner();
 }
 
@@ -128,7 +147,12 @@ export function togglePause(): void {
   const a = session.current;
   if (!a) return;
   a.timer = a.timer.paused ? resumeTimer(a.timer) : pauseTimer(a.timer);
-  if (!a.timer.paused) lastWallMs = Date.now();
+  if (!a.timer.paused) {
+    lastWallMs = Date.now();
+    announce('Zegar wznowiony.');
+  } else {
+    announce('Zegar zapauzowany.');
+  }
   syncPauseDom();
 }
 
