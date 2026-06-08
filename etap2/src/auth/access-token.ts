@@ -1,0 +1,58 @@
+interface AuthMeEntry {
+  access_token?: string;
+  expires_on?: string;
+  id_token?: string;
+}
+
+interface CachedToken {
+  token: string;
+  expiresAt: number;
+}
+
+const REFRESH_BUFFER_MS = 5 * 60 * 1000;
+
+let cache: CachedToken | null = null;
+let inflight: Promise<string> | null = null;
+
+function parseExpiry(raw?: string): number {
+  if (!raw) return Date.now() + 60 * 60 * 1000;
+  const t = Date.parse(raw);
+  return Number.isFinite(t) ? t : Date.now() + 60 * 60 * 1000;
+}
+
+async function fetchToken(): Promise<string> {
+  const res = await fetch('/.auth/me', { credentials: 'include' });
+  if (res.status === 401) {
+    const next = encodeURIComponent(window.location.href);
+    window.location.assign(`/.auth/login/aad?post_login_redirect_url=${next}`);
+    throw new Error('Redirecting to login');
+  }
+  if (!res.ok) {
+    throw new Error(`/.auth/me HTTP ${res.status}`);
+  }
+  const data = (await res.json()) as AuthMeEntry[] | { clientPrincipal?: unknown };
+  const entries = Array.isArray(data) ? data : [];
+  const accessToken = entries.find((e) => typeof e.access_token === 'string' && e.access_token.length > 0);
+  if (!accessToken?.access_token) {
+    throw new Error('Brak access_token w /.auth/me. Easy Auth nie wystawia tokenu dla audience aplikacji.');
+  }
+  const expiresAt = parseExpiry(accessToken.expires_on);
+  cache = { token: accessToken.access_token, expiresAt };
+  return accessToken.access_token;
+}
+
+export async function getAccessToken(): Promise<string> {
+  if (cache && cache.expiresAt - Date.now() > REFRESH_BUFFER_MS) {
+    return cache.token;
+  }
+  if (inflight) return inflight;
+  inflight = fetchToken().finally(() => {
+    inflight = null;
+  });
+  return inflight;
+}
+
+export function forceRefresh(): void {
+  cache = null;
+  inflight = null;
+}
