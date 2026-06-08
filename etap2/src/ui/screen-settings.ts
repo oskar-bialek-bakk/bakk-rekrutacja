@@ -54,7 +54,7 @@ export async function renderSettings(host: HTMLElement): Promise<void> {
       <div class="card-head"><h2>Ustawienia</h2></div>
       <div class="card-body">
         <section class="settings-grid">
-          <h3>Wagi blokow (A-D musza sumowac sie do 100)</h3>
+          <h3>Wagi bloków (A-D muszą sumować się do 100)</h3>
           <div class="weights-row">
             ${weightField('A', 'A')}
             ${weightField('B', 'B')}
@@ -70,11 +70,11 @@ export async function renderSettings(host: HTMLElement): Promise<void> {
           <h3>Opcje wyniku</h3>
           <label class="settings-toggle">
             <input type="checkbox" id="opt-include-e"${s.includeEInScore ? ' checked' : ''}>
-            <span>Wlicz blok E do wyniku</span>
+            <span>Wlicz blok E do wyniku końcowego</span>
           </label>
           <label class="settings-toggle">
             <input type="checkbox" id="opt-show-live"${s.showScoreLive ? ' checked' : ''}>
-            <span>Pokaz punkty na zywo w ocenie</span>
+            <span>Pokaż punkty na żywo w ocenie</span>
           </label>
         </section>
 
@@ -82,8 +82,8 @@ export async function renderSettings(host: HTMLElement): Promise<void> {
 
         <div class="settings-actions">
           <button type="button" class="btn primary" id="settings-save">Zapisz</button>
-          <button type="button" class="btn ghost" id="settings-reset">Reset do domyslnych</button>
-          <button type="button" class="btn ghost" id="settings-back">&larr; Wroc</button>
+          <button type="button" class="btn ghost" id="settings-reset">Reset do domyślnych</button>
+          <button type="button" class="btn ghost" id="settings-back">&larr; Wróć</button>
         </div>
       </div>
     </div>`;
@@ -119,7 +119,7 @@ export async function renderSettings(host: HTMLElement): Promise<void> {
     const weights = readWeights(host);
     const sumABCD = weights.A + weights.B + weights.C + weights.D;
     if (sumABCD !== 100) {
-      showError(`Suma wag A-D musi wynosic 100. Aktualnie: ${sumABCD}.`);
+      showError(`Suma wag A-D musi wynosić 100. Aktualnie: ${sumABCD}.`);
       return;
     }
     const includeE = host.querySelector<HTMLInputElement>('#opt-include-e')?.checked ?? false;
@@ -134,8 +134,8 @@ export async function renderSettings(host: HTMLElement): Promise<void> {
       await reloadSettings();
       showToast('Zapisano.');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'nieznany blad.';
-      showError(`Blad zapisu: ${message}`);
+      const message = error instanceof Error ? error.message : 'nieznany błąd.';
+      showError(`Błąd zapisu: ${message}`);
     }
   };
 

@@ -58,7 +58,7 @@ describe('renderSettings', () => {
     expect(stored.weights.D).toBe(0);
   });
 
-  it('zapis przy sumie A-D != 100 pokazuje blad i nie zapisuje', async () => {
+  it('zapis przy sumie A-D != 100 pokazuje błąd i nie zapisuje', async () => {
     const host = await mount();
     setWeights(host, { A: 50, B: 40, C: 0, D: 0 });
     host.querySelector<HTMLButtonElement>('#settings-save')!.click();
@@ -69,7 +69,7 @@ describe('renderSettings', () => {
     expect(localStorage.getItem(K_SETTINGS)).toBeNull();
   });
 
-  it('reset przepisuje DEFAULT_SETTINGS do pol', async () => {
+  it('reset przepisuje DEFAULT_SETTINGS do pól', async () => {
     const host = await mount();
     setWeights(host, { A: 10, B: 10, C: 10, D: 10, E: 99 });
     host.querySelector<HTMLInputElement>('#opt-include-e')!.checked = true;
