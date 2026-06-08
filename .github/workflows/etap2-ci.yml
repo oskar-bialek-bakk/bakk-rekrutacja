@@ -1,0 +1,33 @@
+name: etap2 CI (PR smoke)
+
+# Build + testy aplikacji etap2 jako warunek mergea PR.
+# NIE deployuje — sam deploy z main przez deploy-bakk-rekrutacja-etap2.yml.
+
+on:
+  pull_request:
+    paths:
+      - 'etap2/**'
+      - '.github/workflows/etap2-ci.yml'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: etap2/package-lock.json
+
+      - name: Install deps
+        run: npm --prefix etap2 ci
+
+      - name: Run tests
+        run: npm --prefix etap2 test
+
+      - name: Build
+        run: npm --prefix etap2 run build
