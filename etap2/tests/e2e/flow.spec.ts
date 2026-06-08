@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test('pełny przepływ: start → ocena → podsumowanie → zestawienie', async ({ page }) => {
-  // Zakończenie oceny bez notatek pokazuje confirm — akceptujemy go.
-  page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.fill('#in-name', 'Test Kandydat');
   await page.click('#btn-start');
@@ -11,6 +9,9 @@ test('pełny przepływ: start → ocena → podsumowanie → zestawienie', async
     await page.click('label.lvl[data-lvl="4"]');
     await page.click('#next');
   }
+  // Zakończenie oceny bez notatek pokazuje wewnątrzaplikacyjny dialog — potwierdzamy.
+  await expect(page.locator('#modal-ok')).toBeVisible();
+  await page.click('#modal-ok');
   await expect(page.locator('.scorebig b')).toHaveText('80');
   await page.click('.dbtn.yes');
   await page.click('#save');
@@ -19,8 +20,6 @@ test('pełny przepływ: start → ocena → podsumowanie → zestawienie', async
 });
 
 test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async ({ page }) => {
-  // Zakończenie oceny bez notatek pokazuje confirm — akceptujemy go.
-  page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.fill('#in-name', 'Detal Kandydat');
   await page.click('#btn-start');
@@ -29,6 +28,9 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
     await page.click('label.lvl[data-lvl="4"]');
     await page.click('#next');
   }
+  // Zakończenie oceny bez notatek pokazuje wewnątrzaplikacyjny dialog — potwierdzamy.
+  await expect(page.locator('#modal-ok')).toBeVisible();
+  await page.click('#modal-ok');
   await page.click('.dbtn.yes');
   await page.click('#save');
 
@@ -47,6 +49,9 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
   for (let i = 0; i < 4; i++) {
     await page.click('#next');
   }
+  // Notatki nadal puste — potwierdź wewnątrzaplikacyjny dialog.
+  await expect(page.locator('#modal-ok')).toBeVisible();
+  await page.click('#modal-ok');
   await expect(page.locator('.scorebig b')).toBeVisible();
   await page.click('#save');
 

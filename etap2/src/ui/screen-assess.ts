@@ -7,6 +7,7 @@ import { session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
+import { confirmDialog } from './confirm-dialog';
 
 function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
@@ -171,7 +172,7 @@ export function renderAssess(host: HTMLElement): void {
   (host.querySelector('#prev') as HTMLButtonElement).onclick = () => {
     if (session.cur > 0) { session.cur--; renderAssess(host); }
   };
-  (host.querySelector('#next') as HTMLButtonElement).onclick = () => {
+  (host.querySelector('#next') as HTMLButtonElement).onclick = async () => {
     if (session.cur < blocks.length - 1) {
       session.cur++;
       renderAssess(host);
@@ -184,10 +185,16 @@ export function renderAssess(host: HTMLElement): void {
           const block = blocks.find((x) => x.id === m);
           return block ? `${block.id} ${block.title}` : m;
         })
-        .join(', ');
-      const ok = window.confirm(
-        `Bloki bez notatki: ${labels}. Notatki ułatwiają porównanie kandydatów. Zakończyć ocenę mimo to?`,
-      );
+        .join('\n');
+      const ok = await confirmDialog({
+        title: 'Notatki niekompletne',
+        message:
+          'Bloki bez notatki:\n' +
+          labels +
+          '\n\nNotatki ułatwiają porównanie kandydatów. Zakończyć ocenę mimo to?',
+        okLabel: 'Zakończ mimo to',
+        cancelLabel: 'Wróć i uzupełnij',
+      });
       if (!ok) return;
     }
     navigate('summary');
