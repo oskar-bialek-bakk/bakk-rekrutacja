@@ -193,6 +193,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
     session.current = record;
     session.cur = 0;
     session.visited = new Set();
+    session.editing = true;
     navigate('assess');
   };
 

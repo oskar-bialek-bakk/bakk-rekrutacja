@@ -45,6 +45,17 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
   await page.click('#edit');
   await expect(page.locator('.stepper')).toBeVisible();
 
+  // W trybie edycji dostępny jest szybki zapis zmian bez przechodzenia przez bloki.
+  await expect(page.locator('#save-changes')).toBeVisible();
+  await page.click('label.lvl[data-lvl="5"]');
+  await page.click('#save-changes');
+  // Szybki zapis wraca do szczegółów; brak ponownego podbicia rotacji.
+  await expect(page.locator('#detail-name')).toHaveText('Detal Kandydat');
+
+  // Ponowna edycja: tym razem zakończ przez podsumowanie.
+  await page.click('#edit');
+  await expect(page.locator('.stepper')).toBeVisible();
+
   // Przejdź przez bloki do podsumowania i zapisz, by wrócić na zestawienie.
   for (let i = 0; i < 4; i++) {
     await page.click('#next');

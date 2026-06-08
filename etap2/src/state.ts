@@ -10,6 +10,7 @@ export interface Session {
   cur: number;
   visited: Set<BlockId>;
   detailId: string | null;
+  editing: boolean;
 }
 
-export const session: Session = { current: null, screen: 'start', cur: 0, visited: new Set(), detailId: null };
+export const session: Session = { current: null, screen: 'start', cur: 0, visited: new Set(), detailId: null, editing: false };

@@ -146,6 +146,7 @@ export function renderSummary(host: HTMLElement): void {
       const usage = await repo.getVariantUsage();
       await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotatingBlockIds()));
     }
+    session.editing = false;
     navigate('roster');
   };
 }
