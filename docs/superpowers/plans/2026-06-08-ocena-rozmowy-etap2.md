@@ -1420,8 +1420,8 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 ### Architektura wynikowa
 
-- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region polandcentral. Storage account `stbakkrekrutacjaapi` (lub współdzielony z istniejącym). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
-- **Język Functions:** **TypeScript Node 20**, model v4 (`@azure/functions` 4.x). W `etap2/api/` osobny `package.json` i `tsconfig.json`. Wspólne typy `Assessment`/`VariantUsage`/`Settings` przez relative import z `etap2/src/domain/model.ts`.
+- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region **germanywestcentral** (Linux Consumption nie wspierany w polandcentral; DE West Central blisko PL ~30ms do Cosmos). Storage account `stbakkrekrutacjaapi` (germanywestcentral, w tej samej grupie). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
+- **Język Functions:** **TypeScript Node 24**, model v4 (`@azure/functions` 4.x). Node 20 osiągnął EOL 2026-04-30, Azure odmawia tworzenia Functions na Node 20. W `etap2/api/` osobny `package.json` i `tsconfig.json`. Wspólne typy `Assessment`/`VariantUsage`/`Settings` przez relative import z `etap2/src/domain/model.ts`.
 - **Baza:** **Cosmos DB serverless**, konto `bakk-rekrutacja-db` w `rg-bakk-docs`, baza `etap2`, kontenery:
   - `assessments` — partition key `/userPrincipalName`. Lista filtruje per upn (scope=mine) lub cross-partition (scope=team).
   - `variantUsage` — partition key `/scope`, dokument `id=global`, struktura `{ counts: { A: [n,n,n,n], B: [n,n,n], C: [n,n,n,n,n], D: [n,n,n] } }`.
@@ -1494,13 +1494,13 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 **Files:**
 - Create: `etap2/api/host.json`, `etap2/api/package.json`, `etap2/api/tsconfig.json`, `etap2/api/local.settings.json.example`, `etap2/api/.gitignore`, `etap2/api/health/function.json`, `etap2/api/health/index.ts`, `etap2/api/lib/auth.ts`, `etap2/api/lib/cosmos.ts`
 
-- [ ] **Step 1:** Struktura projektu Functions v4 model, Node 20 TS. `host.json` z `extensionBundle` `[4.*, 5.0.0)`. `package.json` z `@azure/functions` 4.x, `@azure/cosmos` 4.x, `zod` 3.x. `tsconfig.json` z `target: ES2022`, `module: NodeNext`, `outDir: dist`.
+- [ ] **Step 1:** Struktura projektu Functions v4 model, Node 24 TS. `host.json` z `extensionBundle` `[4.*, 5.0.0)`. `package.json` z `@azure/functions` 4.x, `@azure/cosmos` 4.x, `zod` 3.x. `tsconfig.json` z `target: ES2022`, `module: NodeNext`, `outDir: dist`.
 - [ ] **Step 2:** `lib/auth.ts` z `getCurrentUser(req): { upn: string, oid: string, name: string } | null` czytający Easy Auth headers `X-MS-CLIENT-PRINCIPAL-NAME` / `X-MS-CLIENT-PRINCIPAL-ID` / `X-MS-CLIENT-PRINCIPAL` (base64 JSON, claims w `claims[]`). Easy Auth na Function App wstawia te nagłówki po walidacji Bearer tokenu, więc handler nie waliduje JWT samodzielnie. Fallback dla `npm run dev` z `local.settings.json`: `MOCK_USER_UPN`.
 - [ ] **Step 3:** `lib/cosmos.ts` z singleton `CosmosClient` (z `COSMOS_ENDPOINT` + `COSMOS_KEY`), factory metod `assessmentsContainer()` / `variantUsageContainer()` / `settingsContainer()`.
 - [ ] **Step 4:** `health/index.ts` zwracający `{ ok: true, user: getCurrentUser(req)?.upn, cosmos: 'reachable' }` po ping cosmos (np. `database.read()`).
 - [ ] **Step 5:** `local.settings.json.example` z `AzureWebJobsStorage=UseDevelopmentStorage=true`, `FUNCTIONS_WORKER_RUNTIME=node`, `MOCK_USER_UPN=os.bialek@bakk.com`, pola Cosmos. `.gitignore` ignoruje `local.settings.json`.
 - [ ] **Step 6:** Lokalny test: `func start` w `etap2/api/`, `curl http://localhost:7071/api/health` zwraca 200 z mock userem.
-- [ ] **Step 7:** Commit: `feat(etap2): skeleton Functions Node 20 TS + auth + cosmos lib`.
+- [ ] **Step 7:** Commit: `feat(etap2): skeleton Functions Node 24 TS + auth + cosmos lib`.
 
 ### Task 4: Endpointy CRUD assessments
 
