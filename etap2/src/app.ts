@@ -17,6 +17,6 @@ export function render(): void {
     case 'start': void renderStart(host); break;
     case 'assess': renderAssess(host); break;
     case 'summary': renderSummary(host); break;
-    case 'roster': renderRoster(host); break;
+    case 'roster': void renderRoster(host); break;
   }
 }
