@@ -50,8 +50,8 @@ function renderFlags(a: Assessment, blocks: Block[]): string {
       const f = a.flags[b.id];
       if (!f) return [];
       const out: string[] = [];
-      if (f.red) out.push(`<div class="pcard-flag red"><b>${escapeHtml(b.title)}:</b> ${b.flagRed}</div>`);
-      if (f.green) out.push(`<div class="pcard-flag green"><b>${escapeHtml(b.title)}:</b> ${b.flagGreen}</div>`);
+      if (f.red) out.push(`<div class="pcard-flag red"><b>${escapeHtml(b.title)}:</b> ${escapeHtml(b.flagRed)}</div>`);
+      if (f.green) out.push(`<div class="pcard-flag green"><b>${escapeHtml(b.title)}:</b> ${escapeHtml(b.flagGreen)}</div>`);
       return out;
     })
     .join('');
@@ -188,6 +188,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
   (host.querySelector('#back') as HTMLButtonElement).onclick = () => navigate('roster');
 
   (host.querySelector('#edit') as HTMLButtonElement).onclick = () => {
+    // Edycja istniejącej oceny: nie wznawiamy zegara (to korekta, nie nowa mierzona rozmowa).
     session.current = record;
     session.cur = 0;
     session.visited = new Set();
