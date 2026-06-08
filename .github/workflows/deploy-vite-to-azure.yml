@@ -1,0 +1,111 @@
+name: Reusable — deploy Vite app to Azure App Service
+
+# Reużywalny workflow do budowy Vite (TypeScript) i deployu na Azure App Service.
+# Wzorowany na deploy-mkdocs-to-azure.yml z repo Intrum.
+#
+# Założenia:
+#  - W repo callera istnieje katalog `app-dir` z `package.json` (skrypt `build`),
+#    który po `npm run build` produkuje statyczne pliki w `app-dir/dist/`.
+#  - Cel: jeden App Service w którym ten workflow montuje treść pod `subpath`
+#    (pusty subpath = deploy do roota). Wiele callerów może deployować różne
+#    subpathy do tego samego App Service — używamy `clean: false` żeby nie
+#    nadpisywały się nawzajem.
+#  - Auth: publish profile App Service (jeden GitHub secret per App Service).
+#    Wartość secreta = pełna treść pliku .PublishSettings (XML).
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: "Nazwa Azure App Service (np. bakk-rekrutacja)."
+        required: true
+        type: string
+      resource-group:
+        description: "Resource group App Service (np. rg-bakk-docs)."
+        required: true
+        type: string
+      subscription-id:
+        description: "Subscription ID (GUID) w którym żyje App Service."
+        required: true
+        type: string
+      app-dir:
+        description: "Ścieżka w repo callera do katalogu z package.json (np. etap2)."
+        required: true
+        type: string
+      subpath:
+        description: "Podścieżka w App Service pod którą ma siąść treść (np. etap2). Puste = root."
+        required: false
+        type: string
+        default: ""
+      site-base:
+        description: "Wartość do nadpisania `base` w vite.config.ts (np. /etap2/). Puste = bez nadpisania (zostaje wartość z repo)."
+        required: false
+        type: string
+        default: ""
+      node-version:
+        description: "Wersja Node.js do builda Vite."
+        required: false
+        type: string
+        default: "20"
+    secrets:
+      azure-publish-profile:
+        description: "Pełna treść pliku .PublishSettings (XML) docelowego App Service."
+        required: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.app-dir }}/package-lock.json
+
+      - name: Install deps
+        working-directory: ${{ inputs.app-dir }}
+        run: npm ci
+
+      - name: Override base in vite.config.ts (if provided)
+        if: inputs.site-base != ''
+        run: |
+          set -euo pipefail
+          sed -i "s#base: *['\"][^'\"]*['\"]#base: '${{ inputs.site-base }}'#" "${{ inputs.app-dir }}/vite.config.ts"
+          echo "base po nadpisaniu:"
+          grep "base:" "${{ inputs.app-dir }}/vite.config.ts"
+
+      - name: Build Vite
+        working-directory: ${{ inputs.app-dir }}
+        run: npm run build
+
+      - name: Stage artifact with subpath layout
+        run: |
+          set -euo pipefail
+          rm -rf __artifact
+          mkdir -p __artifact
+          if [ -z "${{ inputs.subpath }}" ]; then
+            cp -r ${{ inputs.app-dir }}/dist/. __artifact/
+          else
+            mkdir -p "__artifact/${{ inputs.subpath }}"
+            cp -r ${{ inputs.app-dir }}/dist/. "__artifact/${{ inputs.subpath }}/"
+          fi
+
+      - name: Zip artifact
+        run: |
+          cd __artifact
+          zip -r ../artifact.zip . -q
+          cd ..
+          ls -lh artifact.zip
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ inputs.app-name }}
+          publish-profile: ${{ secrets.azure-publish-profile }}
+          package: artifact.zip
+          clean: false
+          restart: true
