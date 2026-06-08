@@ -1,20 +1,26 @@
 # Provisioning Cosmos DB serverless dla etap2 (Faza 5).
 #
 # Tworzy:
-#  - konto Cosmos `bakk-rekrutacja-db` (serverless, Session consistency, westeurope)
+#  - konto Cosmos `bakk-rekrutacja-db` (serverless, Session consistency, polandcentral)
 #  - baze `etap2`
 #  - kontenery: assessments (partition /userPrincipalName), variantUsage (partition /scope),
 #    settings (partition /userPrincipalName)
-#  - seed dokumentu variantUsage.global z licznikami 0
 #
-# Po wykonaniu wypisuje COSMOS_ENDPOINT + COSMOS_KEY do stdout - skopiuj je do
-# app settings Function App `bakk-rekrutacja-api` w Task 2 (NIE App Service).
+# Po wykonaniu zapisuje COSMOS_ENDPOINT + COSMOS_KEY do pliku tymczasowego i wypisuje TYLKO sciezke.
+# Klucz w stdout/historii konsoli/logach CI jest ryzykowny - uzyj flag -ShowSecrets zeby
+# wymusic wypisanie kluczy do stdout (np. dla rcznego copy-paste w lokalnej sesji).
+# Seed `variantUsage.global` (counts: A[4]/B[3]/C[5]/D[3] z zerami) bedzie wykonany przez
+# health endpoint Function App w Task 3 (lazy init) - NIE w tym skrypcie.
 #
 # Wymagania:
 #  - az CLI zalogowany na sub 28b7c9a4-317a-495c-99ed-6a6cec116a44.
 #  - PowerShell 5.1+ lub pwsh 7+.
 #
 # Idempotencja: kazdy krok robi --only-show-errors i sprawdza istnienie zasobu.
+
+param(
+    [switch]$ShowSecrets
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -59,8 +65,8 @@ if ($accts -contains $acct) {
         throw "Nazwa $acct zajeta przez inne konto Cosmos poza $rg. Wybierz inna nazwe i zmien w skrypcie."
     }
     Write-Host "    Tworze konto Cosmos $acct (serverless, Session, $loc)..."
-    # isZoneRedundant=False - westeurope ma czesto braki na zone-redundant,
-    # rekrutacja nie potrzebuje multi-AZ.
+    # isZoneRedundant=False - niektore regiony (m.in. westeurope) zwracaja ServiceUnavailable
+    # przy domyslnej zone-redundancy; rekrutacja nie potrzebuje multi-AZ, wiec zawsze single-zone.
     az cosmosdb create `
         -g $rg -n $acct `
         --capabilities EnableServerless `
@@ -87,11 +93,13 @@ $containers = @(
     @{ name = 'settings';     pk = '/userPrincipalName' }
 )
 
+$existingConts = @(az cosmosdb sql container list -g $rg -a $acct -d $db --query "[].name" -o tsv)
+if ($LASTEXITCODE -ne 0) { throw "az cosmosdb sql container list sie nie powiodlo." }
+
 $stepIdx = 3
 foreach ($c in $containers) {
     Write-Host "$stepIdx/6 Tworze kontener $($c.name) (partition $($c.pk)) jesli nie ma..."
-    $conts = @(az cosmosdb sql container list -g $rg -a $acct -d $db --query "[].name" -o tsv)
-    if ($conts -contains $c.name) {
+    if ($existingConts -contains $c.name) {
         Write-Host "    Istnieje - pomijam."
     } else {
         az cosmosdb sql container create `
@@ -100,22 +108,36 @@ foreach ($c in $containers) {
             --partition-key-path $c.pk `
             --only-show-errors | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "az cosmosdb sql container create $($c.name) sie nie powiodlo." }
+        $existingConts += $c.name
         Write-Host "    Utworzony."
     }
     $stepIdx++
 }
 
-Write-Host "6/6 Wypisuje endpoint + primary key (skopiuj do Function App settings w Task 2):"
+Write-Host "6/6 Zapisuje endpoint + primary key do pliku tymczasowego..."
 $endpoint = az cosmosdb show -g $rg -n $acct --query documentEndpoint -o tsv
-$key      = az cosmosdb keys list -g $rg -n $acct --type keys --query primaryMasterKey -o tsv
+if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie pobrac documentEndpoint." }
+$key = az cosmosdb keys list -g $rg -n $acct --type keys --query primaryMasterKey -o tsv
+if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie pobrac primaryMasterKey." }
+
+$secretsFile = Join-Path $tempDir 'bakk-cosmos-secrets.txt'
+@"
+COSMOS_ENDPOINT=$endpoint
+COSMOS_KEY=$key
+COSMOS_DB=$db
+"@ | Out-File -Encoding utf8 -FilePath $secretsFile
+
 Write-Host ""
-Write-Host "COSMOS_ENDPOINT=$endpoint"
-Write-Host "COSMOS_KEY=$key"
-Write-Host "COSMOS_DB=$db"
+Write-Host "Sekrety zapisane do: $secretsFile"
+Write-Host "Endpoint: $endpoint"
+Write-Host "Klucz NIE pokazany w stdout (uzyj -ShowSecrets aby wymusic)."
+if ($ShowSecrets) {
+    Write-Host ""
+    Write-Host "COSMOS_KEY=$key"
+}
 Write-Host ""
-Write-Host "Gotowe. W Task 2 wpisz powyzsze do app settings Function App:"
+Write-Host "Gotowe. W Task 2 wpisz wartosci z pliku do app settings Function App:"
 Write-Host "  az functionapp config appsettings set -g $rg -n bakk-rekrutacja-api ``"
 Write-Host "    --settings COSMOS_ENDPOINT=`$endpoint COSMOS_KEY=`$key COSMOS_DB=`$db"
 Write-Host ""
-Write-Host "Seed variantUsage.global zostanie wykonany w Task 3 (health endpoint po pierwszym ping)"
-Write-Host "albo recznie po pierwszym deploy Function App."
+Write-Host "Seed variantUsage.global zostanie wykonany lazy przez health endpoint Function App w Task 3."
