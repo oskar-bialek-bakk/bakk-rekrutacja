@@ -1,9 +1,16 @@
 import type { Assessment, BlockId, Settings } from './domain/model';
+import { AzureStore } from './persistence/azure-store';
 import { LocalStore } from './persistence/local-store';
 import type { Repository } from './persistence/repository';
 import { DEFAULT_SETTINGS, loadSettings } from './domain/settings';
 
-export const repo: Repository = new LocalStore();
+function createRepo(): Repository {
+  const persistence = (import.meta as unknown as { env?: { VITE_PERSISTENCE?: string } }).env?.VITE_PERSISTENCE;
+  if (persistence === 'azure') return new AzureStore();
+  return new LocalStore();
+}
+
+export const repo: Repository = createRepo();
 
 export interface Session {
   current: Assessment | null;
