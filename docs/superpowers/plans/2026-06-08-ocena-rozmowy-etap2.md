@@ -1420,7 +1420,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 ### Architektura wynikowa
 
-- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region westeurope. Storage account `stbakkrekrutacjaapi` (lub współdzielony z istniejącym). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
+- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region polandcentral. Storage account `stbakkrekrutacjaapi` (lub współdzielony z istniejącym). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
 - **Język Functions:** **TypeScript Node 20**, model v4 (`@azure/functions` 4.x). W `etap2/api/` osobny `package.json` i `tsconfig.json`. Wspólne typy `Assessment`/`VariantUsage`/`Settings` przez relative import z `etap2/src/domain/model.ts`.
 - **Baza:** **Cosmos DB serverless**, konto `bakk-rekrutacja-db` w `rg-bakk-docs`, baza `etap2`, kontenery:
   - `assessments` — partition key `/userPrincipalName`. Lista filtruje per upn (scope=mine) lub cross-partition (scope=team).
@@ -1448,7 +1448,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - [ ] **Step 2:** Skrypt provisioning idempotentny:
   ```powershell
   $rg='rg-bakk-docs'; $acct='bakk-rekrutacja-db'; $db='etap2'
-  az cosmosdb create -g $rg -n $acct --capabilities EnableServerless --default-consistency-level Session --locations regionName=westeurope
+  az cosmosdb create -g $rg -n $acct --capabilities EnableServerless --default-consistency-level Session --locations regionName=polandcentral
   az cosmosdb sql database create -g $rg -a $acct -n $db
   az cosmosdb sql container create -g $rg -a $acct -d $db -n assessments --partition-key-path /userPrincipalName
   az cosmosdb sql container create -g $rg -a $acct -d $db -n variantUsage --partition-key-path /scope
@@ -1467,7 +1467,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 - [ ] **Step 1:** Skrypt provisioning idempotentny:
   ```powershell
-  $rg='rg-bakk-docs'; $loc='westeurope'
+  $rg='rg-bakk-docs'; $loc='polandcentral'
   $func='bakk-rekrutacja-api'; $stg='stbakkrekrutacjaapi'
   az storage account create -g $rg -n $stg -l $loc --sku Standard_LRS
   az functionapp create -g $rg -n $func --consumption-plan-location $loc `
