@@ -6,8 +6,10 @@ export function downloadTextFile(filename: string, mime: string, content: string
   anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
 export function safeFilenamePart(candidate: string): string {

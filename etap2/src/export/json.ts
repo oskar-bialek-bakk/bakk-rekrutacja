@@ -14,7 +14,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function hasValidId(entry: unknown): boolean {
-  return isPlainObject(entry) && typeof entry.id === 'string' && entry.id.length > 0;
+  return isPlainObject(entry) && typeof entry.id === 'string' && entry.id.trim().length > 0;
 }
 
 export function parseImport(text: string): Assessment[] {

@@ -29,6 +29,16 @@ const DECISION_LABELS: Record<Decision, string> = {
   wait: 'Czekamy',
 };
 
+const FORMULA_TRIGGERS = ['=', '+', '-', '@'];
+
+function neutralizeFormula(value: string): string {
+  const firstNonSpace = value.trimStart().charAt(0);
+  if (FORMULA_TRIGGERS.includes(firstNonSpace)) {
+    return `'${value}`;
+  }
+  return value;
+}
+
 function escapeField(value: string): string {
   const needsQuoting =
     value.includes(',') ||
@@ -55,7 +65,7 @@ function rowToLine(row: RosterRow): string {
     String(row.green),
     mapDecision(row.decision),
   ];
-  return fields.map(escapeField).join(',');
+  return fields.map((field) => escapeField(neutralizeFormula(field))).join(',');
 }
 
 export function rosterToCsv(rows: RosterRow[]): string {
