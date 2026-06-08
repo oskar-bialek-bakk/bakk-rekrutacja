@@ -31,7 +31,7 @@ export function renderAssess(host: HTMLElement): void {
           <fieldset class="scale" id="scale">${b.scale.map((d, i) =>
             `<label class="lvl ${sel === i + 1 ? 'sel' : ''}"><input type="radio" name="mark" value="${i + 1}" ${sel === i + 1 ? 'checked' : ''}><span class="num">${i + 1}</span><span class="desc">${d}</span></label>`).join('')}</fieldset>
           <div class="deepen"><div class="dh">Pytanie pogłębiające <span class="tag">jeśli zostanie czas</span></div>
-            <div class="dq">„${b.deepen}"</div>
+            <div class="dq">„${b.deepen}”</div>
             <label><input type="checkbox" id="deepen-asked" ${a.deepenAsked[b.id] ? 'checked' : ''}> zadano</label></div>
         </div>
         <div>
@@ -41,7 +41,7 @@ export function renderAssess(host: HTMLElement): void {
             <button class="flagbtn red ${fl.red ? 'on' : ''}" id="fr">⚑ Czerwona</button>
             <button class="flagbtn green ${fl.green ? 'on' : ''}" id="fg">⚑ Zielona</button></div>
           <div class="label">Notatka / cytat</div>
-          <textarea id="note" placeholder="Konkretna obserwacja…">${a.notes[b.id] ?? ''}</textarea>
+          <textarea id="note" placeholder="Konkretna obserwacja…"></textarea>
         </div>
       </div>
       <div class="nav">
@@ -50,6 +50,8 @@ export function renderAssess(host: HTMLElement): void {
         <button class="btn primary" id="next">${session.cur < blocks.length - 1 ? 'Następny blok →' : 'Zakończ ocenę →'}</button>
       </div>
     </div></div>`;
+
+  (host.querySelector('#note') as HTMLTextAreaElement).value = a.notes[b.id] ?? '';
 
   host.querySelectorAll<HTMLElement>('.step').forEach((s) => (s.onclick = () => { session.cur = Number(s.dataset.i); renderAssess(host); }));
   host.querySelector('#scale')!.addEventListener('change', (e) => {

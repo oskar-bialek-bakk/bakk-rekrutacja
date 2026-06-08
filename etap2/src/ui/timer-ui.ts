@@ -12,6 +12,15 @@ export function startTimer(): void {
   tick();
 }
 
+export function stopTimer(): void {
+  if (intervalId != null) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+  const clock = document.getElementById('clock');
+  if (clock) clock.style.visibility = 'hidden';
+}
+
 function tick(): void {
   if (!session.current) return;
   const s = Math.floor((Date.now() - startMs) / 1000) + session.current.timer.offsetSec;

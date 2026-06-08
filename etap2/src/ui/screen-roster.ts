@@ -2,6 +2,8 @@ import { computeScore } from '../domain/scoring';
 import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import { repo, session } from '../state';
 import { navigate } from '../app';
+import { escapeHtml } from './escape';
+import { stopTimer } from './timer-ui';
 
 export async function renderRoster(host: HTMLElement): Promise<void> {
   const all = await repo.findAll();
@@ -21,11 +23,16 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       <div class="card-body"><table>
         <thead><tr><th>Kandydat</th><th>Data</th><th>Etap I</th><th>Etap II</th><th>Flagi</th><th>Decyzja</th></tr></thead>
         <tbody>${rows.map((r) => `<tr>
-          <td class="name">${r.a.candidate.nameOrId}</td><td>${r.a.candidate.date}</td>
-          <td>${r.a.candidate.stage1Result || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
+          <td class="name">${escapeHtml(r.a.candidate.nameOrId)}</td><td>${escapeHtml(r.a.candidate.date)}</td>
+          <td>${escapeHtml(r.a.candidate.stage1Result) || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
           <td>${'🔴'.repeat(r.red)}${'🟢'.repeat(r.green) || (r.red ? '' : '—')}</td><td>${decTag(r.a.decision)}</td>
         </tr>`).join('')}</tbody>
       </table></div></div>`;
 
-  (host.querySelector('#new') as HTMLButtonElement).onclick = () => { session.current = null; session.cur = 0; navigate('start'); };
+  (host.querySelector('#new') as HTMLButtonElement).onclick = () => {
+    stopTimer();
+    session.current = null;
+    session.cur = 0;
+    navigate('start');
+  };
 }

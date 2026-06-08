@@ -5,6 +5,7 @@ import type { Decision } from '../domain/model';
 import { repo, session } from '../state';
 import { navigate } from '../app';
 import { elapsedStr } from './timer-ui';
+import { escapeHtml } from './escape';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
@@ -23,7 +24,7 @@ export function renderSummary(host: HTMLElement): void {
   host.innerHTML = `
     <div class="card"><div class="card-body">
       ${incomplete}
-      <div class="scorebig"><div class="val"><b>${r.score}</b><span>na 100</span></div><div class="verdict">${verdict} · ${a.candidate.nameOrId} · ⏱ ${elapsedStr()}</div></div>
+      <div class="scorebig"><div class="val"><b>${r.score}</b><span>na 100</span></div><div class="verdict">${verdict} · ${escapeHtml(a.candidate.nameOrId)} · ⏱ ${elapsedStr()}</div></div>
       <div class="breakdown">${BLOCKS.filter((b) => !b.optional || a.useE).map((b) => {
         const m = r.profile[b.id]; const wl = b.weight ? `waga ${b.weight}%` : 'bez wagi';
         return `<div class="brow"><div class="bn">${b.title}<small>${wl}</small></div><div class="bv">${m ? m + '/5' : '—'}</div></div>`;
@@ -36,15 +37,15 @@ export function renderSummary(host: HTMLElement): void {
         <button class="dbtn wait" data-d="wait">Czekamy — porównać</button>
         <button class="dbtn no" data-d="no">Nie</button>
       </div>
-      <textarea id="dec-note" placeholder="Uzasadnienie decyzji">${a.decisionNote}</textarea>
+      <textarea id="dec-note" placeholder="Uzasadnienie decyzji"></textarea>
 
       <div class="section-title">Negocjacje i warunki <span class="muted">— poza oceną</span></div>
       <div class="neg-grid">
-        <input id="neg-ocz" placeholder="Oczekiwania finansowe" value="${a.negotiation.oczekiwania}">
-        <input id="neg-wid" placeholder="Proponowane widełki" value="${a.negotiation.widelki}">
-        <input id="neg-forma" placeholder="Forma umowy" value="${a.negotiation.formaUmowy}">
-        <input id="neg-dost" placeholder="Dostępność / wypowiedzenie" value="${a.negotiation.dostepnosc}">
-        <input id="neg-uwagi" class="full" placeholder="Uwagi" value="${a.negotiation.uwagi}">
+        <input id="neg-ocz" placeholder="Oczekiwania finansowe">
+        <input id="neg-wid" placeholder="Proponowane widełki">
+        <input id="neg-forma" placeholder="Forma umowy">
+        <input id="neg-dost" placeholder="Dostępność / wypowiedzenie">
+        <input id="neg-uwagi" class="full" placeholder="Uwagi">
       </div>
 
       <div class="nav">
@@ -52,6 +53,16 @@ export function renderSummary(host: HTMLElement): void {
         <button class="btn primary" id="save">Zapisz i pokaż zestawienie →</button>
       </div>
     </div></div>`;
+
+  (host.querySelector('#dec-note') as HTMLTextAreaElement).value = a.decisionNote;
+  const setInputValue = (id: string, value: string) => {
+    (host.querySelector(id) as HTMLInputElement).value = value;
+  };
+  setInputValue('#neg-ocz', a.negotiation.oczekiwania);
+  setInputValue('#neg-wid', a.negotiation.widelki);
+  setInputValue('#neg-forma', a.negotiation.formaUmowy);
+  setInputValue('#neg-dost', a.negotiation.dostepnosc);
+  setInputValue('#neg-uwagi', a.negotiation.uwagi);
 
   const setDec = (d: Decision) => { a.decision = d; host.querySelectorAll('.dbtn').forEach((x) => x.classList.toggle('on', (x as HTMLElement).dataset.d === d)); };
   host.querySelectorAll<HTMLElement>('.dbtn').forEach((btn) => (btn.onclick = () => setDec(btn.dataset.d as Decision)));
