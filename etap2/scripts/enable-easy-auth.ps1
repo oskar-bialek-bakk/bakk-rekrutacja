@@ -1,27 +1,28 @@
-# Włącza Easy Auth (Microsoft Entra) na App Service `bakk-rekrutacja`.
-# Reuse istniejącego app registration `BAKK Ext Apps`
-# (appId 45198913-b9a9-4ef8-96a2-b6b19a4179d3) — dokładnie tak samo jak
-# `intrum-documentation` i `kz-test1`. Konfiguracja authsettingsV2 lustro
-# `intrum-documentation`.
+﻿# Włącza Easy Auth (Microsoft Entra) na App Service `bakk-rekrutacja`.
+# Zgodne ze standardem BAKK z artykułu Confluence pageId=159417649:
+#  - Reuse Enterprise Application `BAKK Int Apps` (id 5d588d76-2173-49d8-ad6e-4c50b0ca6983)
+#    bo użytkownicy to pracownicy BAKK (rekruterzy).
+#  - DEDYKOWANY secret per App Service (zabronione współdzielenie).
+#  - Rejestracja redirect URI w istniejącej Enterprise App.
 #
 # Wymagania:
-#  - az CLI zalogowany na subskrypcję 28b7c9a4-317a-495c-99ed-6a6cec116a44
-#    Twoim kontem (musi mieć dostęp do `BAKK Ext Apps` jako owner oraz do
-#    obu App Services w `rg-bakk-docs`).
+#  - az CLI zalogowany na subskrypcję 28b7c9a4-317a-495c-99ed-6a6cec116a44.
+#  - Konto musi mieć uprawnienia do aktualizacji `BAKK Int Apps` (standardowy
+#    BAKK dev je ma — w odróżnieniu od `BAKK Ext Apps` która jest tighter).
 #  - PowerShell 5.1+ lub pwsh 7+.
 #
-# Idempotentny: ponowne uruchomienie nie powiela redirect URI ani app
-# settingu. Nie generuje nowych sekretów — kopiuje istniejący z
-# `intrum-documentation`.
+# Idempotentny: ponowne uruchomienie nie powiela redirect URI, dorzuca tylko
+# nowy secret (append) — stare credentiale per `bakk-rekrutacja` można
+# usunąć ręcznie po weryfikacji.
 
 $ErrorActionPreference = 'Stop'
 
 $rg          = 'rg-bakk-docs'
-$srcApp      = 'intrum-documentation'   # źródło sekretu Easy Auth
 $dstApp      = 'bakk-rekrutacja'
 $sub         = '28b7c9a4-317a-495c-99ed-6a6cec116a44'
-$sharedAppId = '45198913-b9a9-4ef8-96a2-b6b19a4179d3'   # BAKK Ext Apps
+$sharedAppId = '5d588d76-2173-49d8-ad6e-4c50b0ca6983'   # BAKK Int Apps (pracownicy BAKK)
 $secretName  = 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+$secretDisplay = $dstApp
 $redirectUri = "https://$dstApp.azurewebsites.net/.auth/login/aad/callback"
 
 # Bypass uszkodzonego rozszerzenia authV2 jeśli istnieje
@@ -30,27 +31,28 @@ New-Item -ItemType Directory -Force -Path $env:AZURE_EXTENSION_DIR | Out-Null
 
 az account set --subscription $sub | Out-Null
 
-Write-Host "1/4 Dodaję redirect URI do BAKK Ext Apps ($sharedAppId)..."
+Write-Host "1/4 Dodaje redirect URI do BAKK Int Apps ($sharedAppId)..."
 $existing = az ad app show --id $sharedAppId --query "web.redirectUris" -o json | ConvertFrom-Json
+if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie odczytac BAKK Int Apps. Sprawdz uprawnienia." }
 if ($existing -contains $redirectUri) {
-    Write-Host "    Już jest: $redirectUri"
+    Write-Host "    Juz jest: $redirectUri"
 } else {
     $merged = @($existing) + @($redirectUri)
     az ad app update --id $sharedAppId --web-redirect-uris @merged | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "az ad app update sie nie powiodlo. Brak uprawnien do BAKK Int Apps?" }
     Write-Host "    Dodane: $redirectUri"
 }
 
-Write-Host "2/4 Kopiuję $secretName z $srcApp do $dstApp..."
-$secret = az webapp config appsettings list -g $rg -n $srcApp `
-    --query "[?name=='$secretName'].value | [0]" -o tsv
-if (-not $secret) {
-    throw "Nie znalazłem $secretName w $srcApp. Easy Auth na $srcApp musi być włączone z tym providerem."
-}
-az webapp config appsettings set -g $rg -n $dstApp `
-    --settings "$secretName=$secret" | Out-Null
-Write-Host "    Wpięte (długość sekretu: $($secret.Length) znaków)"
+Write-Host "2/4 Generuje dedykowany client secret '$secretDisplay' (per standard BAKK: kazda App Service ma wlasny)..."
+$secret = az ad app credential reset --id $sharedAppId --display-name $secretDisplay --years 2 --append --query password -o tsv 2>$null
+if ($LASTEXITCODE -ne 0 -or -not $secret) { throw "Nie udalo sie wygenerowac sekretu." }
+Write-Host "    Wygenerowany (dlugosc: $($secret.Length) znakow)"
 
-Write-Host "3/4 Konfiguruję authsettingsV2 (lustro $srcApp)..."
+Write-Host "3/4 Wpinam secret do app settings $dstApp jako $secretName..."
+az webapp config appsettings set -g $rg -n $dstApp --settings "$secretName=$secret" | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie ustawic app setting." }
+
+Write-Host "4/4 Konfiguruje authsettingsV2 i restartuje..."
 $tenantId = az account show --query tenantId -o tsv
 
 $auth = @{
@@ -91,12 +93,12 @@ try {
     az rest --method put `
         --uri "https://management.azure.com/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.Web/sites/$dstApp/config/authsettingsV2?api-version=2022-03-01" `
         --body "@$tmp" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "authsettingsV2 PUT sie nie powiodl." }
 } finally {
     Remove-Item -Force $tmp -ErrorAction SilentlyContinue
 }
 
-Write-Host "4/4 Restartuję App Service..."
 az webapp restart -g $rg -n $dstApp | Out-Null
 
 Write-Host ""
-Write-Host "Gotowe. Otwórz https://$dstApp.azurewebsites.net/ — powinno przekierować na login BAKK Entra."
+Write-Host "Gotowe. Otworz https://$dstApp.azurewebsites.net/ z konta BAKK - powinno przekierowac na login Entra i wpuscic."

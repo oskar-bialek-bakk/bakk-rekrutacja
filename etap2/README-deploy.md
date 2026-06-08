@@ -33,60 +33,48 @@ Functions/Cosmos i auto-push Traffit są w Fazie 5.
 - ✅ Pierwszy deploy z `main` przeszedł zielony, smoke test `curl` zwraca
   HTTP 200 + tytuł „Ocena rozmowy — II etap · BAKK" (single-file 99 kB).
 
-**Do zrobienia po Twojej stronie (Easy Auth / SSO):**
+- ✅ Easy Auth (Microsoft Entra) włączony — reuse Enterprise Application
+  **BAKK Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`, single-tenant,
+  tylko pracownicy BAKK) zgodnie ze standardem z Confluence pageId=159417649.
+  Redirect URI dodany do BAKK Int Apps, dedykowany secret (per standard
+  „kazda App Service ma wlasny secret") wygenerowany i wpięty do
+  `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`, `authsettingsV2`
+  skonfigurowane (`RedirectToLoginPage`, tokenStore on, cookie 8h),
+  App Service zrestartowany.
+- ✅ Smoke test: `curl -A Mozilla https://bakk-rekrutacja.azurewebsites.net/`
+  zwraca HTTP 302 → `login.microsoftonline.com/c21db186-.../oauth2/v2.0/authorize`
+  z `client_id=5d588d76-...`.
 
-Uruchom skrypt `etap2/scripts/enable-easy-auth.ps1` ze swojego konta.
-Reuse istniejącej app registration **`BAKK Ext Apps`**
-(`45198913-b9a9-4ef8-96a2-b6b19a4179d3`), tej samej której używa
-`intrum-documentation` i `kz-test1` — bez nowego app reg, bez nowego
-sekretu, bez Application Administrator. Wymaga jedynie żebyś był ownerem
-`BAKK Ext Apps` (jesteś) i miał dostęp do obu App Services.
+**Tym samym Faza 4 jest zamknięta — nie ma już zadań user-side dla samego
+hostingu. Otwórz URL z konta BAKK i zweryfikuj pełen przepływ.**
 
-Claude tego skryptu nie odpalił bo:
-- `az ad app update` na BAKK Ext Apps wymaga owner permission na app reg
-  (mam tylko subskrypcję, nie owner na app);
-- czytanie `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` z `intrum-documentation`
-  (żeby skopiować ten sam secret do `bakk-rekrutacja`) zablokował auto-mode
-  — słusznie, prod credential nie powinien trafić do transkryptu.
+## Reproducja od zera (gdyby trzeba)
 
-Wszystko co robi skrypt:
+W razie odtworzenia tej konfiguracji (np. nowy podobny App Service):
 
-1. Dodaje `https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback`
-   do redirect URIs `BAKK Ext Apps`.
-2. Czyta `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` z `intrum-documentation`
-   app settings i wpina ten sam value do `bakk-rekrutacja` app settings.
-3. PUT-uje `authsettingsV2` na `bakk-rekrutacja` z `clientId =
-   45198913-b9a9-4ef8-96a2-b6b19a4179d3`, `RedirectToLoginPage`,
-   `tokenStore enabled`, 8h cookie — kopia 1:1 konfiguracji
-   `intrum-documentation`.
-4. Restart App Service.
-
-```powershell
-pwsh etap2/scripts/enable-easy-auth.ps1
-```
-
-Idempotentny — drugi run niczego nie psuje. Do czasu uruchomienia URL
-`https://bakk-rekrutacja.azurewebsites.net/` jest publiczny — zalecam
-zrobić to przed udostępnieniem URLa prowadzącym.
-
-## Włączenie Easy Auth — opcja awaryjna: portal Azure
-
-Jeśli skrypt z jakiegoś powodu padnie:
-
-Portal Azure → `bakk-rekrutacja` → Authentication → Add identity provider:
-
-- Identity provider: **Microsoft**
-- Tenant type: **Workforce**
-- App registration: **Pick an existing app registration in this directory**
-  → wpisz `BAKK Ext Apps` (45198913-b9a9-4ef8-96a2-b6b19a4179d3).
-- Client secret: ten sam co używa `intrum-documentation`
-  (`MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` app setting — portal sam
-  podłączy, jeśli wybierzesz „use existing").
-- Restrict access: **Require authentication**
-- Unauthenticated requests: **HTTP 302 Found redirect**
-
-Po dodaniu wejdź jeszcze do `BAKK Ext Apps` → Authentication → Redirect URIs
-i dodaj `https://bakk-rekrutacja.azurewebsites.net/.auth/login/aad/callback`.
+1. Utworzenie App Service na planie `asp-bakk-docs`:
+   ```bash
+   az webapp create -g rg-bakk-docs -p asp-bakk-docs -n <NAZWA>
+   ```
+2. Włączenie basic publishing creds (inaczej `azure/webapps-deploy@v3` padnie):
+   ```bash
+   az resource update -g rg-bakk-docs --name scm --namespace Microsoft.Web \
+     --resource-type basicPublishingCredentialsPolicies \
+     --parent sites/<NAZWA> --set properties.allow=true
+   az resource update -g rg-bakk-docs --name ftp --namespace Microsoft.Web \
+     --resource-type basicPublishingCredentialsPolicies \
+     --parent sites/<NAZWA> --set properties.allow=true
+   ```
+3. Publish profile → GitHub secret:
+   ```bash
+   az webapp deployment list-publishing-profiles -g rg-bakk-docs -n <NAZWA> --xml \
+     | gh secret set AZURE_PUBLISH_PROFILE_<NAZWA_UPPER> --repo <ORG>/<REPO>
+   ```
+4. Easy Auth: `etap2/scripts/enable-easy-auth.ps1` (zmień `$dstApp` i URI).
+   Aplikacja używa **BAKK Int Apps** (pracownicy BAKK) zgodnie z artykułem
+   Confluence pageId=159417649. Dla aplikacji dla użytkowników zewnętrznych
+   trzeba podstawić `BAKK Ext Apps` (`45198913-...`) i dodatkowo ustawić
+   `WEBSITE_AUTH_AAD_ALLOWED_TENANTS` per artykuł.
 
 ## Deployment (automatyczny)
 
