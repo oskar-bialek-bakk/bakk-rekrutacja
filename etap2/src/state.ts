@@ -7,7 +7,7 @@ export const repo: Repository = new LocalStore();
 
 export interface Session {
   current: Assessment | null;
-  screen: 'start' | 'assess' | 'summary' | 'roster' | 'detail';
+  screen: 'start' | 'assess' | 'summary' | 'roster' | 'detail' | 'settings';
   cur: number;
   visited: Set<BlockId>;
   detailId: string | null;
