@@ -21,6 +21,7 @@ function stepStateClass(blockId: BlockId, idx: number): 'done' | 'active' | 'tod
 export function renderAssess(host: HTMLElement): void {
   const a = session.current!;
   const blocks = activeBlocks();
+  const blockIds = blocks.map((b) => b.id);
   if (session.cur >= blocks.length) session.cur = blocks.length - 1;
   const b = blocks[session.cur];
   const vIdx = a.selectedVariants[b.id] ?? 0;
@@ -47,7 +48,7 @@ export function renderAssess(host: HTMLElement): void {
 
   host.innerHTML = `
     <div class="stepper">${(() => {
-      const missingNow = new Set(blocksMissingNotes(a.notes, blocks.map((bb) => bb.id)));
+      const missingNow = new Set(blocksMissingNotes(a.notes, blockIds));
       return blocks.map((x, i) => {
         const state = stepStateClass(x.id, i);
         const noNote = missingNow.has(x.id) ? ' no-note' : '';
@@ -173,9 +174,14 @@ export function renderAssess(host: HTMLElement): void {
       renderAssess(host);
       return;
     }
-    const missing = blocksMissingNotes(a.notes, blocks.map((bb) => bb.id));
+    const missing = blocksMissingNotes(a.notes, blockIds);
     if (missing.length > 0) {
-      const labels = missing.join(', ');
+      const labels = missing
+        .map((m) => {
+          const block = blocks.find((x) => x.id === m);
+          return block ? `${block.id} ${block.title}` : m;
+        })
+        .join(', ');
       const ok = window.confirm(
         `Bloki bez notatki: ${labels}. Notatki ułatwiają porównanie kandydatów. Zakończyć ocenę mimo to?`,
       );
