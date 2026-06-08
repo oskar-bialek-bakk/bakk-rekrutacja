@@ -1,5 +1,8 @@
 import type { Assessment, Settings } from '../domain/model';
 import { buildRecruiterSummary } from '../domain/recruiter-summary';
+import { TraffitPushError, pushToTraffit } from '../persistence/traffit-api';
+import { AzureStore } from '../persistence/azure-store';
+import { repo } from '../state';
 
 const COPIED_LABEL = '✓ Skopiowano';
 const COPIED_MS = 1500;
@@ -98,10 +101,24 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
     closeBtn.className = 'btn ghost';
     closeBtn.textContent = 'Zamknij';
 
+    const traffitBtn = document.createElement('button');
+    traffitBtn.type = 'button';
+    traffitBtn.id = 'recruiter-traffit';
+    traffitBtn.className = 'btn ghost';
+    traffitBtn.textContent = 'Wyślij do Traffit';
+    traffitBtn.hidden = !(repo instanceof AzureStore);
+
     actions.appendChild(copyHtmlBtn);
     actions.appendChild(copyTextBtn);
+    actions.appendChild(traffitBtn);
     actions.appendChild(closeBtn);
+
+    const traffitStatus = document.createElement('div');
+    traffitStatus.className = 'traffit-status';
+    traffitStatus.setAttribute('aria-live', 'polite');
+    traffitStatus.hidden = true;
     dialog.appendChild(actions);
+    dialog.appendChild(traffitStatus);
     backdrop.appendChild(dialog);
 
     let settled = false;
@@ -132,6 +149,36 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
       const original = 'Kopiuj jako HTML';
       const ok = await copyHtmlSafe(html, text);
       flashLabel(copyHtmlBtn, original, ok);
+    };
+    traffitBtn.onclick = async () => {
+      const idRaw = window.prompt('Podaj ID kandydata w Traffit (numer z URL profilu):', '');
+      if (!idRaw) return;
+      const employeeId = Number(idRaw.trim());
+      if (!Number.isInteger(employeeId) || employeeId <= 0) {
+        traffitStatus.hidden = false;
+        traffitStatus.textContent = 'Niepoprawne ID Traffit (musi być liczbą).';
+        return;
+      }
+      traffitBtn.disabled = true;
+      traffitStatus.hidden = false;
+      traffitStatus.textContent = 'Wysyłam do Traffit…';
+      try {
+        const result = await pushToTraffit({
+          assessmentId: a.id,
+          employeeId,
+          html,
+        });
+        traffitStatus.textContent = `Gotowe: notatka ${result.action === 'created' ? 'utworzona' : 'zaktualizowana'} (id ${result.noteId}).`;
+      } catch (err) {
+        const msg = err instanceof TraffitPushError
+          ? `Błąd ${err.status}: ${err.message}`
+          : err instanceof Error
+            ? err.message
+            : 'Nieznany błąd';
+        traffitStatus.textContent = `Push się nie powiódł. ${msg}`;
+      } finally {
+        traffitBtn.disabled = false;
+      }
     };
     closeBtn.onclick = () => cleanup();
     backdrop.onclick = (e: MouseEvent) => {
