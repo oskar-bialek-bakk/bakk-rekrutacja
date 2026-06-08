@@ -56,6 +56,26 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
   const option = <T extends string>(value: T, label: string, selected: T) =>
     `<option value="${value}"${value === selected ? ' selected' : ''}>${label}</option>`;
 
+  // Pusty stan: gdy lista po filtrze i sortowaniu jest pusta, pokaż jeden wiersz
+  // na pełną szerokość tabeli zamiast pustego tbody.
+  const emptyMessage =
+    all.length === 0
+      ? 'Brak ocen. Rozpocznij nową rozmowę, aby dodać kandydata.'
+      : 'Brak wyników dla wybranego filtra.';
+  const tbodyRows =
+    processed.length === 0
+      ? `<tr><td class="roster-empty" colspan="7">${emptyMessage}</td></tr>`
+      : processed
+          .map(
+            (r) => `<tr>
+          <td class="name">${escapeHtml(r.a.candidate.nameOrId)}</td><td>${escapeHtml(r.a.candidate.date)}</td>
+          <td>${escapeHtml(r.a.candidate.stage1Result) || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
+          <td>${'🔴'.repeat(r.red)}${'🟢'.repeat(r.green) || (r.red ? '' : '—')}</td><td>${decTag(r.a.decision)}</td>
+          <td><button class="row-del" data-id="${escapeHtml(r.a.id)}" title="Usuń">🗑</button></td>
+        </tr>`
+          )
+          .join('');
+
   host.innerHTML = `
     <div class="card"><div class="card-head"><h2>Porównanie kandydatów</h2>
       <div class="toolbar">
@@ -75,12 +95,7 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       <div id="roster-status" class="roster-status" hidden></div>
       <div class="card-body"><table>
         <thead><tr><th>Kandydat</th><th>Data</th><th>Etap I</th><th>Etap II</th><th>Flagi</th><th>Decyzja</th><th></th></tr></thead>
-        <tbody>${processed.map((r) => `<tr>
-          <td class="name">${escapeHtml(r.a.candidate.nameOrId)}</td><td>${escapeHtml(r.a.candidate.date)}</td>
-          <td>${escapeHtml(r.a.candidate.stage1Result) || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
-          <td>${'🔴'.repeat(r.red)}${'🟢'.repeat(r.green) || (r.red ? '' : '—')}</td><td>${decTag(r.a.decision)}</td>
-          <td><button class="row-del" data-id="${escapeHtml(r.a.id)}" title="Usuń">🗑</button></td>
-        </tr>`).join('')}</tbody>
+        <tbody>${tbodyRows}</tbody>
       </table></div></div>`;
 
   const statusEl = host.querySelector('#roster-status') as HTMLDivElement;
