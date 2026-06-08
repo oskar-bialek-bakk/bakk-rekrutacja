@@ -8,7 +8,7 @@ import {
   type DecisionFilter,
 } from '../domain/roster';
 import { repo, session } from '../state';
-import { navigate } from '../app';
+import { navigate, openDetail } from '../app';
 import { escapeHtml } from './escape';
 import { stopTimer } from './timer-ui';
 import { downloadTextFile } from './download';
@@ -67,7 +67,7 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       ? `<tr><td class="roster-empty" colspan="7">${emptyMessage}</td></tr>`
       : processed
           .map(
-            (r) => `<tr>
+            (r) => `<tr class="row-link" data-open-id="${escapeHtml(r.a.id)}">
           <td class="name">${escapeHtml(r.a.candidate.nameOrId)}</td><td>${escapeHtml(r.a.candidate.date)}</td>
           <td>${escapeHtml(r.a.candidate.stage1Result) || '—'}</td><td><span class="score-tag">${r.score}</span> / 100</td>
           <td>${'🔴'.repeat(r.red)}${'🟢'.repeat(r.green) || (r.red ? '' : '—')}</td><td>${decTag(r.a.decision)}</td>
@@ -120,8 +120,18 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
     void renderRoster(host);
   };
 
+  host.querySelectorAll<HTMLTableRowElement>('tr.row-link').forEach((row) => {
+    row.onclick = (event) => {
+      // Nie otwieraj szczegółów, gdy klik trafił w przycisk usuwania.
+      if ((event.target as HTMLElement).closest('.row-del')) return;
+      const id = row.dataset.openId;
+      if (id) openDetail(id);
+    };
+  });
+
   host.querySelectorAll<HTMLButtonElement>('.row-del').forEach((button) => {
-    button.onclick = async () => {
+    button.onclick = async (event) => {
+      event.stopPropagation();
       const id = button.dataset.id;
       if (!id) return;
       const target = processed.find((r) => r.a.id === id);

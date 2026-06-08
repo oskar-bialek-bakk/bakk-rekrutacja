@@ -4,9 +4,16 @@ import { renderStart } from './ui/screen-start';
 import { renderAssess } from './ui/screen-assess';
 import { renderSummary } from './ui/screen-summary';
 import { renderRoster } from './ui/screen-roster';
+import { renderDetail } from './ui/screen-detail';
 
 export function navigate(screen: Session['screen']): void {
   session.screen = screen;
+  render();
+}
+
+export function openDetail(id: string): void {
+  session.detailId = id;
+  session.screen = 'detail';
   render();
 }
 
@@ -18,5 +25,6 @@ export function render(): void {
     case 'assess': renderAssess(host); break;
     case 'summary': renderSummary(host); break;
     case 'roster': void renderRoster(host); break;
+    case 'detail': void renderDetail(host); break;
   }
 }
