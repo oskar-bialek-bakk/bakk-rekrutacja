@@ -1,5 +1,6 @@
-import { BLOCKS } from '../content/blocks';
+import { BLOCKS, rotatingBlockIds } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
+import { recordSelectedVariants } from '../domain/variants';
 import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import type { Decision } from '../domain/model';
 import { repo, session } from '../state';
@@ -131,6 +132,8 @@ export function renderSummary(host: HTMLElement): void {
   (host.querySelector('#save') as HTMLButtonElement).onclick = async () => {
     stopTimer();
     await repo.save(a);
+    const usage = await repo.getVariantUsage();
+    await repo.saveVariantUsage(recordSelectedVariants(usage, a.selectedVariants, rotatingBlockIds()));
     navigate('roster');
   };
 }

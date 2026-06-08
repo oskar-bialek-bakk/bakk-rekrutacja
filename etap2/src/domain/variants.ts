@@ -16,3 +16,15 @@ export function recordUsage(usage: VariantUsage, block: BlockId, variantIdx: num
   block_counts[variantIdx] = (block_counts[variantIdx] ?? 0) + 1;
   return { ...usage, [block]: block_counts };
 }
+
+export function recordSelectedVariants(
+  usage: VariantUsage,
+  selectedVariants: Partial<Record<BlockId, number>>,
+  rotatingBlocks: BlockId[],
+): VariantUsage {
+  return rotatingBlocks.reduce((acc, block) => {
+    const variantIdx = selectedVariants[block];
+    if (variantIdx === undefined) return acc;
+    return recordUsage(acc, block, variantIdx);
+  }, usage);
+}
