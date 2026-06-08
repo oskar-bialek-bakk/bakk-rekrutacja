@@ -3,7 +3,7 @@ import type { Block } from '../content/blocks';
 import type { Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
 import { blockState } from '../domain/block-state';
-import { session } from '../state';
+import { repo, session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
@@ -37,6 +37,7 @@ export function renderAssess(host: HTMLElement): void {
   const fl = a.flags[b.id] ?? { red: false, green: false };
   const asked = a.askedQuestions[b.id] ?? {};
   const correct = b.variantAnswers?.[vIdx];
+  const editSaveBtn = session.editing ? '<button class="btn primary" id="save-changes">Zapisz zmiany</button>' : '';
 
   const questionsHtml = b.questions
     ? `<div class="label-row"><div class="label">Pula pytań — zaznacz zadane (wybierz 3–4)</div><button type="button" class="copy-btn" id="copy-content" title="Skopiuj treść do wysłania kandydatowi">📋 Kopiuj</button></div>
@@ -103,6 +104,7 @@ export function renderAssess(host: HTMLElement): void {
       <div class="nav">
         <button class="btn ghost" id="prev" ${session.cur === 0 ? 'disabled' : ''}>← Poprzedni</button>
         <div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>
+        ${editSaveBtn}
         <button class="btn primary" id="next">${session.cur < blocks.length - 1 ? 'Następny blok →' : 'Zakończ ocenę →'}</button>
       </div>
     </div></div>`;
@@ -187,6 +189,28 @@ export function renderAssess(host: HTMLElement): void {
         ? b.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')
         : htmlToPlain(b.variants[vIdx].read);
       void copyToClipboard(text, copyBtn);
+    };
+  }
+
+  const saveChangesBtn = host.querySelector('#save-changes') as HTMLButtonElement | null;
+  if (saveChangesBtn) {
+    saveChangesBtn.onclick = async () => {
+      try {
+        // Edycja istniejącego rekordu: zapis bez podbijania licznika wariantów.
+        await repo.save(a);
+        session.editing = false;
+        session.detailId = a.id;
+        navigate('detail');
+      } catch (error: unknown) {
+        console.error('Zapis zmian nie powiódł się', error);
+        await confirmDialog({
+          title: 'Błąd zapisu',
+          message: 'Nie udało się zapisać zmian. Spróbuj ponownie.',
+          okLabel: 'OK',
+          cancelLabel: 'Anuluj',
+          tone: 'danger',
+        });
+      }
     };
   }
 
