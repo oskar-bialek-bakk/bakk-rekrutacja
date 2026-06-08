@@ -1356,15 +1356,40 @@ Zrealizowane pozycje (każda osobny feature branch, merge --no-ff):
 - **Dostępność klawiaturowa + aria-live:** cyfry 1-5 = poziom aktywnego bloku (ignoruje gdy focus na input/textarea), strzałki ←/→ = nawigacja bloków, Alt+P = pauza; visually-hidden `#timer-announcement` z aria-live polite, komunikaty tylko przy zmianie poziomu (ok→warn→over), pauza/wznowienie; dyskretna legenda klawiszy pod stepperem. Files: `screen-assess.ts`, `timer-ui.ts`, `index.html`, `theme.css`.
 - **Wariant A-alt (wykresowy):** pole `Assessment.useAChart`; toggle „Tryb A: wykres" na ekranie startowym (chipy A-1/2/3 disabled gdy on); `BLOCK_A_CHART` z inline SVG (7 słupków) i 3-stopniową skalą mapowaną na poziomy 1/3/5 (dziedziczy wagę 15%); handler klawiszy filtruje 2/4 dla A-alt. Files: `content/blocks.ts`, `model.ts`, `migrations.ts`, `screen-start.ts`, `screen-assess.ts`, `theme.css`.
 - **Podsumowanie dla rekrutera (front, bez Traffit-push):** czysta funkcja `buildRecruiterSummary(a, settings) → { text, html }` w `src/domain/recruiter-summary.ts` (sekcje: nagłówek + czas, werdykt, profil per blok z A-alt jako „Blok A (wykres)", flagi, notatki z truncacją 240, decyzja, negocjacje, etap I; marker idempotencji Traffit `<!-- bakk-etap2:${id} -->` na końcu HTML; XSS-safe przez `escapeHtml` przeniesione do `src/domain/escape.ts`); modal podglądu `recruiter-preview-dialog.ts` z `role=dialog aria-modal=true`, focus management, Escape, klik tła; przyciski „Kopiuj jako tekst" (writeText), „Kopiuj jako HTML" (`ClipboardItem` z fallbackiem na writeText(html)), „Zamknij". Przycisk „Podsumowanie dla rekrutera" w `screen-detail` i `screen-summary`. Automatyczny push do Traffit świadomie odłożony — wymaga proxy/Functions z Fazy 4.
-# FAZA 4 — Online: Azure + SSO + auto-push do Traffit (backlog)
+# FAZA 4 — Online: hosting na Azure App Service (wzorzec Intrum docs) (backlog)
 
-- **Hosting:** Azure Static Web Apps, deploy z GitHub (osobny workflow, NIE publikujący treści przez Pages). `staticwebapp.config.json` z wbudowanym logowaniem Microsoft Entra (bez kodu MSAL).
+Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migration/` (MkDocs Material) na **jeden App Service** `intrum-documentation` (RG `rg-bakk-docs`, subscription `28b7c9a4-317a-495c-99ed-6a6cec116a44`) pod **subpathami** `/integration-api` i `/migration`, używając:
+- reużywalnego workflow `.github/workflows/deploy-mkdocs-to-azure.yml` z inputami `app-name`/`resource-group`/`subscription-id`/`mkdocs-dir`/`subpath`/`site-url` i secretem `azure-publish-profile`;
+- per-projekt caller workflows (`deploy-intrum-integration-api.yml`, `deploy-intrum-migration.yml`) z `paths:` filtrem;
+- `clean: false` w `azure/webapps-deploy@v3` żeby subpathy się nie nadpisywały;
+- `--site-url` nadpisywany w mkdocs.yml `sed`-em na docelowy URL z subpathem.
+
+**Cel Fazy 4 minimalistyczny:** wystawić bieżącą aplikację etap2 (front, single-file `dist/index.html`, localStorage) jako stronę pod tym samym (lub siostrzanym) App Service, identycznym wzorcem workflow, **bez backendu**. Persystencja w localStorage zostaje — multi-user / Cosmos / Functions / auto-push Traffit przesuwane do Fazy 5.
+
+- **Hosting (Azure App Service, wzorzec Intrum):**
+  - Reużywalny workflow `.github/workflows/deploy-vite-to-azure.yml` (lustrzany do `deploy-mkdocs-to-azure.yml`): inputy `app-name`, `resource-group`, `subscription-id`, `app-dir` (= `etap2`), `subpath`, `site-base` (do nadpisania `base` w `vite.config.ts` przy buildzie). Build: `npm ci && npm run build`. Artifact staging w `__artifact/${subpath}/` z całością `dist/`. Zip + `azure/webapps-deploy@v3` z `clean: false` (jeśli dzielimy App Service z innymi siostrzanymi stronami).
+  - Caller `.github/workflows/deploy-bakk-rekrutacja-etap2.yml` z `paths: etap2/**` + `workflow_dispatch`.
+  - **Decyzja deploymentowa (do potwierdzenia z użytkownikiem):**
+    - (A) **dosiadamy `intrum-documentation`** pod subpathem `/etap2` (RG `rg-bakk-docs`, sub `28b7c9a4-317a-495c-99ed-6a6cec116a44`, reuse istniejącego publish profile);
+    - (B) tworzymy **osobny App Service** `bakk-rekrutacja` (lub `bakk-documentation`) w tym samym RG `rg-bakk-docs`, nowy publish profile w nowym secret, root path.
+    - Rekomendacja: (A) — ten sam wzorzec, tańsze, mniej zasobów. App Service ma już SSL, custom domain w przyszłości można dorzucić.
+  - **Auth do strony:** App Service „Easy Auth" z Microsoft Entra (Authentication blade w portalu — toggle, bez kodu MSAL). To zastępuje SSO na poziomie SWA i nie wymaga zmian w kodzie etap2. Włączane ręcznie w portalu po pierwszym deployu, kontrola dostępu per AAD group.
+- **Build single-file vs multi-file:** etap2 ma `vite-plugin-singlefile` → `dist/index.html` ~99 kB inline. App Service obsługuje też SPA bez problemu, ale single-file = jeden artifact, idealne pod static hosting. Zachowujemy `viteSingleFile()`.
+- **`base` URL:** w `vite.config.ts` aktualnie `base: './'`. Pod subpathem `/etap2/` ścieżki względne nadal działają (single-file inline), więc zmiana `base` nie jest wymagana. Test: po deployu pod `https://intrum-documentation.azurewebsites.net/etap2/` aplikacja musi się otworzyć z `file://`-stylem assetów inline.
+- **Sekrety:** GitHub secret `AZURE_PUBLISH_PROFILE_INTRUM_DOCUMENTATION` (lub nowy, jeśli wariant B) z pełną treścią `.PublishSettings` XML. Pozyskiwany z portalu Azure: App Service → Overview → Get publish profile.
+- **Wykluczenie z GitHub Pages:** `_config.yml` w korzeniu repo nadal wyklucza `etap2/` z Jekyll (z Fazy 1). Po deployu na Azure publiczny URL etap2 to App Service, nie GitHub Pages.
+- **CI guardrails:** osobny job na PR (push do `feature/*`) buduje `npm --prefix etap2 run build` jako smoke (bez deployu), zapewnia że TS strict + vite build są zielone przed mergem. Deploy tylko z `main`.
+
+# FAZA 5 — Backend, multi-user persistence, auto-push Traffit (backlog)
+
+Świadomie odłożone z Fazy 4. Wymaga osobnej decyzji architektonicznej (Functions vs App Service code-behind, Cosmos vs Azure SQL, model autoryzacji per użytkownik).
+
 - **API:** cienkie Azure Functions (CRUD ocen, VariantUsage, Settings). Język do decyzji: TS (spójność typów z frontem przez współdzielony pakiet) lub .NET (kompetencje zespołu).
-- **Baza:** Cosmos DB serverless, „jedna ocena = jeden dokument JSON".
-- **Repozytorium:** `src/persistence/azure-store.ts` implementujące ten sam interfejs `Repository` (fetch do Functions z tokenem Entra). Przełączenie implementacji w `state.ts`.
-- **Migracja danych:** z localStorage do chmury przez istniejący eksport/import JSON.
-- **Auto-push notatki do Traffit:** proxy w Azure Functions portujący klienta z `traffit-scorer/src/push-notes.js`. Reużycie HTML wygenerowanego przez `buildRecruiterSummary` (Faza 3) + marker `<!-- bakk-etap2:${id} -->` już wbudowany do idempotencji. Wzorzec: auth sesją przeglądarkową (cookie/`storageState`, env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD`, auto-relogin na 401/403); znalezienie kandydata przez `POST /api/employee/filter`; dodanie notatki `POST /api/v2/employees/{id}/notes`; aktualizacja istniejącej przez `GET .../activities` + `PUT .../notes/{noteId}`. Sekrety wyłącznie po stronie Functions. Files: Azure Function `push-traffit-note`, przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts`.
-- **Otwarte decyzje fazy:** model ról/uprawnień Entra, retencja danych (RODO), czy `VariantUsage` współdzielony globalnie po stronie serwera, model autoryzacji do Functions (Entra vs Function key vs SWA-managed).
+- **Baza:** Cosmos DB serverless, „jedna ocena = jeden dokument JSON". Partition key per-rekruter (`userPrincipalName` z Entra).
+- **Repozytorium:** `src/persistence/azure-store.ts` implementujące ten sam interfejs `Repository` (fetch do Functions z tokenem Entra). Przełączenie implementacji w `state.ts` (env / build flag).
+- **Migracja danych:** z localStorage do chmury przez istniejący eksport/import JSON (`src/export/json.ts`).
+- **Auto-push notatki do Traffit:** proxy w Azure Functions portujący klienta z `traffit-scorer/src/push-notes.js`. Reużycie HTML z `buildRecruiterSummary` + marker `<!-- bakk-etap2:${id} -->` już wbudowany do idempotencji. Wzorzec: auth sesją przeglądarkową (cookie/`storageState`, env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD`, auto-relogin na 401/403); znalezienie kandydata przez `POST /api/employee/filter`; dodanie notatki `POST /api/v2/employees/{id}/notes`; aktualizacja istniejącej przez `GET .../activities` + `PUT .../notes/{noteId}`. Sekrety wyłącznie po stronie Functions. Files: Azure Function `push-traffit-note`, przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts`.
+- **Otwarte decyzje fazy:** retencja danych (RODO), czy `VariantUsage` współdzielony globalnie po stronie serwera, model autoryzacji do Functions (Entra vs Function key vs App Service Easy Auth pass-through).
 
 ---
 
