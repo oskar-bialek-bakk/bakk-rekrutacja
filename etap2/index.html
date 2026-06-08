@@ -1,13 +1,26 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>etap2</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Ocena rozmowy — II etap · BAKK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">BAKK<span>·</span>rec</div>
+    <div class="sub">II etap — ocena</div>
+  </div>
+  <div class="clock" id="clock" style="visibility:hidden">
+    <div class="timer" id="timer"><span class="dot"></span><b id="elapsed">00:00</b></div>
+    <div class="total">/ 60:00 · oceniana 40:00</div>
+  </div>
+</div>
+<div class="wrap"><div id="app"></div></div>
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>
