@@ -94,4 +94,8 @@ describe('parseImport validation', () => {
   it('throws id error on array entry with non-string id', () => {
     expect(() => parseImport('[{"id": 123}]')).toThrow('Nieprawidłowy rekord w imporcie: brak poprawnego pola id.');
   });
+
+  it('throws id error on array entry with whitespace-only id', () => {
+    expect(() => parseImport('[{"id": "   "}]')).toThrow('Nieprawidłowy rekord w imporcie: brak poprawnego pola id.');
+  });
 });

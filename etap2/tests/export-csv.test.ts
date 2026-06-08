@@ -116,6 +116,44 @@ describe('rosterToCsv escaping (RFC 4180)', () => {
   });
 });
 
+describe('rosterToCsv formula-injection hardening', () => {
+  it('prefixes a name starting with = with an apostrophe', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: '=2+2' })]))[1];
+    expect(dataLine.startsWith("'=2+2,")).toBe(true);
+  });
+
+  it('prefixes a name starting with + with an apostrophe', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: '+cmd' })]))[1];
+    expect(dataLine.startsWith("'+cmd,")).toBe(true);
+  });
+
+  it('prefixes a name starting with - with an apostrophe', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: '-cmd' })]))[1];
+    expect(dataLine.startsWith("'-cmd,")).toBe(true);
+  });
+
+  it('prefixes a name starting with @ with an apostrophe', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: '@cmd' })]))[1];
+    expect(dataLine.startsWith("'@cmd,")).toBe(true);
+  });
+
+  it('detects a formula trigger after leading spaces and prefixes', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: '   =cmd' })]))[1];
+    expect(dataLine.startsWith("'   =cmd,")).toBe(true);
+  });
+
+  it('does not prefix a normal Polish name', () => {
+    const dataLine = lines(rosterToCsv([row({ nameOrId: 'Łukasz Żółć' })]))[1];
+    expect(dataLine.startsWith('Łukasz Żółć,')).toBe(true);
+    expect(dataLine).not.toContain("'");
+  });
+
+  it('does not prefix non-negative integer score fields', () => {
+    const dataLine = lines(rosterToCsv([row({ score: 72, red: 1, green: 3 })]))[1];
+    expect(dataLine).not.toContain("'");
+  });
+});
+
 describe('rosterToCsv purity', () => {
   it('does not mutate the input rows', () => {
     const input = row({ decision: 'yes' });
