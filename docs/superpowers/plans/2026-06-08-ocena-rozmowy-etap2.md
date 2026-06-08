@@ -1402,7 +1402,17 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - **Wykluczenie z GitHub Pages:** `_config.yml` w korzeniu repo nadal wyklucza `etap2/` z Jekyll (z Fazy 1). Po deployu na Azure publiczny URL etap2 to App Service, nie GitHub Pages.
 - **CI guardrails:** osobny job na PR (push do `feature/*`) buduje `npm --prefix etap2 run build` jako smoke (bez deployu), zapewnia że TS strict + vite build są zielone przed mergem. Deploy tylko z `main`.
 
-# FAZA 5 — Finałowa (multi-user persistence + auto-push Traffit, gotowość do udostępnienia firmowego)
+# FAZA 5 — Finałowa (multi-user persistence + auto-push Traffit, gotowość do udostępnienia firmowego) ✅ ZAKOŃCZONA (2026-06-09, PR #12, #13, #14, #15, #16, #17, #18, #19, #20 → feature/etap2-faza5)
+
+> **Faza 5 zakończona 2026-06-09.** Cosmos DB serverless w polandcentral,
+> Function App Linux Consumption Node 24 w germanywestcentral, Easy Auth
+> Bearer cross-origin z BAKK Int Apps, AzureStore + build flag
+> VITE_PERSISTENCE=azure, UI migracji z localStorage, deploy workflow,
+> auto-push do Traffit (manualne cookie session bo Linux Consumption nie
+> wspiera Chromium). 31 testów backend + 216 testów frontu = 247/247
+> zielonych. Build front 107.57 kB.
+
+
 
 **Cel:** każdy rekruter loguje się przez Entra (już działa po Fazie 4), widzi własne rozmowy, dane przeżywają zmianę urządzenia/przeglądarki, lista jest faktycznie współdzielona zespołowo (opcjonalnie filtrowalna „moje / wszystkie"), notatki podsumowujące mogą być jednym kliknięciem dosłane do Traffit. **Po tej fazie aplikacja jest produkcyjnie używalna dla wewnętrznej rekrutacji BAKK i to ostatnia faza.**
 
