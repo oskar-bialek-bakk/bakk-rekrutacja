@@ -583,7 +583,22 @@
     font-size:14.5px;line-height:1.55;color:var(--ink-dim);
     white-space:pre-line;word-wrap:break-word;
   }
-  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;flex-wrap:wrap}
+  .modal-dialog.preview{max-width:720px}
+  .recruiter-preview{
+    max-height:60vh;overflow:auto;
+    padding:14px 16px;margin-top:6px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    color:var(--ink);font-size:13.5px;line-height:1.55;
+  }
+  .recruiter-preview h3{
+    font-family:'Newsreader',serif;font-weight:600;font-size:15px;
+    color:var(--accent-soft);margin:14px 0 6px;letter-spacing:.01em;
+  }
+  .recruiter-preview h3:first-child{margin-top:0}
+  .recruiter-preview p{margin:4px 0;color:var(--ink-dim)}
+  .recruiter-preview ul{margin:4px 0 8px;padding-left:20px}
+  .recruiter-preview li{margin:2px 0;color:var(--ink-dim)}
   .phase-banner{
     max-width:1180px;margin:10px auto 0;padding:8px 18px;
     background:rgba(217,160,102,.08);

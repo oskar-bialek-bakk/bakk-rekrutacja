@@ -8,6 +8,7 @@ import { escapeHtml } from './escape';
 import { confirmDialog } from './confirm-dialog';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
+import { openRecruiterPreview } from './recruiter-preview-dialog';
 
 function mmss(totalSec: number): string {
   const s = Math.max(0, Math.floor(totalSec));
@@ -176,6 +177,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
         <div class="nav">
           <button class="btn ghost" id="back">← Wróć do zestawienia</button>
           <button class="btn ghost" id="export-json">Eksport JSON</button>
+          <button class="btn ghost" id="recruiter-summary">Podsumowanie dla rekrutera</button>
           <button class="btn ghost" id="delete">Usuń</button>
           <button class="btn primary" id="edit">Edytuj</button>
         </div>
@@ -194,6 +196,10 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
     session.visited = new Set();
     session.editing = true;
     navigate('assess');
+  };
+
+  (host.querySelector('#recruiter-summary') as HTMLButtonElement).onclick = () => {
+    void openRecruiterPreview(record, settings);
   };
 
   (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {

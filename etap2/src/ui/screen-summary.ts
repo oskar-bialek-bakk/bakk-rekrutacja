@@ -8,6 +8,7 @@ import { elapsedStr, stopTimer } from './timer-ui';
 import { escapeHtml } from './escape';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
+import { openRecruiterPreview } from './recruiter-preview-dialog';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
@@ -105,6 +106,7 @@ export function renderSummary(host: HTMLElement): void {
         <div class="nav">
           <button class="btn ghost" id="back">← Wróć do oceny</button>
           <button class="btn ghost" id="export-json">Eksport JSON</button>
+          <button class="btn ghost" id="recruiter-summary">Podsumowanie dla rekrutera</button>
           <button class="btn primary" id="save">Zapisz i pokaż zestawienie →</button>
         </div>
       </div>
@@ -134,6 +136,9 @@ export function renderSummary(host: HTMLElement): void {
   (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {
     const filename = `ocena_${safeFilenamePart(a.candidate.nameOrId)}.json`;
     downloadTextFile(filename, 'application/json;charset=utf-8', serializeAssessment(a));
+  };
+  (host.querySelector('#recruiter-summary') as HTMLButtonElement).onclick = () => {
+    void openRecruiterPreview(a, settings);
   };
   (host.querySelector('#save') as HTMLButtonElement).onclick = async () => {
     stopTimer();
