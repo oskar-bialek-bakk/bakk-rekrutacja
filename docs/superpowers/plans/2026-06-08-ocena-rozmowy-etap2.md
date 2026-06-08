@@ -1328,9 +1328,11 @@ git commit -m "chore(etap2): weryfikacja buildu offline i pokrycia (Faza 1 gotow
 
 ---
 
-# FAZA 2 — Porównywalność (backlog)
+# FAZA 2 — Porównywalność ✅ ZAKOŃCZONA (2026-06-08, PR #4 → main `9bd14ae`)
 
-Każda pozycja = osobny task w stylu TDD jak wyżej. Pełne rozpisanie na kroki przygotuję, gdy ruszymy fazę.
+> Zrealizowane subagent-driven w 8 taskach + 7 poprawek: fix double-count licznika rotacji, uwagi z review (trim `id` importu, hardening CSV przed formula injection, odroczenie `revokeObjectURL`) oraz UX/a11y (stała nawigacja w topbarze do zestawienia, wewnątrzaplikacyjny dialog potwierdzenia zamiast `window.confirm`, widoczne stany bloku w stepperze z legendą, szybki „Zapisz zmiany" w trybie edycji, dostępność klawiaturowa klikalnego wiersza i fokusu dialogu). 110 testów jednostkowych + 2 E2E zielone, pokrycie domain/persistence/export 100% stmts. Build single-file ~70 kB.
+
+Zrealizowane pozycje (każda osobny feature branch, merge --no-ff):
 
 - **Rotacja „najmniej używany" end-to-end:** wpięcie `recordUsage` przy zapisie oceny (`repo.saveVariantUsage` po `repo.save`), inkrement faktycznie użytych wariantów. Test: po zapisie licznik rośnie; podpowiedź na starcie zmienia się na najmniej używany. Files: `src/ui/screen-summary.ts` (zapis), `src/state.ts` (helper).
 - **Eksport JSON/CSV + import:** `src/export/json.ts` (pełny rekord) i `src/export/csv.ts` (płaski roster, UTF-8 BOM, escaping przecinków/cudzysłowów/newline). Eksport pojedynczego rekordu i całej tabeli; import JSON (backup/restore). Testy deterministyczne na escaping i round-trip. Files: `src/export/*`, przyciski w `screen-roster.ts` i `screen-summary.ts`.
@@ -1348,6 +1350,10 @@ Każda pozycja = osobny task w stylu TDD jak wyżej. Pełne rozpisanie na kroki 
 - **Ekran ustawień:** edycja wag (nadpisanie `weights.config`), flaga `includeEInScore`, zapis do `Settings`; `computeScore` już przyjmuje wagi jako argument. Files: `src/ui/screen-settings.ts`, `repo.saveSettings`.
 - **Pełna dostępność / klawiatura:** cyfry 1–5 = poziom w aktywnym bloku, strzałki = dalej/wstecz, skrót na pauzę, `aria-live` na zegarze i ostrzeżeniach. Files: `screen-assess.ts`, `timer-ui.ts`.
 - **Wariant A-alt (wykresowy):** alternatywny tryb bloku A (przełącznik „algorytm / wykres" na starcie), własna skala 1/3/5, render prostego wykresu. Dziedziczy wagę 15%. Files: `content/blocks.ts`, `screen-start.ts`, `screen-assess.ts`.
+- **Podsumowanie dla rekrutera + dodanie do Traffit:** na podstawie wystawionej oceny generuj zwięzłe podsumowanie kandydata (werdykt i wynik 0–100, profil per blok, flagi z opisami, kluczowe notatki, decyzja + uzasadnienie, negocjacje) jako tekst/HTML. Przycisk „Podsumowanie dla rekrutera" na ekranie szczegółów (i ewentualnie podsumowania) z podglądem i „Kopiuj". Docelowo opcja „Dodaj do Traffit" wpinająca to podsumowanie jako notatkę na koncie kandydata, wzorem aplikacji `C:/GIT/traffit-scorer`.
+  - **Wzorzec integracji (z `traffit-scorer`):** auth sesją przeglądarkową (cookie/`storageState`, env `TRAFFIT_BASE_URL` / `TRAFFIT_EMAIL` / `TRAFFIT_PASSWORD`, auto-relogin na 401/403 i przy `{logged:false}`); znalezienie kandydata przez `POST /api/employee/filter` (po rekrutacji, identyfikacja po `id`, dopasowanie po emailu); dodanie notatki `POST /api/v2/employees/{id}/notes` z `{ content: <HTML> }` (201 → `{id}`); idempotencja przez marker w treści notatki + `GET /api/v2/employees/{id}/activities` i `PUT .../notes/{noteId}` aktualizujący istniejącą notatkę (cache `id → noteId`). Referencje: `traffit-scorer/src/push-notes.js`, `src/fetch.js`, `src/login.js`.
+  - **Ograniczenie architektoniczne:** etap2 to obecnie czysty front (offline, single-file, localStorage). Bezpośrednie wołanie API Traffit z przeglądarki jest zablokowane (CORS) i niebezpieczne (sesja/sekret w kliencie). Dlatego automatyczny push notatki wymaga cienkiego backendu/proxy. Ścieżki realizacji: (a) MVP bez infry, czysto we froncie: wygeneruj podsumowanie + „Kopiuj/Eksport" i prowadzący wkleja je ręcznie do Traffit; (b) auto-notatka jako proxy w Azure Functions (spójne z Fazą 4) portujący klienta z `traffit-scorer`; (c) reużycie istniejącego CLI `traffit-scorer` na wyeksportowanym JSON oceny. Rekomendacja: (a) teraz, (b) razem z Fazą 4.
+  - **Files (MVP front):** `src/domain/recruiter-summary.ts` (czysta funkcja budująca podsumowanie z `Assessment`, TDD), przycisk + podgląd + „Kopiuj" w `screen-detail.ts` / `screen-summary.ts`. **Files (push, faza online):** proxy w Azure Functions + klient Traffit portowany z `traffit-scorer/src/push-notes.js`.
 
 # FAZA 4 — Online: Azure + SSO (backlog)
 
