@@ -64,6 +64,7 @@ export function migrateAssessment(raw: unknown): Assessment {
     timer: ensureTimer(r.timer),
     blockTimes: ensureBlockTimes(r.blockTimes),
     useE: typeof r.useE === 'boolean' ? r.useE : false,
+    useAChart: typeof r.useAChart === 'boolean' ? r.useAChart : false,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : now,
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : now,
   };

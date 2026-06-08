@@ -120,3 +120,41 @@ describe('renderAssess - klawiatura', () => {
     expect(session.current!.marks.A).toBeUndefined();
   });
 });
+
+describe('renderAssess - wariant A-alt (wykres)', () => {
+  beforeEach(async () => {
+    localStorage.clear();
+    document.body.innerHTML = '';
+    session.current = createEmptyAssessment('a-chart', {
+      nameOrId: 'K', date: '2026-01-01', stage1Result: '', stage1Note: '',
+    });
+    session.cur = 0;
+    session.screen = 'assess';
+    session.visited = new Set();
+    session.editing = false;
+    session.detailId = null;
+    session.current.useE = false;
+    session.current.useAChart = true;
+    await reloadSettings();
+  });
+
+  it('gdy useAChart=true, skala ma 3 radio z wartosciami 1/3/5', () => {
+    const host = mount();
+    const radios = Array.from(host.querySelectorAll<HTMLInputElement>('#scale input[type=radio]'));
+    expect(radios).toHaveLength(3);
+    expect(radios.map((r) => r.value)).toEqual(['1', '3', '5']);
+  });
+
+  it('readbox zawiera inline SVG (chart-svg)', () => {
+    const host = mount();
+    expect(host.querySelector('.readbox .chart-svg')).not.toBeNull();
+  });
+
+  it('klawisz "3" ustawia ocene na 3, klawisz "2" jest ignorowany', () => {
+    mount();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true }));
+    expect(session.current!.marks.A).toBeUndefined();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '3', bubbles: true }));
+    expect(session.current!.marks.A).toBe(3);
+  });
+});
