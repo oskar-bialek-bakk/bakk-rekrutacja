@@ -3,14 +3,20 @@ import type { Block } from '../content/blocks';
 import type { Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
 import { blockState } from '../domain/block-state';
+import { parseTargetSec, warnLevel } from '../domain/timer';
 import { repo, session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
 import { confirmDialog } from './confirm-dialog';
 
-function activeBlocks(): Block[] {
+export function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
+}
+
+function formatMmSs(sec: number): string {
+  const s = Math.max(0, Math.floor(sec));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
 
 const STATE_CLASS: Record<ReturnType<typeof blockState>, 'done' | 'in-progress' | 'todo'> = {
@@ -68,7 +74,10 @@ export function renderAssess(host: HTMLElement): void {
         const state = STATE_CLASS[blockState(a, x.id, session.visited)];
         const current = i === session.cur ? ' current' : '';
         const noNote = missingNow.has(x.id) ? ' no-note' : '';
-        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+        const spent = a.blockTimes[x.id]?.spentSec ?? 0;
+        const level = warnLevel(spent, parseTargetSec(x.time));
+        const levelCls = level === 'ok' ? '' : ` ${level}`;
+        return `<button class="step ${state}${current}${noNote}${levelCls}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="step-time" data-block-time="${x.id}">${formatMmSs(spent)}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
     <div class="card"><div class="card-body">

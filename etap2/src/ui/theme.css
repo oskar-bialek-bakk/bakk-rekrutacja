@@ -129,6 +129,12 @@
   /* znacznik braku notatki — subtelny, widoczny tylko przy .no-note */
   .step .note-flag{display:none;position:absolute;bottom:8px;right:11px;font-size:12px;line-height:1;color:var(--ink-faint);opacity:.7;pointer-events:none}
   .step.no-note .note-flag{display:block}
+  /* chip czasu per blok + miekkie ostrzezenia */
+  .step .step-time{display:block;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:2px}
+  .step.warn .step-time{color:var(--accent-soft)}
+  .step.over .step-time{color:var(--red);font-weight:600}
+  .step.warn{box-shadow:inset 0 0 0 1px var(--accent-soft)}
+  .step.over{box-shadow:inset 0 0 0 1px var(--red)}
 
   /* card */
   .card{
