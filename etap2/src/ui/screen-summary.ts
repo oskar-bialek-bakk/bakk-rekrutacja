@@ -17,7 +17,7 @@ export function renderSummary(host: HTMLElement): void {
 
   const profileBlocks = BLOCKS.filter((b) => !b.optional || a.useE);
   const profileHtml = profileBlocks.map((b) => {
-    const m = r.profile[b.id];
+    const m = a.marks[b.id];
     const f = a.flags[b.id] ?? { red: false, green: false };
     const wl = b.weight ? `waga ${b.weight}%` : 'bez wagi';
     const flagsHtml = [

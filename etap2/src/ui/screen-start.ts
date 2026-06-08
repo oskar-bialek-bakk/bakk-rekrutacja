@@ -16,12 +16,12 @@ export async function renderStart(host: HTMLElement): Promise<void> {
       <h1>Ustrukturyzowana rozmowa finałowa</h1>
     </section>
     <div class="form">
-      <div class="field"><label>Kandydat — imię i nazwisko / ID</label><input id="in-name"></div>
+      <div class="field"><label for="in-name">Kandydat — imię i nazwisko / ID</label><input id="in-name"></div>
       <div class="field two">
-        <div><label>Data rozmowy</label><input id="in-date" type="date"></div>
-        <div><label>Wynik etapu I</label><input id="in-stage1"></div>
+        <div><label for="in-date">Data rozmowy</label><input id="in-date" type="date"></div>
+        <div><label for="in-stage1">Wynik etapu I</label><input id="in-stage1"></div>
       </div>
-      <div class="field"><label>Notatka z etapu I</label><textarea id="in-stage1-note" placeholder="np. mocny SQL, słabszy LINQ"></textarea></div>
+      <div class="field"><label for="in-stage1-note">Notatka z etapu I</label><textarea id="in-stage1-note" placeholder="np. mocny SQL, słabszy LINQ"></textarea></div>
       <div id="variant-pick"></div>
       <label class="opt-toggle" id="opt-e"><input type="checkbox" id="chk-e"> Dołącz blok E „podlewanie" (bez wagi)</label>
       <button class="btn primary" id="btn-start">Rozpocznij rozmowę →</button>
