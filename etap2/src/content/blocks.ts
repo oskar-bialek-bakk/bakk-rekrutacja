@@ -131,3 +131,8 @@ export const BLOCKS: Block[] = [
     ],
   },
 ];
+
+// Zwraca id bloków objętych rotacją wariantu „najrzadziej używany" (A/B/C).
+export function rotatingBlockIds(): BlockId[] {
+  return BLOCKS.filter((b) => b.variants.length > 1).map((b) => b.id);
+}

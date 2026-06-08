@@ -1,32 +1,43 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
-import type { BlockId, Mark } from '../domain/model';
-import { session } from '../state';
+import type { Mark } from '../domain/model';
+import { blocksMissingNotes } from '../domain/completeness';
+import { blockState } from '../domain/block-state';
+import { repo, session } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
+import { confirmDialog } from './confirm-dialog';
 
 function activeBlocks(): Block[] {
   return BLOCKS.filter((b) => !b.optional || session.current!.useE);
 }
 
-function stepStateClass(blockId: BlockId, idx: number): 'done' | 'active' | 'todo' {
-  const a = session.current!;
-  if (a.marks[blockId] != null) return 'done';
-  if (idx === session.cur) return 'active';
-  return 'todo';
-}
+const STATE_CLASS: Record<ReturnType<typeof blockState>, 'done' | 'in-progress' | 'todo'> = {
+  done: 'done',
+  inProgress: 'in-progress',
+  todo: 'todo',
+};
+
+const STATE_LABEL: Record<'done' | 'in-progress' | 'todo', string> = {
+  done: 'oceniony',
+  'in-progress': 'w trakcie',
+  todo: 'do zrobienia',
+};
 
 export function renderAssess(host: HTMLElement): void {
   const a = session.current!;
   const blocks = activeBlocks();
+  const blockIds = blocks.map((b) => b.id);
   if (session.cur >= blocks.length) session.cur = blocks.length - 1;
   const b = blocks[session.cur];
+  session.visited.add(b.id);
   const vIdx = a.selectedVariants[b.id] ?? 0;
   const sel = a.marks[b.id];
   const fl = a.flags[b.id] ?? { red: false, green: false };
   const asked = a.askedQuestions[b.id] ?? {};
   const correct = b.variantAnswers?.[vIdx];
+  const editSaveBtn = session.editing ? '<button class="btn primary" id="save-changes">Zapisz zmiany</button>' : '';
 
   const questionsHtml = b.questions
     ? `<div class="label-row"><div class="label">Pula pytań — zaznacz zadane (wybierz 3–4)</div><button type="button" class="copy-btn" id="copy-content" title="Skopiuj treść do wysłania kandydatowi">📋 Kopiuj</button></div>
@@ -45,10 +56,21 @@ export function renderAssess(host: HTMLElement): void {
        <div class="readbox">${b.variants[vIdx].read}</div>`;
 
   host.innerHTML = `
-    <div class="stepper">${blocks.map((x, i) => {
-      const state = stepStateClass(x.id, i);
-      return `<button class="step ${state}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div></button>`;
-    }).join('')}</div>
+    <div class="stepper-legend">
+      <span class="legend-item"><span class="legend-swatch todo"></span>do zrobienia</span>
+      <span class="legend-item"><span class="legend-swatch in-progress"></span>w trakcie</span>
+      <span class="legend-item"><span class="legend-swatch done"></span>oceniony</span>
+      <span class="legend-item"><span class="legend-flag">✎</span>brak notatki</span>
+    </div>
+    <div class="stepper">${(() => {
+      const missingNow = new Set(blocksMissingNotes(a.notes, blockIds));
+      return blocks.map((x, i) => {
+        const state = STATE_CLASS[blockState(a, x.id, session.visited)];
+        const current = i === session.cur ? ' current' : '';
+        const noNote = missingNow.has(x.id) ? ' no-note' : '';
+        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+      }).join('');
+    })()}</div>
     <div class="card"><div class="card-body">
       <div class="twocol">
         <div>
@@ -82,6 +104,7 @@ export function renderAssess(host: HTMLElement): void {
       <div class="nav">
         <button class="btn ghost" id="prev" ${session.cur === 0 ? 'disabled' : ''}>← Poprzedni</button>
         <div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>
+        ${editSaveBtn}
         <button class="btn primary" id="next">${session.cur < blocks.length - 1 ? 'Następny blok →' : 'Zakończ ocenę →'}</button>
       </div>
     </div></div>`;
@@ -94,9 +117,15 @@ export function renderAssess(host: HTMLElement): void {
   const refreshStepper = () => {
     blocks.forEach((x, i) => {
       const el = stepEls[i];
-      const state = stepStateClass(x.id, i);
-      el.classList.remove('done', 'active', 'todo');
+      const state = STATE_CLASS[blockState(a, x.id, session.visited)];
+      el.classList.remove('done', 'in-progress', 'todo', 'current');
       el.classList.add(state);
+      el.classList.toggle('current', i === session.cur);
+      const stateEl = el.querySelector<HTMLElement>('.step-state');
+      if (stateEl) {
+        stateEl.textContent = STATE_LABEL[state];
+        stateEl.dataset.state = state;
+      }
     });
   };
 
@@ -123,12 +152,14 @@ export function renderAssess(host: HTMLElement): void {
     const next = { red: !cur.red, green: cur.green };
     a.flags[b.id] = next;
     fr.classList.toggle('on', next.red);
+    refreshStepper();
   };
   fg.onclick = () => {
     const cur = a.flags[b.id] ?? { red: false, green: false };
     const next = { red: cur.red, green: !cur.green };
     a.flags[b.id] = next;
     fg.classList.toggle('on', next.green);
+    refreshStepper();
   };
 
   if (b.questions) {
@@ -139,12 +170,16 @@ export function renderAssess(host: HTMLElement): void {
         const cur = a.askedQuestions[b.id] ?? {};
         a.askedQuestions[b.id] = { ...cur, [idx]: cb.checked };
         item.classList.toggle('on', cb.checked);
+        refreshStepper();
       };
     });
   }
 
   (host.querySelector('#note') as HTMLTextAreaElement).oninput = (e) => {
     a.notes[b.id] = (e.target as HTMLTextAreaElement).value;
+    const stepEl = stepEls[session.cur];
+    if (stepEl) stepEl.classList.toggle('no-note', (a.notes[b.id] ?? '').trim() === '');
+    refreshStepper();
   };
 
   const copyBtn = host.querySelector('#copy-content') as HTMLButtonElement | null;
@@ -157,10 +192,56 @@ export function renderAssess(host: HTMLElement): void {
     };
   }
 
+  const saveChangesBtn = host.querySelector('#save-changes') as HTMLButtonElement | null;
+  if (saveChangesBtn) {
+    saveChangesBtn.onclick = async () => {
+      try {
+        // Edycja istniejącego rekordu: zapis bez podbijania licznika wariantów.
+        await repo.save(a);
+        session.editing = false;
+        session.detailId = a.id;
+        navigate('detail');
+      } catch (error: unknown) {
+        console.error('Zapis zmian nie powiódł się', error);
+        await confirmDialog({
+          title: 'Błąd zapisu',
+          message: 'Nie udało się zapisać zmian. Spróbuj ponownie.',
+          okLabel: 'OK',
+          cancelLabel: 'Anuluj',
+          tone: 'danger',
+        });
+      }
+    };
+  }
+
   (host.querySelector('#prev') as HTMLButtonElement).onclick = () => {
     if (session.cur > 0) { session.cur--; renderAssess(host); }
   };
-  (host.querySelector('#next') as HTMLButtonElement).onclick = () => {
-    if (session.cur < blocks.length - 1) { session.cur++; renderAssess(host); } else { navigate('summary'); }
+  (host.querySelector('#next') as HTMLButtonElement).onclick = async () => {
+    if (session.cur < blocks.length - 1) {
+      session.cur++;
+      renderAssess(host);
+      return;
+    }
+    const missing = blocksMissingNotes(a.notes, blockIds);
+    if (missing.length > 0) {
+      const labels = missing
+        .map((m) => {
+          const block = blocks.find((x) => x.id === m);
+          return block ? `${block.id} ${block.title}` : m;
+        })
+        .join('\n');
+      const ok = await confirmDialog({
+        title: 'Notatki niekompletne',
+        message:
+          'Bloki bez notatki:\n' +
+          labels +
+          '\n\nNotatki ułatwiają porównanie kandydatów. Zakończyć ocenę mimo to?',
+        okLabel: 'Zakończ mimo to',
+        cancelLabel: 'Wróć i uzupełnij',
+      });
+      if (!ok) return;
+    }
+    navigate('summary');
   };
 }

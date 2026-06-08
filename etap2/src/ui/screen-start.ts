@@ -64,6 +64,8 @@ export async function renderStart(host: HTMLElement): Promise<void> {
     }
     session.current = a;
     session.cur = 0;
+    session.visited = new Set();
+    session.editing = false;
     startTimer();
     navigate('assess');
   };
