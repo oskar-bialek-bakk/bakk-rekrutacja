@@ -37,7 +37,7 @@ Functions/Cosmos i auto-push Traffit są w Fazie 5.
   **BAKK Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`, single-tenant,
   tylko pracownicy BAKK) zgodnie ze standardem z Confluence pageId=159417649.
   Redirect URI dodany do BAKK Int Apps, dedykowany secret (per standard
-  „kazda App Service ma wlasny secret") wygenerowany i wpięty do
+  „każda App Service ma własny secret") wygenerowany i wpięty do
   `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`, `authsettingsV2`
   skonfigurowane (`RedirectToLoginPage`, tokenStore on, cookie 8h),
   App Service zrestartowany.
@@ -48,7 +48,7 @@ Functions/Cosmos i auto-push Traffit są w Fazie 5.
 **Tym samym Faza 4 jest zamknięta — nie ma już zadań user-side dla samego
 hostingu. Otwórz URL z konta BAKK i zweryfikuj pełen przepływ.**
 
-## Reproducja od zera (gdyby trzeba)
+## Reprodukcja od zera (gdyby trzeba)
 
 W razie odtworzenia tej konfiguracji (np. nowy podobny App Service):
 
@@ -98,7 +98,7 @@ W razie problemu po deployu:
 - W GitHub → Actions → wybierz wcześniejszy zielony run workflow
   `deploy-bakk-rekrutacja-etap2` → „Re-run all jobs".
 
-Dla większej bezpieczeństwa warto włączyć deployment slots (jeśli plan
+Dla większego bezpieczeństwa warto włączyć deployment slots (jeśli plan
 pricing pozwala — F1 ich nie ma, wymaga B1+): staging slot + swap. Do
 rozważenia po stabilizacji.
 

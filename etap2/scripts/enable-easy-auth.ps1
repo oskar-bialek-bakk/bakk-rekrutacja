@@ -11,11 +11,18 @@
 #    BAKK dev je ma — w odróżnieniu od `BAKK Ext Apps` która jest tighter).
 #  - PowerShell 5.1+ lub pwsh 7+.
 #
-# Idempotentny: ponowne uruchomienie nie powiela redirect URI, dorzuca tylko
-# nowy secret (append) — stare credentiale per `bakk-rekrutacja` można
-# usunąć ręcznie po weryfikacji.
+# Idempotencja (częściowa):
+#  - Dodanie redirect URI: idempotentne (skrypt sprawdza obecność i pomija).
+#  - Generowanie sekretu: KAŻDE uruchomienie dorzuca nowy credential
+#    (--append) i nadpisuje `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`
+#    na App Service. Stare credentiale per `bakk-rekrutacja` zostają na
+#    Enterprise App; usuń ręcznie po weryfikacji (`az ad app credential
+#    delete --id <appId> --key-id <oldKeyId>`).
+#  - authsettingsV2 PUT: idempotentne (zawsze ten sam payload).
 
 $ErrorActionPreference = 'Stop'
+
+$tempDir = [System.IO.Path]::GetTempPath()
 
 $rg          = 'rg-bakk-docs'
 $dstApp      = 'bakk-rekrutacja'
@@ -26,7 +33,7 @@ $secretDisplay = $dstApp
 $redirectUri = "https://$dstApp.azurewebsites.net/.auth/login/aad/callback"
 
 # Bypass uszkodzonego rozszerzenia authV2 jeśli istnieje
-$env:AZURE_EXTENSION_DIR = Join-Path $env:TEMP 'azext-empty'
+$env:AZURE_EXTENSION_DIR = Join-Path $tempDir 'azext-empty'
 New-Item -ItemType Directory -Force -Path $env:AZURE_EXTENSION_DIR | Out-Null
 
 az account set --subscription $sub | Out-Null
@@ -43,7 +50,7 @@ if ($existing -contains $redirectUri) {
     Write-Host "    Dodane: $redirectUri"
 }
 
-Write-Host "2/4 Generuje dedykowany client secret '$secretDisplay' (per standard BAKK: kazda App Service ma wlasny)..."
+Write-Host "2/4 Generuje dedykowany client secret '$secretDisplay' (per standard BAKK: każda App Service ma własny)..."
 $secret = az ad app credential reset --id $sharedAppId --display-name $secretDisplay --years 2 --append --query password -o tsv 2>$null
 if ($LASTEXITCODE -ne 0 -or -not $secret) { throw "Nie udalo sie wygenerowac sekretu." }
 Write-Host "    Wygenerowany (dlugosc: $($secret.Length) znakow)"
@@ -54,6 +61,7 @@ if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie ustawic app setting." }
 
 Write-Host "4/4 Konfiguruje authsettingsV2 i restartuje..."
 $tenantId = az account show --query tenantId -o tsv
+if ($LASTEXITCODE -ne 0 -or -not $tenantId) { throw "az account show nie zwrócił tenantId. Czy `az login` przeszedł?" }
 
 $auth = @{
     properties = @{
@@ -86,7 +94,7 @@ $auth = @{
     }
 } | ConvertTo-Json -Depth 10
 
-$tmp = Join-Path $env:TEMP "authV2-$([Guid]::NewGuid()).json"
+$tmp = Join-Path $tempDir "authV2-$([Guid]::NewGuid()).json"
 $auth | Out-File -Encoding utf8 -NoNewline $tmp
 
 try {
