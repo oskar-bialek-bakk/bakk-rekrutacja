@@ -19,7 +19,7 @@ Workflow:
 Persystencja zostaje w `localStorage` przeglądarki (Faza 4). Multi-user,
 Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
-## Faza 5 — backend (in progress)
+## Faza 5 — backend (✅ ZAKOŃCZONA 2026-06-09)
 
 Backend API w osobnym **Function App `bakk-rekrutacja-api`** (Linux,
 Consumption plan, Node 24, Functions v4), region **germanywestcentral**
@@ -54,6 +54,55 @@ Skrypty provisioningowe:
   wpięcie app settings Cosmos (z `%TEMP%/bakk-cosmos-secrets.txt`)
 - `etap2/scripts/configure-function-app-auth.ps1` — redirect URI w BAKK
   Int Apps, dedykowany secret, `authsettingsV2`, CORS
+- `etap2/scripts/set-traffit-secrets.ps1` — TRAFFIT_BASE_URL +
+  TRAFFIT_SESSION_COOKIE w app settings Function App
+
+### Auto-push do Traffit
+
+Backend ma endpoint `POST /api/v1/traffit/push` który forwarduje notatkę
+podsumowania do Traffit jako notatka na profilu kandydata.
+
+**Ograniczenie:** Linux Consumption Function App nie wspiera bibliotek
+binarnych typu Chromium, więc nie ma auto-login do Traffit (jak w lokalnym
+`traffit-scorer/src/push-notes.js`). Zamiast tego użytkownik wkleja aktywne
+cookie sesji Traffit do app settings raz na ~30 dni:
+
+1. Zaloguj się do Traffit w przeglądarce
+2. DevTools → Network → dowolny request do `/api/v2/*` → Headers → `Cookie`
+3. Skopiuj pełną wartość headera
+4. `./etap2/scripts/set-traffit-secrets.ps1 -BaseUrl 'https://intrum.traffit.com' -Cookie '<wklejone>'`
+
+UI: w „Podgląd dla rekrutera" → przycisk „Wyślij do Traffit" pyta o ID
+kandydata (z URL profilu), wywołuje backend. Marker idempotencji
+`<!-- bakk-etap2:{assessmentId} -->` w treści notatki pozwala detekcję
+istniejącej notatki dla tej rozmowy → wtedy update zamiast create.
+
+### Monitoring
+
+Application Insights wpięte przez Function App automatycznie (Functions v4
+domyślnie). Logi w Azure Portal → Function App → Application Insights →
+Live Metrics, Failures, Performance.
+
+### RODO
+
+Decyzja: brak automatycznego soft-delete. Dane utrzymują się bez retencji.
+Reakcja na żądanie usunięcia danych = ręczne `DELETE /api/v1/assessments/{id}`
+przez UI (po dodaniu UI usuwania) lub bezpośrednio przez `az cosmosdb sql
+container delete-item` na pojedynczych dokumentach. Dla pełnego usunięcia
+konta rekrutera można wyczyścić całą partycję `userPrincipalName`.
+
+### Rotacja sekretów
+
+- **`MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`** dla Function App — ten sam
+  proces co dla App Service. `az ad app credential reset --id 5d588d76-...
+  --display-name bakk-rekrutacja-api --years 2 --append` daje nowy secret,
+  wpiąć przez `az functionapp config appsettings set`. Stare credentials
+  per `bakk-rekrutacja-api` można usunąć ręcznie po weryfikacji.
+- **`COSMOS_KEY`** — `az cosmosdb keys regenerate --key-kind primary`
+  rotuje, potem `az cosmosdb keys list` + `az functionapp config
+  appsettings set COSMOS_KEY=...`.
+- **`TRAFFIT_SESSION_COOKIE`** — ~co miesiąc, ze skryptem
+  `set-traffit-secrets.ps1`.
 
 ## Stan setupu (2026-06-08)
 
