@@ -150,12 +150,14 @@ export function renderAssess(host: HTMLElement): void {
     const next = { red: !cur.red, green: cur.green };
     a.flags[b.id] = next;
     fr.classList.toggle('on', next.red);
+    refreshStepper();
   };
   fg.onclick = () => {
     const cur = a.flags[b.id] ?? { red: false, green: false };
     const next = { red: cur.red, green: !cur.green };
     a.flags[b.id] = next;
     fg.classList.toggle('on', next.green);
+    refreshStepper();
   };
 
   if (b.questions) {
@@ -166,6 +168,7 @@ export function renderAssess(host: HTMLElement): void {
         const cur = a.askedQuestions[b.id] ?? {};
         a.askedQuestions[b.id] = { ...cur, [idx]: cb.checked };
         item.classList.toggle('on', cb.checked);
+        refreshStepper();
       };
     });
   }
