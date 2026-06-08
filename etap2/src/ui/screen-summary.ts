@@ -1,18 +1,18 @@
 import { BLOCKS, rotatingBlockIds } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
 import { recordSelectedVariants } from '../domain/variants';
-import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import type { Decision } from '../domain/model';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
 import { navigate } from '../app';
 import { elapsedStr, stopTimer } from './timer-ui';
 import { escapeHtml } from './escape';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
+import { openRecruiterPreview } from './recruiter-preview-dialog';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
-  const r = computeScore(a.marks, DEFAULT_WEIGHTS);
+  const r = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore });
   const verdict = r.score >= 75 ? 'Wysoki wynik względny' : r.score >= 55 ? 'Średni wynik względny' : 'Niski wynik względny';
   const incomplete = !r.complete
     ? `<div class="callout warn">Ocena niepełna: oceniono ${r.scoredCount}/${r.totalWeightedBlocks} bloków ważonych. Wynik liczony tylko z ocenionych.</div>`
@@ -106,6 +106,7 @@ export function renderSummary(host: HTMLElement): void {
         <div class="nav">
           <button class="btn ghost" id="back">← Wróć do oceny</button>
           <button class="btn ghost" id="export-json">Eksport JSON</button>
+          <button class="btn ghost" id="recruiter-summary">Podsumowanie dla rekrutera</button>
           <button class="btn primary" id="save">Zapisz i pokaż zestawienie →</button>
         </div>
       </div>
@@ -135,6 +136,9 @@ export function renderSummary(host: HTMLElement): void {
   (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {
     const filename = `ocena_${safeFilenamePart(a.candidate.nameOrId)}.json`;
     downloadTextFile(filename, 'application/json;charset=utf-8', serializeAssessment(a));
+  };
+  (host.querySelector('#recruiter-summary') as HTMLButtonElement).onclick = () => {
+    void openRecruiterPreview(a, settings);
   };
   (host.querySelector('#save') as HTMLButtonElement).onclick = async () => {
     stopTimer();

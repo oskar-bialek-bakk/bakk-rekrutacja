@@ -1,14 +1,14 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
 import { computeScore } from '../domain/scoring';
-import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import type { Assessment } from '../domain/model';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { confirmDialog } from './confirm-dialog';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
+import { openRecruiterPreview } from './recruiter-preview-dialog';
 
 function mmss(totalSec: number): string {
   const s = Math.max(0, Math.floor(totalSec));
@@ -137,7 +137,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
   }
 
   const blocks = BLOCKS.filter((b) => !b.optional || a!.useE);
-  const score = computeScore(a.marks, DEFAULT_WEIGHTS).score;
+  const score = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore }).score;
   const stage1 = a.candidate.stage1Result.trim() ? escapeHtml(a.candidate.stage1Result) : '—';
   const stage1Note = a.candidate.stage1Note.trim() ? escapeHtml(a.candidate.stage1Note) : '—';
 
@@ -177,6 +177,7 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
         <div class="nav">
           <button class="btn ghost" id="back">← Wróć do zestawienia</button>
           <button class="btn ghost" id="export-json">Eksport JSON</button>
+          <button class="btn ghost" id="recruiter-summary">Podsumowanie dla rekrutera</button>
           <button class="btn ghost" id="delete">Usuń</button>
           <button class="btn primary" id="edit">Edytuj</button>
         </div>
@@ -195,6 +196,10 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
     session.visited = new Set();
     session.editing = true;
     navigate('assess');
+  };
+
+  (host.querySelector('#recruiter-summary') as HTMLButtonElement).onclick = () => {
+    void openRecruiterPreview(record, settings);
   };
 
   (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {

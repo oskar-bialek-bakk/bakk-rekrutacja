@@ -5,6 +5,7 @@ import { renderAssess } from './ui/screen-assess';
 import { renderSummary } from './ui/screen-summary';
 import { renderRoster } from './ui/screen-roster';
 import { renderDetail } from './ui/screen-detail';
+import { renderSettings } from './ui/screen-settings';
 
 export function navigate(screen: Session['screen']): void {
   if (screen !== 'detail') session.detailId = null;
@@ -27,5 +28,6 @@ export function render(): void {
     case 'summary': renderSummary(host); break;
     case 'roster': void renderRoster(host); break;
     case 'detail': void renderDetail(host); break;
+    case 'settings': void renderSettings(host); break;
   }
 }

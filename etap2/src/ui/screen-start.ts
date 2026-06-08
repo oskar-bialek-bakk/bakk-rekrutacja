@@ -23,6 +23,7 @@ export async function renderStart(host: HTMLElement): Promise<void> {
       </div>
       <div class="field"><label for="in-stage1-note">Notatka z etapu I</label><textarea id="in-stage1-note" placeholder="np. mocny SQL, słabszy LINQ"></textarea></div>
       <div id="variant-pick"></div>
+      <label class="opt-toggle" id="opt-a-chart"><input type="checkbox" id="chk-a-chart"> Tryb A: wykres (zamiast algorytmu)</label>
       <label class="opt-toggle" id="opt-e"><input type="checkbox" id="chk-e"> Dołącz blok E „podlewanie" (bez wagi)</label>
       <button class="btn primary" id="btn-start">Rozpocznij rozmowę →</button>
     </div>`;
@@ -42,11 +43,24 @@ export async function renderStart(host: HTMLElement): Promise<void> {
   vp.querySelectorAll<HTMLElement>('.vchips').forEach((row) => {
     row.querySelectorAll<HTMLButtonElement>('.vchip').forEach((chip) => {
       chip.onclick = () => {
+        if (chip.disabled) return;
         row.querySelectorAll('.vchip').forEach((c) => c.classList.remove('on'));
         chip.classList.add('on');
       };
     });
   });
+
+  const chkChart = host.querySelector('#chk-a-chart') as HTMLInputElement;
+  const refreshAChips = (): void => {
+    const aRow = vp.querySelector<HTMLElement>('.vchips[data-block="A"]');
+    if (!aRow) return;
+    aRow.classList.toggle('disabled', chkChart.checked);
+    aRow.querySelectorAll<HTMLButtonElement>('.vchip').forEach((chip) => {
+      chip.disabled = chkChart.checked;
+    });
+  };
+  chkChart.onchange = refreshAChips;
+  refreshAChips();
 
   (host.querySelector('#in-date') as HTMLInputElement).value = new Date().toISOString().slice(0, 10);
 
@@ -58,6 +72,7 @@ export async function renderStart(host: HTMLElement): Promise<void> {
       stage1Note: (host.querySelector('#in-stage1-note') as HTMLTextAreaElement).value,
     });
     a.useE = (host.querySelector('#chk-e') as HTMLInputElement).checked;
+    a.useAChart = chkChart.checked;
     for (const b of BLOCKS) {
       const sel = vp.querySelector(`.vchips[data-block="${b.id}"] .vchip.on`) as HTMLElement | null;
       a.selectedVariants[b.id] = sel ? Number(sel.dataset.idx) : (suggested[b.id] ?? 0);

@@ -1,3 +1,5 @@
+import type { BlockTimes } from './timer';
+
 export type BlockId = 'A' | 'B' | 'C' | 'D' | 'E';
 export type Mark = 1 | 2 | 3 | 4 | 5;
 export type Decision = 'yes' | 'no' | 'wait';
@@ -17,7 +19,7 @@ export interface Negotiation {
   uwagi: string;
 }
 
-export interface TimerState { elapsedSec: number; paused: boolean; offsetSec: number; }
+export interface TimerState { elapsedSec: number; paused: boolean; offsetSec: number; phase45Notified?: boolean; }
 export interface Flags { red: boolean; green: boolean; }
 
 export interface Assessment {
@@ -34,7 +36,9 @@ export interface Assessment {
   askedQuestions: Partial<Record<BlockId, Record<number, boolean>>>;
   negotiation: Negotiation;
   timer: TimerState;
+  blockTimes: BlockTimes;
   useE: boolean;
+  useAChart: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,7 +47,7 @@ export type VariantUsage = Partial<Record<BlockId, Record<number, number>>>;
 export interface Weights { A: number; B: number; C: number; D: number; E: number; }
 export interface Settings { weights: Weights; showScoreLive: boolean; includeEInScore: boolean; }
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 function emptyNegotiation(): Negotiation {
   return { oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '' };
@@ -55,7 +59,8 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
     id, schemaVersion: SCHEMA_VERSION, candidate,
     selectedVariants: {}, deepenAsked: {}, marks: {}, flags: {}, notes: {},
     decision: null, decisionNote: '', askedQuestions: {}, negotiation: emptyNegotiation(),
-    timer: { elapsedSec: 0, paused: false, offsetSec: 0 },
-    useE: false, createdAt: now, updatedAt: now,
+    timer: { elapsedSec: 0, paused: false, offsetSec: 0, phase45Notified: false },
+    blockTimes: {},
+    useE: false, useAChart: false, createdAt: now, updatedAt: now,
   };
 }

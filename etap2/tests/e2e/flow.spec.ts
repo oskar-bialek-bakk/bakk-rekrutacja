@@ -68,6 +68,15 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
 
   // Otwórz szczegóły ponownie i wróć przyciskiem do zestawienia.
   await page.click('tr.row-link td.name:has-text("Detal Kandydat")');
+
+  // Podsumowanie dla rekrutera: otwarcie dialogu z podglądem i zamknięcie.
+  await page.click('#recruiter-summary');
+  const previewDialog = page.locator('[role="dialog"][aria-label="Podsumowanie dla rekrutera"]');
+  await expect(previewDialog).toBeVisible();
+  await expect(previewDialog.locator('.recruiter-preview')).toContainText('Detal Kandydat');
+  await page.click('#recruiter-close');
+  await expect(previewDialog).toHaveCount(0);
+
   await page.click('#back');
   await expect(page.locator('td.name')).toContainText('Detal Kandydat');
 });

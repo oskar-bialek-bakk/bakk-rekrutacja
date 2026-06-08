@@ -1,16 +1,79 @@
-import { BLOCKS } from '../content/blocks';
+import { BLOCKS, BLOCK_A_CHART } from '../content/blocks';
 import type { Block } from '../content/blocks';
-import type { Mark } from '../domain/model';
+import type { Assessment, Mark } from '../domain/model';
 import { blocksMissingNotes } from '../domain/completeness';
 import { blockState } from '../domain/block-state';
-import { repo, session } from '../state';
+import { parseTargetSec, warnLevel } from '../domain/timer';
+import { repo, session, settings } from '../state';
+import { computeScore } from '../domain/scoring';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
 import { confirmDialog } from './confirm-dialog';
+import { togglePause } from './timer-ui';
 
-function activeBlocks(): Block[] {
-  return BLOCKS.filter((b) => !b.optional || session.current!.useE);
+let kbInstalled = false;
+function installKeyboardHandlers(host: HTMLElement): void {
+  if (kbInstalled) return;
+  kbInstalled = true;
+  document.addEventListener('keydown', (e) => {
+    if (session.screen !== 'assess' || !session.current) return;
+    const tgt = e.target as HTMLElement | null;
+    if (tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA' || tgt.isContentEditable)) return;
+    if (e.key >= '1' && e.key <= '5') {
+      const mark = Number(e.key) as Mark;
+      const a = session.current;
+      const blocks = activeBlocks();
+      const b = blocks[session.cur];
+      if (b) {
+        const allowed = markLevels(b);
+        if (!allowed.includes(mark)) return;
+        a.marks[b.id] = mark;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.key === 'ArrowRight') {
+      const blocks = activeBlocks();
+      if (session.cur < blocks.length - 1) {
+        session.cur++;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.key === 'ArrowLeft') {
+      if (session.cur > 0) {
+        session.cur--;
+        e.preventDefault();
+        renderAssess(host);
+      }
+      return;
+    }
+    if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+      togglePause();
+      e.preventDefault();
+    }
+  });
+}
+
+export function effectiveBlock(b: Block, a: Assessment): Block {
+  return b.id === 'A' && a.useAChart ? BLOCK_A_CHART : b;
+}
+
+export function activeBlocks(): Block[] {
+  const a = session.current!;
+  return BLOCKS.filter((b) => !b.optional || a.useE).map((b) => effectiveBlock(b, a));
+}
+
+function markLevels(b: Block): number[] {
+  return b.scale.length === 3 ? [1, 3, 5] : [1, 2, 3, 4, 5];
+}
+
+function formatMmSs(sec: number): string {
+  const s = Math.max(0, Math.floor(sec));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
 
 const STATE_CLASS: Record<ReturnType<typeof blockState>, 'done' | 'in-progress' | 'todo'> = {
@@ -32,7 +95,8 @@ export function renderAssess(host: HTMLElement): void {
   if (session.cur >= blocks.length) session.cur = blocks.length - 1;
   const b = blocks[session.cur];
   session.visited.add(b.id);
-  const vIdx = a.selectedVariants[b.id] ?? 0;
+  const rawVIdx = a.selectedVariants[b.id] ?? 0;
+  const vIdx = rawVIdx >= 0 && rawVIdx < b.variants.length ? rawVIdx : 0;
   const sel = a.marks[b.id];
   const fl = a.flags[b.id] ?? { red: false, green: false };
   const asked = a.askedQuestions[b.id] ?? {};
@@ -68,17 +132,28 @@ export function renderAssess(host: HTMLElement): void {
         const state = STATE_CLASS[blockState(a, x.id, session.visited)];
         const current = i === session.cur ? ' current' : '';
         const noNote = missingNow.has(x.id) ? ' no-note' : '';
-        return `<button class="step ${state}${current}${noNote}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div><span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
+        const spent = a.blockTimes[x.id]?.spentSec ?? 0;
+        const level = warnLevel(spent, parseTargetSec(x.time));
+        const levelCls = level === 'ok' ? '' : ` ${level}`;
+        const markVal = a.marks[x.id];
+        const scoreBadge = settings.showScoreLive && markVal != null ? `<span class="step-score">${markVal}/5</span>` : '';
+        return `<button class="step ${state}${current}${noNote}${levelCls}" data-i="${i}"><div class="k">${x.key}</div><div class="t">${x.title}</div>${scoreBadge}<span class="step-state" data-state="${state}">${STATE_LABEL[state]}</span><span class="step-time" data-block-time="${x.id}">${formatMmSs(spent)}</span><span class="note-flag" title="brak notatki" aria-hidden="true">✎</span></button>`;
       }).join('');
     })()}</div>
+    <div class="kbd-help" aria-hidden="true">Klawisze: 1-5 ocena, ←/→ blok, Alt+P pauza</div>
     <div class="card"><div class="card-body">
       <div class="twocol">
         <div>
           ${readboxHtml}
           ${questionsHtml}
           <div class="label" style="margin-top:18px">Ocena — wybierz poziom</div>
-          <fieldset class="scale" id="scale">${b.scale.map((d, i) =>
-            `<label class="lvl ${sel === i + 1 ? 'sel' : ''}" data-lvl="${i + 1}"><input type="radio" name="mark" value="${i + 1}" ${sel === i + 1 ? 'checked' : ''}><span class="num">${i + 1}</span><span class="desc">${d}</span></label>`).join('')}</fieldset>
+          <fieldset class="scale" id="scale">${(() => {
+            const levels = markLevels(b);
+            return b.scale.map((d, i) => {
+              const lvl = levels[i];
+              return `<label class="lvl ${sel === lvl ? 'sel' : ''}" data-lvl="${lvl}"><input type="radio" name="mark" value="${lvl}" ${sel === lvl ? 'checked' : ''}><span class="num">${lvl}</span><span class="desc">${d}</span></label>`;
+            }).join('');
+          })()}</fieldset>
           <label class="deepen ${a.deepenAsked[b.id] ? 'is-asked' : ''}" id="deepen-box">
             <div class="dh">Pytanie pogłębiające <span class="tag">jeśli zostanie czas</span></div>
             <div class="dq">„${b.deepen}”</div>
@@ -103,7 +178,13 @@ export function renderAssess(host: HTMLElement): void {
       </div>
       <div class="nav">
         <button class="btn ghost" id="prev" ${session.cur === 0 ? 'disabled' : ''}>← Poprzedni</button>
-        <div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>
+        ${(() => {
+          if (!settings.showScoreLive) {
+            return '<div class="hidden-note">🔒 Punkty ukryte — odsłonią się na podsumowaniu</div>';
+          }
+          const r = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore });
+          return `<div class="live-score" aria-live="polite">Wynik na żywo: <b>${r.score}</b> / 100 (oceniono ${r.scoredCount}/${r.totalWeightedBlocks})</div>`;
+        })()}
         ${editSaveBtn}
         <button class="btn primary" id="next">${session.cur < blocks.length - 1 ? 'Następny blok →' : 'Zakończ ocenę →'}</button>
       </div>
@@ -244,4 +325,6 @@ export function renderAssess(host: HTMLElement): void {
     }
     navigate('summary');
   };
+
+  installKeyboardHandlers(host);
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { BLOCKS } from '../src/content/blocks';
+import { BLOCKS, BLOCK_A_CHART } from '../src/content/blocks';
 
 describe('BLOCKS', () => {
   it('zawiera bloki A,B,C,D,E w tej kolejności', () => {
@@ -21,5 +21,22 @@ describe('BLOCKS', () => {
   });
   it('E jest oznaczony jako opcjonalny', () => {
     expect(BLOCKS.find((b) => b.id === 'E')!.optional).toBe(true);
+  });
+});
+
+describe('BLOCK_A_CHART (wariant A-alt: wykresowy)', () => {
+  it('ma id "A" i wage 15 (dziedziczy po bloku A)', () => {
+    expect(BLOCK_A_CHART.id).toBe('A');
+    expect(BLOCK_A_CHART.weight).toBe(15);
+  });
+  it('ma dokladnie 1 wariant (chart)', () => {
+    expect(BLOCK_A_CHART.variants).toHaveLength(1);
+  });
+  it('ma 3-stopniowa skale (poziomy 1/3/5)', () => {
+    expect(BLOCK_A_CHART.scale).toHaveLength(3);
+  });
+  it('variants[0].read zawiera inline SVG z klasa chart-svg', () => {
+    expect(BLOCK_A_CHART.variants[0].read).toContain('chart-svg');
+    expect(BLOCK_A_CHART.variants[0].read).toContain('<svg');
   });
 });

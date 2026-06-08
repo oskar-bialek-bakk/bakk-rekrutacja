@@ -1,5 +1,4 @@
 import { computeScore } from '../domain/scoring';
-import { DEFAULT_WEIGHTS } from '../domain/weights.config';
 import {
   sortRows,
   filterByDecision,
@@ -7,7 +6,7 @@ import {
   type SortDir,
   type DecisionFilter,
 } from '../domain/roster';
-import { repo, session } from '../state';
+import { repo, session, settings } from '../state';
 import { navigate, openDetail } from '../app';
 import { escapeHtml } from './escape';
 import { confirmDialog } from './confirm-dialog';
@@ -24,7 +23,7 @@ let filterDecision: DecisionFilter = 'all';
 export async function renderRoster(host: HTMLElement): Promise<void> {
   const all = await repo.findAll();
   const rows = all.map((a) => {
-    const score = computeScore(a.marks, DEFAULT_WEIGHTS).score;
+    const score = computeScore(a.marks, settings.weights, { includeE: settings.includeEInScore }).score;
     const red = Object.values(a.flags).filter((f) => f?.red).length;
     const green = Object.values(a.flags).filter((f) => f?.green).length;
     return {
