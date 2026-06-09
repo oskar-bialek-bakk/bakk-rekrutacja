@@ -1,8 +1,10 @@
 import type { Assessment, Settings } from '../domain/model';
 import { buildRecruiterSummary } from '../domain/recruiter-summary';
 import { TraffitPushError, pushToTraffit } from '../persistence/traffit-api';
-import { AzureStore } from '../persistence/azure-store';
-import { repo } from '../state';
+import { fetchTraffitCandidates } from '../persistence/traffit-candidates';
+import { bestNameMatch, type TraffitCandidate } from '../domain/traffit-roster';
+import { isOnline, repo } from '../state';
+import { escapeHtml } from './escape';
 
 const COPIED_LABEL = '✓ Skopiowano';
 const COPIED_MS = 1500;
@@ -106,7 +108,7 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
     traffitBtn.id = 'recruiter-traffit';
     traffitBtn.className = 'btn ghost';
     traffitBtn.textContent = 'Wyślij do Traffit';
-    traffitBtn.hidden = !(repo instanceof AzureStore);
+    traffitBtn.hidden = !isOnline;
 
     actions.appendChild(copyHtmlBtn);
     actions.appendChild(copyTextBtn);
@@ -150,34 +152,94 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
       const ok = await copyHtmlSafe(html, text);
       flashLabel(copyHtmlBtn, original, ok);
     };
-    traffitBtn.onclick = async () => {
-      const idRaw = window.prompt('Podaj ID kandydata w Traffit (numer z URL profilu):', '');
-      if (!idRaw) return;
-      const employeeId = Number(idRaw.trim());
-      if (!Number.isInteger(employeeId) || employeeId <= 0) {
-        traffitStatus.hidden = false;
-        traffitStatus.textContent = 'Niepoprawne ID Traffit (musi być liczbą).';
-        return;
-      }
+    async function doPush(employeeId: number): Promise<void> {
       traffitBtn.disabled = true;
       traffitStatus.hidden = false;
       traffitStatus.textContent = 'Wysyłam do Traffit…';
       try {
-        const result = await pushToTraffit({
-          assessmentId: a.id,
-          employeeId,
-          html,
-        });
+        const result = await pushToTraffit({ assessmentId: a.id, employeeId, html });
         traffitStatus.textContent = `Gotowe: notatka ${result.action === 'created' ? 'utworzona' : 'zaktualizowana'} (id ${result.noteId}).`;
       } catch (err) {
         const msg = err instanceof TraffitPushError
           ? `Błąd ${err.status}: ${err.message}`
-          : err instanceof Error
-            ? err.message
-            : 'Nieznany błąd';
+          : err instanceof Error ? err.message : 'Nieznany błąd';
         traffitStatus.textContent = `Push się nie powiódł. ${msg}`;
       } finally {
         traffitBtn.disabled = false;
+      }
+    }
+
+    function renderLinkPicker(candidates: TraffitCandidate[]): void {
+      // Picker: wybór kandydata z Traffit (auto-match po nazwisku) + furtka ręcznego ID.
+      const existing = dialog.querySelector('.traffit-linker');
+      if (existing) existing.remove();
+      const box = document.createElement('div');
+      box.className = 'traffit-linker';
+      const best = bestNameMatch(candidates, a.candidate.nameOrId);
+      const options = candidates
+        .map((c) => {
+          const sel = best && c.employeeId === best.employeeId && c.recruitmentId === best.recruitmentId ? ' selected' : '';
+          const label = escapeHtml(`${c.fullName} — ${c.recruitmentName}`);
+          return `<option value="${c.employeeId}::${c.recruitmentId}"${sel}>${label}</option>`;
+        })
+        .join('');
+      box.innerHTML = `
+        <label for="traffit-link-pick">Powiąż z kandydatem w Traffit</label>
+        <select id="traffit-link-pick"><option value="">— ręczne ID —</option>${options}</select>
+        <input id="traffit-link-manual" inputmode="numeric" placeholder="lub wpisz ID ręcznie">
+        <button type="button" class="btn primary" id="traffit-link-confirm">Powiąż i wyślij</button>`;
+      traffitStatus.hidden = true;
+      dialog.insertBefore(box, traffitStatus);
+
+      (box.querySelector('#traffit-link-confirm') as HTMLButtonElement).onclick = async () => {
+        const selVal = (box.querySelector('#traffit-link-pick') as HTMLSelectElement).value;
+        const manual = (box.querySelector('#traffit-link-manual') as HTMLInputElement).value.trim();
+        let employeeId: number | null = null;
+        let chosen: TraffitCandidate | null = null;
+        if (selVal) {
+          chosen = candidates.find((c) => `${c.employeeId}::${c.recruitmentId}` === selVal) ?? null;
+          employeeId = chosen ? chosen.employeeId : null;
+        } else if (manual) {
+          const n = Number(manual);
+          if (Number.isInteger(n) && n > 0) employeeId = n;
+        }
+        if (employeeId == null) {
+          traffitStatus.hidden = false;
+          traffitStatus.textContent = 'Wybierz kandydata z listy lub podaj poprawne ID.';
+          return;
+        }
+        // Utrwal powiązanie na ocenie (kolejne wysyłki bez pytania).
+        a.candidate = {
+          ...a.candidate,
+          traffitId: employeeId,
+          ...(chosen ? { recruitmentId: chosen.recruitmentId, recruitmentName: chosen.recruitmentName } : {}),
+        };
+        try { await repo.save(a); } catch { /* zapis best-effort; push i tak spróbuje */ }
+        box.remove();
+        await doPush(employeeId);
+      };
+    }
+
+    traffitBtn.onclick = async () => {
+      if (typeof a.candidate.traffitId === 'number') {
+        await doPush(a.candidate.traffitId);
+        return;
+      }
+      traffitBtn.disabled = true;
+      traffitStatus.hidden = false;
+      traffitStatus.textContent = 'Pobieram listę kandydatów z Traffit…';
+      try {
+        const candidates = await fetchTraffitCandidates();
+        traffitBtn.disabled = false;
+        if (candidates.length === 0) {
+          traffitStatus.textContent = 'Brak kandydatów na etapie „Spotkanie BK". Sprawdź ID w Traffit.';
+          return;
+        }
+        renderLinkPicker(candidates);
+      } catch (err) {
+        traffitBtn.disabled = false;
+        const msg = err instanceof Error ? err.message : 'nieznany błąd';
+        traffitStatus.textContent = `Nie udało się pobrać listy. ${msg}`;
       }
     };
     closeBtn.onclick = () => cleanup();
