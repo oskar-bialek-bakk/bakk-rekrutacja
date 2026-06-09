@@ -4,6 +4,7 @@ import { requireUser } from '../lib/auth.js';
 import { assessmentsContainer } from '../lib/cosmos.js';
 import { apiError, cosmosErrorToApi, errorResponse, jsonResponse, parseJsonBody } from '../lib/http.js';
 import {
+  TraffitLoginError,
   TraffitNotConfiguredError,
   TraffitSessionExpiredError,
   createTraffitClient,
@@ -48,6 +49,10 @@ export async function traffitPush(req: HttpRequest, ctx: InvocationContext): Pro
     if (err instanceof TraffitSessionExpiredError) {
       ctx.warn(err.message);
       return jsonResponse(502, { error: err.message });
+    }
+    if (err instanceof TraffitLoginError) {
+      ctx.error('Traffit login failed', err);
+      return jsonResponse(502, { error: `Traffit login: ${err.message}` });
     }
     ctx.error('traffitPush failed', err);
     return errorResponse(err);
