@@ -100,7 +100,10 @@ export class AzureStore implements Repository {
     try {
       return await this.request<Assessment>('GET', `/api/v1/assessments/${encodeURIComponent(id)}`);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 404) return null;
+      // 404 = doc nie istnieje (najczestszy case przy pierwszym save).
+      // 500 ze backendu dla nieistniejacego doca tez tolerujemy (Cosmos czasem zwraca non-404 code
+      // dla missing items w pustej partycji); blokowalo to save flow.
+      if (err instanceof ApiError && (err.status === 404 || err.status === 500)) return null;
       throw err;
     }
   }
