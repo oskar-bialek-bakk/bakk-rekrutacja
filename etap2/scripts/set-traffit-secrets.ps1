@@ -15,7 +15,7 @@
 #  - TRAFFIT_LOGIN_CHECK_PATH  default /login_check (form action)
 #
 # Uzycie:
-#  ./set-traffit-secrets.ps1 -BaseUrl 'https://intrum.traffit.com' \
+#  ./set-traffit-secrets.ps1 -BaseUrl 'https://intrum.traffit.com' `
 #    -Username 'bakk-bot@bakk.com' -Password '<haslo>'
 
 param(
@@ -38,30 +38,26 @@ New-Item -ItemType Directory -Force -Path $env:AZURE_EXTENSION_DIR | Out-Null
 
 az account set --subscription $sub | Out-Null
 
-# Uzywamy az rest zeby uniknac CMD escapowania ampersandow w hasle/URL.
-# 1. Pobierz aktualne app settings
-$listJson = az rest --method post --uri "https://management.azure.com/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.Web/sites/$func/config/appsettings/list?api-version=2022-03-01" --only-show-errors
-$settings = ($listJson | ConvertFrom-Json).properties
-$hash = @{}
-foreach ($p in $settings.PSObject.Properties) { $hash[$p.Name] = $p.Value }
+# `az functionapp config appsettings set` przyjmuje KEY=VALUE jako pojedyncze
+# argumenty PowerShell. PowerShell przekazuje stringi w cudzyslowach poprawnie
+# nawet dla wartosci z `*[(` itp. (haslo). Tu UNIKAMY `az rest PUT` ktore
+# zastepuje WSZYSTKIE settings - to risky bo Azure ma ukryte internal settings
+# (m.in. WEBSITE_CONTENT* connection string z key-vault references), ktore
+# `az rest list` zwraca w innym formacie niz wymaga PUT, co zostawia Function
+# App w broken state (SCM 503 dla zawsze).
+#
+# Set komenda dodaje/aktualizuje pojedyncze klucze, zachowujac wszystkie inne
+# Azure-managed settings bez ich dotykania. To safe.
 
-# 2. Wpis nowe Traffit settings
-$hash['TRAFFIT_BASE_URL']  = $BaseUrl
-$hash['TRAFFIT_USERNAME']  = $Username
-$hash['TRAFFIT_PASSWORD']  = $Password
-if ($LoginPath)      { $hash['TRAFFIT_LOGIN_PATH']       = $LoginPath }
-if ($LoginCheckPath) { $hash['TRAFFIT_LOGIN_CHECK_PATH'] = $LoginCheckPath }
+$args = @("TRAFFIT_BASE_URL=$BaseUrl", "TRAFFIT_USERNAME=$Username", "TRAFFIT_PASSWORD=$Password")
+if ($LoginPath)      { $args += "TRAFFIT_LOGIN_PATH=$LoginPath" }
+if ($LoginCheckPath) { $args += "TRAFFIT_LOGIN_CHECK_PATH=$LoginCheckPath" }
 
-# 3. Usun stary TRAFFIT_SESSION_COOKIE (pre-shared cookie wymagal manualnego renew)
-$hash.Remove('TRAFFIT_SESSION_COOKIE') | Out-Null
+az functionapp config appsettings set -g $rg -n $func --settings @args --only-show-errors | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "az functionapp config appsettings set sie nie powiodl." }
 
-$body = @{ properties = $hash } | ConvertTo-Json -Depth 5
-$tmp = Join-Path $tempDir "traffit-settings-$([Guid]::NewGuid()).json"
-$body | Out-File -Encoding utf8 -NoNewline $tmp
-
-az rest --method put --uri "https://management.azure.com/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.Web/sites/$func/config/appsettings?api-version=2022-03-01" --body "@$tmp" --only-show-errors | Out-Null
-if ($LASTEXITCODE -ne 0) { throw "az rest PUT appsettings sie nie powiodl." }
-Remove-Item $tmp -Force
+# Usun stary TRAFFIT_SESSION_COOKIE (pre-shared cookie z poprzedniej wersji)
+az functionapp config appsettings delete -g $rg -n $func --setting-names TRAFFIT_SESSION_COOKIE --only-show-errors 2>&1 | Out-Null
 
 Write-Host "Gotowe. Restart Function App zeby pickupowac nowe env vars..."
 az functionapp restart -g $rg -n $func --only-show-errors | Out-Null
