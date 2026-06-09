@@ -59,8 +59,7 @@ export class AzureStore implements Repository {
   private lastUsage: VariantUsage = {};
 
   constructor(baseUrl?: string) {
-    const envBase = (import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL;
-    this.baseUrl = (baseUrl ?? envBase ?? DEFAULT_API_BASE).replace(/\/$/, '');
+    this.baseUrl = (baseUrl ?? import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE).replace(/\/$/, '');
   }
 
   private async request<T>(method: string, path: string, body?: unknown, retried = false): Promise<T> {

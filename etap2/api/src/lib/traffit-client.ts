@@ -54,11 +54,20 @@ function buildMarker(assessmentId: string): string {
 
 function extractInnerContent(rawContent: TraffitActivity['content']): string {
   if (rawContent == null) return '';
-  const s = typeof rawContent === 'string' ? rawContent : String(rawContent);
+  // Traffit zwraca `content` jako:
+  //  - string HTML
+  //  - string JSON `{"content": "..."}`
+  //  - obiekt `{content: "..."}` (niektore wersje API)
+  if (typeof rawContent === 'object') {
+    const obj = rawContent as { content?: unknown };
+    if (typeof obj.content === 'string') return obj.content;
+    try { return JSON.stringify(rawContent); } catch { return ''; }
+  }
+  const s = String(rawContent);
   const trimmed = s.trim();
   if (trimmed.startsWith('{')) {
     try {
-      const parsed = JSON.parse(trimmed) as { content?: string };
+      const parsed = JSON.parse(trimmed) as { content?: unknown };
       if (typeof parsed.content === 'string') return parsed.content;
     } catch {
       // not JSON

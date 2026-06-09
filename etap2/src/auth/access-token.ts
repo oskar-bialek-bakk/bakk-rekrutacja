@@ -15,9 +15,19 @@ let cache: CachedToken | null = null;
 let inflight: Promise<string> | null = null;
 
 function parseExpiry(raw?: string): number {
-  if (!raw) return Date.now() + 60 * 60 * 1000;
-  const t = Date.parse(raw);
-  return Number.isFinite(t) ? t : Date.now() + 60 * 60 * 1000;
+  const fallback = Date.now() + 60 * 60 * 1000;
+  if (!raw) return fallback;
+  // Easy Auth `/.auth/me` zwraca expires_on jako:
+  //  - ISO date string (np. "2026-06-09T12:34:56.789Z")
+  //  - unix epoch w sekundach jako string (np. "1781234567")
+  const trimmed = raw.trim();
+  if (/^\d+$/.test(trimmed)) {
+    const seconds = Number(trimmed);
+    if (Number.isFinite(seconds) && seconds > 0) return seconds * 1000;
+    return fallback;
+  }
+  const t = Date.parse(trimmed);
+  return Number.isFinite(t) ? t : fallback;
 }
 
 async function fetchToken(): Promise<string> {
