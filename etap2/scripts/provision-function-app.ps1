@@ -1,10 +1,11 @@
 # Provisioning Function App `bakk-rekrutacja-api` (Faza 5 Task 2).
 #
 # Tworzy:
-#  - storage account `stbakkrekrutacjaapi` (Standard_LRS, polandcentral)
+#  - storage account `stbakkrekrutacjaapi` (Standard_LRS, germanywestcentral)
 #  - Function App `bakk-rekrutacja-api` na Consumption plan (Linux, Node 24, Functions v4)
-#    Node 24 - Node 20 osiagnal EOL 2026-04-30, Azure odmawia tworzenia.
-#    w polandcentral (blisko Cosmos z Task 1).
+#    w germanywestcentral - Linux Consumption nie jest wspierany w polandcentral
+#    (gdzie jest Cosmos), DE West Central jest najblizsze (~30ms do Cosmos).
+#    Node 24, bo Node 20 osiagnal EOL 2026-04-30 i Azure odmawia tworzenia.
 #  - wpina app settings: COSMOS_ENDPOINT / COSMOS_KEY / COSMOS_DB z pliku
 #    %TEMP%/bakk-cosmos-secrets.txt utworzonego przez provision-cosmos.ps1.
 #
@@ -79,7 +80,7 @@ $funcs = @(az functionapp list -g $rg --query "[].name" -o tsv)
 if ($funcs -contains $func) {
     Write-Host "    Istnieje - pomijam tworzenie."
 } else {
-    Write-Host "    Tworze Function App $func (Linux Consumption, Node 20, Functions v4, $loc)..."
+    Write-Host "    Tworze Function App $func (Linux Consumption, Node 24, Functions v4, $loc)..."
     az functionapp create `
         -g $rg -n $func `
         --consumption-plan-location $loc `

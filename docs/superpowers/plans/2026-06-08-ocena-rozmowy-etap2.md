@@ -1444,8 +1444,8 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
   - **CORS** na Function App: `allowedOrigins = ['https://bakk-rekrutacja.azurewebsites.net']`, `supportCredentials = false` (Bearer, nie cookie).
   - Brak MSAL we froncie, brak tokenów w localStorage. Token pobierany tuż przed requestem przez `AzureStore` (cache na 30 min z early refresh).
 - **Format URL API:** `https://bakk-rekrutacja-api.azurewebsites.net/api/v1/*`. Stała w `etap2/src/persistence/azure-store.ts` (`VITE_API_BASE_URL` env).
-- **Migracja z localStorage:** UI „Importuj z localStorage" na ekranie startowym (widoczny gdy nieskonsumowany localStorage istnieje), wywołuje POST `/api/v1/migrate` z całą zawartością.
-- **Sekrety Cosmos i Traffit:** wpięte do **app settings Function App** (nie App Service). Function App ma osobne `COSMOS_ENDPOINT`, `COSMOS_KEY`, `TRAFFIT_BASE_URL`, `TRAFFIT_EMAIL`, `TRAFFIT_PASSWORD`.
+- **Migracja z localStorage:** UI „Importuj z localStorage" na ekranie startowym (widoczny gdy `repo instanceof AzureStore` oraz nieskonsumowany localStorage istnieje), wywołuje `AzureStore.importBulk` we froncie. Implementacja forwarduje rekordy przez istniejące endpointy `PUT /api/v1/assessments/{id}` + `PUT /api/v1/settings` + `POST /api/v1/variant-usage/increment` (delta vs `{}`). Brak dedykowanego endpointu `/api/v1/migrate` po stronie backendu, żeby uniknąć duplikacji logiki upsertu i walidacji.
+- **Sekrety Cosmos i Traffit:** wpięte do **app settings Function App** (nie App Service). Function App ma osobne `COSMOS_ENDPOINT`, `COSMOS_KEY`, `COSMOS_DB`, `TRAFFIT_BASE_URL`, `TRAFFIT_SESSION_COOKIE`. **Brak `TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD`** — Linux Consumption nie wspiera Chromium, więc auto-login niemożliwy. User wkleja aktywne cookie sesji Traffit z DevTools raz na ~30 dni przez `etap2/scripts/set-traffit-secrets.ps1`.
 
 ## Taski
 
@@ -1559,12 +1559,12 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 **Files:**
 - Modify: `etap2/src/ui/screen-start.ts`
-- Create: `etap2/api/migrate/`
+- Create: `etap2/src/persistence/local-snapshot.ts`, `etap2/src/ui/migration-banner.ts`
 
-- [ ] **Step 1:** Na ekranie startowym wykrycie `localStorage.getItem('etap2.assessments')` !== null, przycisk „Zaimportuj rozmowy z tego urządzenia (N pozycji)".
-- [ ] **Step 2:** Po kliknięciu: `POST /api/v1/migrate` z body `{ assessments: [...], settings, variantUsage }`, backend upsertuje wszystko per upn, zwraca count.
-- [ ] **Step 3:** Po sukcesie: czyszczenie `localStorage` (z confirm), reload listy.
-- [ ] **Step 4:** Test E2E (Playwright) na pełen migration flow: seed localStorage, otwórz UI, kliknij, sprawdź że API dostało payload (mock).
+- [x] **Step 1:** Na ekranie startowym wykrycie danych w localStorage (klucze `etap2.assessments` / `etap2.variantUsage` / `etap2.settings`) przez `readLocalSnapshot`. Banner pokazuje się tylko gdy `repo instanceof AzureStore` (czyli build prod).
+- [x] **Step 2:** Po kliknięciu „Zaimportuj do chmury": `AzureStore.importBulk` we froncie - wywołuje istniejące endpointy `PUT /api/v1/assessments/{id}` per rozmowa, `PUT /api/v1/settings` raz, `POST /api/v1/variant-usage/increment` per delta. **Brak dedykowanego `/api/v1/migrate`** - reuse istniejących handlerów, jedna ścieżka logiki.
+- [x] **Step 3:** Po sukcesie: confirm czyszczenia `localStorage` przez `clearLocalSnapshot`, reload listy przez `render()`.
+- [x] **Step 4:** Testy jednostkowe (`local-snapshot.test.ts` 5 testów, `migration-banner.test.ts` 4 testy z fake fetch + ClipboardItem fallback).
 - [ ] **Step 5:** Commit: `feat(etap2): UI jednorazowej migracji z localStorage do chmury`.
 
 ### Task 8: Deployment Function App (nowy workflow GitHub Actions)
@@ -1608,20 +1608,21 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 - Create: `etap2/api/traffit-push/`, `etap2/api/lib/traffit-client.ts`
 - Modify: `etap2/src/ui/recruiter-preview-dialog.ts`
 
-Port klienta z `C:/GIT/traffit-scorer/src/push-notes.js`. Marker idempotencji `<!-- bakk-etap2:${id} -->` już wbudowany w `buildRecruiterSummary` z Fazy 3.
+Marker idempotencji `<!-- bakk-etap2:${id} -->` jest budowany inline w `traffit-push.ts` po stronie backendu (treść notatki to po prostu HTML z front przez `buildRecruiterSummary` — backend nie wstawia markera, tylko sprawdza obecność w istniejących notatkach Traffit).
 
-- [ ] **Step 1:** `lib/traffit-client.ts` z auth sesją (env `TRAFFIT_BASE_URL`/`TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD` w app settings **Function App `bakk-rekrutacja-api`**, NIE App Service), auto-relogin na 401/403, retry z backoff.
-- [ ] **Step 2:** `POST /api/v1/traffit/push` body `{ assessmentId }`:
-  - Pobierz Assessment z Cosmos (sprawdź że upn matchuje wykonującego).
-  - Wygeneruj HTML przez `buildRecruiterSummary` (port funkcji domain do `etap2/api/lib/`).
-  - Znajdź kandydata w Traffit przez `POST /api/employee/filter` po `candidate.nameOrId` + email z negocjacji.
-  - Jeśli marker `<!-- bakk-etap2:${id} -->` znaleziony w existing activities → `PUT /api/v2/employees/{id}/notes/{noteId}` (update).
+**Zmiana vs pierwotny plan:** Linux Consumption Function App nie wspiera Chromium → niemożliwy auto-login do Traffit jak w `traffit-scorer/src/push-notes.js`. Zamiast tego pre-shared session cookie z lokalnej przeglądarki user'a (renew raz na ~30 dni).
+
+- [x] **Step 1:** `lib/traffit-client.ts` z session-cookie-based auth (env `TRAFFIT_BASE_URL` + `TRAFFIT_SESSION_COOKIE` w app settings **Function App `bakk-rekrutacja-api`**, NIE App Service). Na 401/403 rzuca `TraffitSessionExpiredError` (502 do klienta), bez auto-relogin (brak Chromium).
+- [x] **Step 2:** `POST /api/v1/traffit/push` body `{ assessmentId, employeeId, html }`:
+  - Sprawdź że Assessment istnieje w partycji wykonującego (ownership) - Cosmos `assessmentsContainer.item(id, upn).read()`.
+  - `findExistingNoteId(employeeId, assessmentId)` listuje activities, filtruje notatki z markerem `<!-- bakk-etap2:${assessmentId} -->`.
+  - Jeśli znaleziona → `PUT /api/v2/employees/{id}/notes/{noteId}` (update).
   - Inaczej → `POST /api/v2/employees/{id}/notes` (create).
-  - Zwróć `{ trafficNoteId, action: 'created'|'updated' }`.
-- [ ] **Step 3:** Sekrety Traffit wpięte do app settings Function App (skrypt `etap2/scripts/set-traffit-secrets.ps1`: interactive read + `az functionapp config appsettings set -g rg-bakk-docs -n bakk-rekrutacja-api --settings TRAFFIT_BASE_URL=... TRAFFIT_EMAIL=... TRAFFIT_PASSWORD=...`).
-- [ ] **Step 4:** UI: przycisk „Dodaj do Traffit" w `recruiter-preview-dialog.ts` obok „Kopiuj jako tekst/HTML". Stan disabled w trakcie requestu, toast po sukcesie/błędzie. Jak kandydat nie znaleziony w Traffit → modal z pytaniem o ID Traffit ręcznie.
-- [ ] **Step 5:** Testy: jednostkowe na `traffit-client.ts` z mockiem fetch; E2E flow z mockiem API Traffit.
-- [ ] **Step 6:** Commit: `feat(etap2): auto-push notatki podsumowania do Traffit przez API proxy`.
+  - Zwróć `{ noteId, action: 'created'|'updated' }`. 501 gdy brak konfiguracji Traffit.
+- [x] **Step 3:** Sekrety Traffit wpięte do app settings Function App przez `etap2/scripts/set-traffit-secrets.ps1`: `az functionapp config appsettings set -g rg-bakk-docs -n bakk-rekrutacja-api --settings TRAFFIT_BASE_URL=... TRAFFIT_SESSION_COOKIE=...`. User wkleja Cookie z DevTools → Network → Request Headers → Cookie po zalogowaniu do Traffit.
+- [x] **Step 4:** UI: przycisk „Wyślij do Traffit" w `recruiter-preview-dialog.ts` (visible tylko gdy `repo instanceof AzureStore`). `window.prompt` o ID Traffit kandydata, stan disabled w trakcie, status pod akcjami.
+- [x] **Step 5:** Testy jednostkowe `api/tests/traffit-client.test.ts` (6 testów: marker detect, create vs update, 401 session expired, Cookie header).
+- [x] **Step 6:** Commit: `feat(etap2): auto-push notatki podsumowania do Traffit przez API proxy (Faza 5 Task 9)`.
 
 ### Task 10: Cleanup + dokumentacja
 

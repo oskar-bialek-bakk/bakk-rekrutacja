@@ -5,8 +5,7 @@ import type { Repository } from './persistence/repository';
 import { DEFAULT_SETTINGS, loadSettings } from './domain/settings';
 
 function createRepo(): Repository {
-  const persistence = (import.meta as unknown as { env?: { VITE_PERSISTENCE?: string } }).env?.VITE_PERSISTENCE;
-  if (persistence === 'azure') return new AzureStore();
+  if (import.meta.env.VITE_PERSISTENCE === 'azure') return new AzureStore();
   return new LocalStore();
 }
 

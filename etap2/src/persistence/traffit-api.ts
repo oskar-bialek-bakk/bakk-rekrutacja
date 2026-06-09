@@ -22,8 +22,7 @@ export async function pushToTraffit(input: {
   html: string;
   baseUrl?: string;
 }): Promise<TraffitPushResult> {
-  const envBase = (import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL;
-  const baseUrl = (input.baseUrl ?? envBase ?? DEFAULT_API_BASE).replace(/\/$/, '');
+  const baseUrl = (input.baseUrl ?? import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE).replace(/\/$/, '');
 
   async function once(retried: boolean): Promise<TraffitPushResult> {
     const token = await getAccessToken();

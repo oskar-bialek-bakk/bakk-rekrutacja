@@ -2,6 +2,21 @@ import { AzureStore } from '../persistence/azure-store';
 import type { Repository } from '../persistence/repository';
 import { clearLocalSnapshot, readLocalSnapshot } from '../persistence/local-snapshot';
 
+// Polska odmiana liczebnikow: 1 = mianownik, 2-4 (oprocz 12-14) = liczba mnoga,
+// reszta = dopelniacz mnogi.
+function pluralPl(n: number, one: string, few: string, many: string): string {
+  const abs = Math.abs(n);
+  if (abs === 1) return one;
+  const lastTwo = abs % 100;
+  const lastOne = abs % 10;
+  if (lastTwo >= 12 && lastTwo <= 14) return many;
+  if (lastOne >= 2 && lastOne <= 4) return few;
+  return many;
+}
+
+const pluralRozmowa = (n: number): string => pluralPl(n, 'rozmowa', 'rozmowy', 'rozmów');
+const pluralPrzypisanie = (n: number): string => pluralPl(n, 'przypisanie', 'przypisania', 'przypisań');
+
 export interface MigrationDeps {
   repo: Repository;
   reload: () => void | Promise<void>;
@@ -26,7 +41,7 @@ export function renderMigrationBanner(host: HTMLElement, deps: MigrationDeps): b
     <div class="migration-banner" role="status">
       <div class="migration-banner__text">
         <strong>Wykryliśmy dane z tego urządzenia.</strong>
-        <span>${counts.assessments} ${counts.assessments === 1 ? 'rozmowa' : 'rozmów'}, ${counts.variantUsage} przypisań wariantów${counts.settings ? ', ustawienia' : ''}.</span>
+        <span>${counts.assessments} ${pluralRozmowa(counts.assessments)}, ${counts.variantUsage} ${pluralPrzypisanie(counts.variantUsage)} wariantów${counts.settings ? ', ustawienia' : ''}.</span>
       </div>
       <button type="button" class="btn primary" id="btn-migrate">Zaimportuj do chmury</button>
       <span class="migration-banner__status" id="migration-status" aria-live="polite"></span>
@@ -45,7 +60,7 @@ export function renderMigrationBanner(host: HTMLElement, deps: MigrationDeps): b
         settings: snapshot.settings,
         variantUsage: snapshot.variantUsage,
       });
-      statusEl.textContent = `Zaimportowano ${result.assessments} rozmów i ${result.variantUsageIncrements} przypisań.`;
+      statusEl.textContent = `Zaimportowano ${result.assessments} ${pluralRozmowa(result.assessments)} i ${result.variantUsageIncrements} ${pluralPrzypisanie(result.variantUsageIncrements)}.`;
 
       if (confirmFn('Dane przeniesione. Usunąć kopię z tego urządzenia (zalecane)?')) {
         clearLocalSnapshot(deps.storage);
