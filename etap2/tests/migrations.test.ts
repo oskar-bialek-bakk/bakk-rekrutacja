@@ -42,4 +42,21 @@ describe('migrateAssessment v1 → v2', () => {
     expect(out.blockTimes.C?.spentSec).toBe(0);
     expect(out.blockTimes.D?.spentSec).toBe(30);
   });
+
+  it('ensureCandidate zachowuje pola Traffit gdy są', () => {
+    const a = migrateAssessment({ id: 'x', candidate: {
+      nameOrId: 'A', date: '', stage1Result: '', stage1Note: '',
+      traffitId: 7, recruitmentId: 63, recruitmentName: 'R',
+    }});
+    expect(a.candidate.traffitId).toBe(7);
+    expect(a.candidate.recruitmentId).toBe(63);
+    expect(a.candidate.recruitmentName).toBe('R');
+  });
+
+  it('ensureCandidate zostawia pola Traffit undefined gdy brak', () => {
+    const a = migrateAssessment({ id: 'x', candidate: { nameOrId: 'A', date: '', stage1Result: '', stage1Note: '' }});
+    expect(a.candidate.traffitId).toBeUndefined();
+    expect(a.candidate.recruitmentId).toBeUndefined();
+    expect(a.candidate.recruitmentName).toBeUndefined();
+  });
 });

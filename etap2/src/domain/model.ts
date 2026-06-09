@@ -9,6 +9,9 @@ export interface Candidate {
   date: string;
   stage1Result: string;
   stage1Note: string;
+  traffitId?: number;        // employeeId w Traffit
+  recruitmentId?: number;    // job.id w Traffit
+  recruitmentName?: string;  // etykieta + naglowek notatki
 }
 
 export interface Negotiation {

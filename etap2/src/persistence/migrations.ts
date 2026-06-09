@@ -17,12 +17,16 @@ function ensureBlockTimes(b: unknown): BlockTimes {
 
 function ensureCandidate(c: unknown): Candidate {
   const obj = (c ?? {}) as Partial<Candidate>;
-  return {
+  const out: Candidate = {
     nameOrId: obj.nameOrId ?? '',
     date: obj.date ?? '',
     stage1Result: obj.stage1Result ?? '',
     stage1Note: obj.stage1Note ?? '',
   };
+  if (typeof obj.traffitId === 'number') out.traffitId = obj.traffitId;
+  if (typeof obj.recruitmentId === 'number') out.recruitmentId = obj.recruitmentId;
+  if (typeof obj.recruitmentName === 'string') out.recruitmentName = obj.recruitmentName;
+  return out;
 }
 
 function ensureNegotiation(n: unknown): Negotiation {
