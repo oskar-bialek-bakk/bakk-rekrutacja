@@ -63,20 +63,18 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          # UAMI ma rolę 'Website Contributor' tylko na Function App, NIE Reader na całą subskrypcję,
-          # więc `az account list` przy login pada "No subscriptions found". Pozwalamy login bez sub
-          # listing; sub kontekst ustawiamy jawnie w deploy step.
+          # UAMI ma rolę 'Website Contributor' TYLKO na konkretny Function App, BRAK roli sub-level.
+          # Z subscription-id login pada "subscription doesn't exist in cloud" - UAMI nie widzi sub.
+          # Pomijamy subscription-id, używamy allow-no-subscriptions; deploy adresuje resource po --ids.
           allow-no-subscriptions: true
 
-      - name: Deploy zip via az CLI
+      - name: Deploy zip via az CLI (using full --ids resource path, bypasses subscription context)
         env:
           SUB_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
-          az account set --subscription "$SUB_ID"
+          RESOURCE_ID="/subscriptions/$SUB_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Web/sites/${{ env.FUNCTION_APP_NAME }}"
           az functionapp deployment source config-zip \
-            -g "${{ env.RESOURCE_GROUP }}" \
-            -n "${{ env.FUNCTION_APP_NAME }}" \
+            --ids "$RESOURCE_ID" \
             --src etap2/api-deploy.zip \
             --build-remote false \
             --timeout 300
