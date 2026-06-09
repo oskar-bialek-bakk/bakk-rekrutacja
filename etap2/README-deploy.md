@@ -55,7 +55,8 @@ Skrypty provisioningowe:
 - `etap2/scripts/configure-function-app-auth.ps1` — redirect URI w BAKK
   Int Apps, dedykowany secret, `authsettingsV2`, CORS
 - `etap2/scripts/set-traffit-secrets.ps1` — TRAFFIT_BASE_URL +
-  TRAFFIT_SESSION_COOKIE w app settings Function App
+  TRAFFIT_USERNAME + TRAFFIT_PASSWORD (konto techniczne) w app settings
+  Function App
 
 ### Basic publishing credentials (Function App)
 
@@ -81,25 +82,40 @@ az webapp deployment list-publishing-profiles -g rg-bakk-docs `
     --repo oskar-bialek-bakk/bakk-rekrutacja
 ```
 
-### Auto-push do Traffit
+### Auto-push do Traffit (konto techniczne)
 
 Backend ma endpoint `POST /api/v1/traffit/push` który forwarduje notatkę
-podsumowania do Traffit jako notatka na profilu kandydata.
+podsumowania do Traffit jako notatka na profilu kandydata, **logując się
+kontem technicznym BAKK Intrum** w Traffit.
 
-**Ograniczenie:** Linux Consumption Function App nie wspiera bibliotek
-binarnych typu Chromium, więc nie ma auto-login do Traffit (jak w lokalnym
-`traffit-scorer/src/push-notes.js`). Zamiast tego użytkownik wkleja aktywne
-cookie sesji Traffit do app settings raz na ~30 dni:
+**Auth flow** (HTTP form login, bez Chromium):
+1. GET `<TRAFFIT_BASE_URL>/login` → backend parsuje CSRF token z HTML formu
+2. POST `<TRAFFIT_BASE_URL>/login_check` z `_username` + `_password` +
+   `_csrf_token` (Symfony Security format)
+3. 302 + `Set-Cookie` → cookie cache w pamięci modułu z TTL 7h
+4. Każdy push notatki dokleja cookie, na 401/403 automatyczny relogin
 
-1. Zaloguj się do Traffit w przeglądarce
-2. DevTools → Network → dowolny request do `/api/v2/*` → Headers → `Cookie`
-3. Skopiuj pełną wartość headera
-4. `./etap2/scripts/set-traffit-secrets.ps1 -BaseUrl 'https://intrum.traffit.com' -Cookie '<wklejone>'`
+**Konfiguracja (jednorazowo, bez renewu co miesiąc):**
+
+```powershell
+./etap2/scripts/set-traffit-secrets.ps1 `
+  -BaseUrl  'https://intrum.traffit.com' `
+  -Username 'bakk-bot@bakk.com' `
+  -Password '<haslo konta technicznego>'
+```
+
+Wszystkie notatki idą na koncie technicznym. Rekruter (zalogowany do SPA
+przez Entra) klika „Wyślij do Traffit", backend wpisuje notatkę pod swoim
+kontem technicznym do profilu kandydata wskazanego przez ID.
 
 UI: w „Podgląd dla rekrutera" → przycisk „Wyślij do Traffit" pyta o ID
 kandydata (z URL profilu), wywołuje backend. Marker idempotencji
 `<!-- bakk-etap2:{assessmentId} -->` w treści notatki pozwala detekcję
 istniejącej notatki dla tej rozmowy → wtedy update zamiast create.
+
+Jeśli Traffit ma niestandardowe ścieżki form login (np. `/auth/login`
+zamiast `/login_check`), nadpisz przez opcjonalne app settings
+`TRAFFIT_LOGIN_PATH` + `TRAFFIT_LOGIN_CHECK_PATH`.
 
 ### Monitoring
 
@@ -125,8 +141,10 @@ konta rekrutera można wyczyścić całą partycję `userPrincipalName`.
 - **`COSMOS_KEY`** — `az cosmosdb keys regenerate --key-kind primary`
   rotuje, potem `az cosmosdb keys list` + `az functionapp config
   appsettings set COSMOS_KEY=...`.
-- **`TRAFFIT_SESSION_COOKIE`** — ~co miesiąc, ze skryptem
-  `set-traffit-secrets.ps1`.
+- **`TRAFFIT_PASSWORD`** — gdy hasło konta technicznego zostanie zmienione
+  w Traffit, ponownie odpal `set-traffit-secrets.ps1` z nowymi danymi.
+  Sesja w pamięci modułu odświeży się przy następnym 401 (TTL 7h, więc
+  zmiana hasła propaguje się w max 7h od restartu Function App).
 
 ## Stan setupu (2026-06-08)
 

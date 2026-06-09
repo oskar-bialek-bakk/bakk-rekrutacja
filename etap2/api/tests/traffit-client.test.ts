@@ -1,11 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Mock traffit-login zeby uniknac realnego GET/POST do Traffit i zwracac stale cookie.
+vi.mock('../src/lib/traffit-login.js', () => ({
+  getSessionCookie: vi.fn(async () => 'PHPSESSID=abc'),
+  invalidateSession: vi.fn(),
+  readLoginConfig: vi.fn(() => null),
+  TraffitLoginError: class extends Error {},
+  _resetCache: vi.fn(),
+}));
+
 import { TraffitSessionExpiredError, createTraffitClient } from '../src/lib/traffit-client.js';
+import { getSessionCookie, invalidateSession } from '../src/lib/traffit-login.js';
 
 const fetchMock = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockReset();
+  vi.mocked(getSessionCookie).mockResolvedValue('PHPSESSID=abc');
+  vi.mocked(invalidateSession).mockClear();
 });
 
 afterEach(() => {
@@ -13,7 +26,6 @@ afterEach(() => {
 });
 
 function resp(status: number, body: unknown, contentType = 'application/json'): Response {
-  // Response constructor disallows body for 204/205/304 - use null body for those.
   const noBody = status === 204 || status === 205 || status === 304;
   return new Response(noBody ? null : (typeof body === 'string' ? body : JSON.stringify(body)), {
     status,
@@ -21,7 +33,7 @@ function resp(status: number, body: unknown, contentType = 'application/json'): 
   });
 }
 
-const config = { baseUrl: 'https://traffit.test', sessionCookie: 'PHPSESSID=abc' };
+const config = { baseUrl: 'https://traffit.test', username: 'bot', password: 'pwd' };
 
 describe('TraffitClient', () => {
   it('findExistingNoteId zwraca null gdy brak markeru', async () => {
@@ -77,5 +89,16 @@ describe('TraffitClient', () => {
     await c.findExistingNoteId(42, 'a1');
     const [, init] = fetchMock.mock.calls[0];
     expect(init.headers.Cookie).toBe('PHPSESSID=abc');
+  });
+
+  it('401 wywoluje invalidateSession + retry raz; sukces gdy drugi raz OK', async () => {
+    fetchMock
+      .mockImplementationOnce(async () => resp(401, {}))
+      .mockImplementationOnce(async () => resp(200, []));
+    const c = createTraffitClient(config);
+    const r = await c.findExistingNoteId(42, 'a1');
+    expect(r).toBeNull();
+    expect(invalidateSession).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

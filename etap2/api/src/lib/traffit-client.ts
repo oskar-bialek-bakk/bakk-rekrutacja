@@ -1,23 +1,26 @@
 /**
- * Minimal Traffit REST client over native fetch + pre-shared session cookie.
+ * Traffit REST client z auto-loginem konta technicznego.
  *
- * NIE robi auto-login (wymagaloby Chromium - poza zakresem Linux Consumption).
- * User wstrzykuje aktualne cookie sesji z lokalnej sesji przegladarki Traffit do
- * app settings `TRAFFIT_SESSION_COOKIE`. Cookie expires po ~30 dniach -> raz na
- * miesiac trzeba odnowic. Konfigurowane przez `etap2/scripts/set-traffit-secrets.ps1`.
+ * Login: HTTP form POST (Symfony Security) - omija potrzebe Chromium na Linux
+ * Consumption. Konfiguracja: TRAFFIT_BASE_URL + TRAFFIT_USERNAME + TRAFFIT_PASSWORD
+ * w app settings Function App. Session cookie cache'owany w pamieci modulu z
+ * TTL ~7h, auto-relogin na 401/403.
  *
- * Endpointy uzywane:
+ * Endpointy:
  *   GET    /api/v2/employees/{id}/activities       - list activities (notes)
  *   POST   /api/v2/employees/{id}/notes            - 201 {id}
  *   PUT    /api/v2/employees/{id}/notes/{noteId}   - 204
  */
 
-const MARKER_PREFIX = '<!-- bakk-etap2:';
+import {
+  TraffitLoginConfig,
+  TraffitLoginError,
+  getSessionCookie,
+  invalidateSession,
+  readLoginConfig,
+} from './traffit-login.js';
 
-export interface TraffitConfig {
-  baseUrl: string;
-  sessionCookie: string;
-}
+const MARKER_PREFIX = '<!-- bakk-etap2:';
 
 export interface TraffitActivity {
   id?: number;
@@ -29,24 +32,22 @@ export interface TraffitActivity {
 
 export class TraffitNotConfiguredError extends Error {
   constructor() {
-    super('Traffit credentials not configured (TRAFFIT_BASE_URL / TRAFFIT_SESSION_COOKIE missing)');
+    super('Traffit auto-login not configured (TRAFFIT_BASE_URL / TRAFFIT_USERNAME / TRAFFIT_PASSWORD missing)');
     this.name = 'TraffitNotConfiguredError';
   }
 }
 
 export class TraffitSessionExpiredError extends Error {
+  readonly status: number;
   constructor(status: number) {
-    super(`Traffit session expired (HTTP ${status}). Update TRAFFIT_SESSION_COOKIE in app settings.`);
+    super(`Traffit zwrocil HTTP ${status} mimo waznej sesji (re-login takze sie nie powiodl).`);
     this.name = 'TraffitSessionExpiredError';
+    this.status = status;
   }
 }
 
-export function readConfig(): TraffitConfig | null {
-  const baseUrl = process.env.TRAFFIT_BASE_URL;
-  const sessionCookie = process.env.TRAFFIT_SESSION_COOKIE;
-  if (!baseUrl || !sessionCookie) return null;
-  return { baseUrl: baseUrl.replace(/\/$/, ''), sessionCookie };
-}
+export { TraffitLoginError };
+export { readLoginConfig as readConfig };
 
 function buildMarker(assessmentId: string): string {
   return `${MARKER_PREFIX}${assessmentId} -->`;
@@ -54,10 +55,6 @@ function buildMarker(assessmentId: string): string {
 
 function extractInnerContent(rawContent: TraffitActivity['content']): string {
   if (rawContent == null) return '';
-  // Traffit zwraca `content` jako:
-  //  - string HTML
-  //  - string JSON `{"content": "..."}`
-  //  - obiekt `{content: "..."}` (niektore wersje API)
   if (typeof rawContent === 'object') {
     const obj = rawContent as { content?: unknown };
     if (typeof obj.content === 'string') return obj.content;
@@ -83,17 +80,24 @@ export interface TraffitClient {
   pushAssessmentNote(input: { employeeId: number; assessmentId: string; html: string }): Promise<{ noteId: number; action: 'created' | 'updated' }>;
 }
 
-export function createTraffitClient(config: TraffitConfig): TraffitClient {
-  async function req(method: string, path: string, body?: unknown): Promise<Response> {
-    const res = await fetch(`${config.baseUrl}${path}`, {
+export function createTraffitClient(config: TraffitLoginConfig): TraffitClient {
+  const baseUrl = config.baseUrl.replace(/\/$/, '');
+
+  async function req(method: string, path: string, body?: unknown, retried = false): Promise<Response> {
+    const cookie = await getSessionCookie(config);
+    const res = await fetch(`${baseUrl}${path}`, {
       method,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json, text/plain, */*',
-        'Cookie': config.sessionCookie,
+        'Cookie': cookie,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
+    if ((res.status === 401 || res.status === 403) && !retried) {
+      invalidateSession();
+      return req(method, path, body, true);
+    }
     if (res.status === 401 || res.status === 403) {
       throw new TraffitSessionExpiredError(res.status);
     }
