@@ -679,3 +679,6 @@
     background:rgba(190,90,80,.08);border:1px solid rgba(190,90,80,.3);
     color:var(--red);font-size:14px;
   }
+
+.manual-link { margin-left: .5rem; font-size: .85em; }
+#traffit-pick-status.hint { font-size: .85em; opacity: .75; margin-top: .25rem; }
