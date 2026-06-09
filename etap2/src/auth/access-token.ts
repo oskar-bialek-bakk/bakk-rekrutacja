@@ -42,13 +42,18 @@ async function fetchToken(): Promise<string> {
   }
   const data = (await res.json()) as AuthMeEntry[] | { clientPrincipal?: unknown };
   const entries = Array.isArray(data) ? data : [];
-  const accessToken = entries.find((e) => typeof e.access_token === 'string' && e.access_token.length > 0);
-  if (!accessToken?.access_token) {
-    throw new Error('Brak access_token w /.auth/me. Easy Auth nie wystawia tokenu dla audience aplikacji.');
+  // Preferujemy id_token bo gwarantowana audience = clientId BAKK Int Apps (5d588d76-...).
+  // access_token bez explicit `loginParameters` w Easy Auth idzie domyślnie z audience = Graph,
+  // którego Function App nie akceptuje (allowedAudiences = [5d588d76-..., api://5d588d76-...]).
+  const entry = entries.find((e) => typeof e.id_token === 'string' && e.id_token.length > 0)
+              ?? entries.find((e) => typeof e.access_token === 'string' && e.access_token.length > 0);
+  const token = entry?.id_token ?? entry?.access_token;
+  if (!token) {
+    throw new Error('Brak id_token/access_token w /.auth/me. Sprawdz Easy Auth na App Service.');
   }
-  const expiresAt = parseExpiry(accessToken.expires_on);
-  cache = { token: accessToken.access_token, expiresAt };
-  return accessToken.access_token;
+  const expiresAt = parseExpiry(entry?.expires_on);
+  cache = { token, expiresAt };
+  return token;
 }
 
 export async function getAccessToken(): Promise<string> {
