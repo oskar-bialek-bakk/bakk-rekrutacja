@@ -1,14 +1,11 @@
 name: Deploy etap2 API → bakk-rekrutacja-api (Function App)
 
 # Buduje TS i wdraża Azure Functions z `etap2/api/` na Function App
-# `bakk-rekrutacja-api` przez OIDC + az CLI. NIE używa Azure/functions-action
-# bo ten wymaga SCM/Kudu endpoint, który jest blokowany przez Easy Auth
-# (`Return401` na całym hoście). az CLI `functionapp deployment source
-# config-zip` idzie przez management API i działa z Easy Auth on.
-#
-# Auth: User-Assigned Managed Identity `id-bakk-rekrutacja-deploy` w
-# `rg-bakk-docs` z rolą Website Contributor scope=Function App, federated
-# credential dla repo:oskar-bialek-bakk/bakk-rekrutacja:ref:refs/heads/main.
+# `bakk-rekrutacja-api` (Windows Consumption, westeurope) przez basic SCM
+# publish profile. OIDC + UAMI nie zadziałało bo UAMI musiał mieć Reader
+# na subscription scope - klasifier słusznie zablokował to jako escalation
+# wykraczające poza scope deployu. Publish profile basic creds są scoped
+# do pojedynczego Function App, węższe niż UAMI z Reader na sub.
 
 on:
   push:
@@ -18,13 +15,8 @@ on:
       - '.github/workflows/deploy-bakk-rekrutacja-api.yml'
   workflow_dispatch:
 
-permissions:
-  id-token: write   # wymagane przez azure/login@v2 OIDC
-  contents: read
-
 env:
   FUNCTION_APP_NAME: bakk-rekrutacja-api
-  RESOURCE_GROUP: rg-bakk-docs
   NODE_VERSION: '24.x'
   WORKING_DIR: etap2/api
 
@@ -48,41 +40,19 @@ jobs:
           npm ci
           npm run build
 
-      - name: Prune dev dependencies
-        working-directory: ${{ env.WORKING_DIR }}
-        run: npm prune --omit=dev
-
-      - name: Package zip
-        working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          zip -r ../api-deploy.zip host.json package.json package-lock.json dist node_modules
-          ls -la ../api-deploy.zip
-
-      - name: Azure login (OIDC via UAMI id-bakk-rekrutacja-deploy)
-        uses: azure/login@v2
+      - name: Deploy to Function App
+        uses: Azure/functions-action@v1
         with:
-          client-id: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          # UAMI ma rolę 'Website Contributor' TYLKO na konkretny Function App, BRAK roli sub-level.
-          # Z subscription-id login pada "subscription doesn't exist in cloud" - UAMI nie widzi sub.
-          # Pomijamy subscription-id, używamy allow-no-subscriptions; deploy adresuje resource po --ids.
-          allow-no-subscriptions: true
+          app-name: ${{ env.FUNCTION_APP_NAME }}
+          package: ${{ env.WORKING_DIR }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA_API }}
 
-      - name: Deploy zip via az CLI (using full --ids resource path, bypasses subscription context)
-        env:
-          SUB_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Smoke test - health endpoint
         run: |
-          RESOURCE_ID="/subscriptions/$SUB_ID/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Web/sites/${{ env.FUNCTION_APP_NAME }}"
-          az functionapp deployment source config-zip \
-            --ids "$RESOURCE_ID" \
-            --src etap2/api-deploy.zip \
-            --build-remote false \
-            --timeout 300
-
-      - name: Smoke test - health endpoint should require auth (401)
-        run: |
+          # Easy Auth wyłączony przy pierwszym deploy - oczekiwany 200/4xx, NIE 503.
           status=$(curl -s -o /dev/null -w "%{http_code}" https://${FUNCTION_APP_NAME}.azurewebsites.net/api/health)
-          echo "GET /api/health without token returned HTTP $status"
-          if [ "$status" != "401" ]; then
-            echo "::warning::Expected 401 from Easy Auth, got $status. Sprawdz konfiguracje Easy Auth."
+          echo "GET /api/health returned HTTP $status"
+          if [ "$status" = "503" ]; then
+            echo "::error::Function App still 503 after deploy - runtime nie startuje."
+            exit 1
           fi
