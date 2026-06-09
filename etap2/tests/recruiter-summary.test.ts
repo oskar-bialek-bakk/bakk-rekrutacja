@@ -147,3 +147,20 @@ describe('buildRecruiterSummary - marker idempotencji', () => {
     expect(r.html.trim().endsWith(`<!-- bakk-etap2:${a.id} -->`)).toBe(true);
   });
 });
+
+describe('buildRecruiterSummary - nazwa rekrutacji', () => {
+  it('nagłówek zawiera nazwę rekrutacji gdy ustawiona', () => {
+    const a = createEmptyAssessment('id-r', {
+      nameOrId: 'Nowak Anna', date: '2026-06-09', stage1Result: '', stage1Note: '',
+      traffitId: 30, recruitmentId: 63, recruitmentName: 'C# SQL 05-2026',
+    });
+    const { text } = buildRecruiterSummary(a, settings());
+    expect(text).toContain('Rekrutacja: C# SQL 05-2026');
+  });
+
+  it('nie dodaje wiersza rekrutacji gdy brak nazwy', () => {
+    const a = baseAssessment();
+    const { text } = buildRecruiterSummary(a, settings());
+    expect(text).not.toContain('Rekrutacja:');
+  });
+});

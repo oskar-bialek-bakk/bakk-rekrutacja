@@ -74,6 +74,8 @@ function buildSections(a: Assessment, settings: Settings): Section[] {
   const headerLines: string[] = [];
   const name = a.candidate.nameOrId.trim() || a.id;
   headerLines.push(`Kandydat: ${name}`);
+  const recName = a.candidate.recruitmentName?.trim();
+  if (recName) headerLines.push(`Rekrutacja: ${recName}`);
   if (a.candidate.date.trim()) headerLines.push(`Data rozmowy: ${a.candidate.date}`);
   headerLines.push(`Czas trwania: ${formatElapsed(a.timer.elapsedSec)}`);
   sections.push({ heading: 'Podsumowanie rekrutera', paragraphs: headerLines });

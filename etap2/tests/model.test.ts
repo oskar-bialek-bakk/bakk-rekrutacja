@@ -18,4 +18,14 @@ describe('createEmptyAssessment', () => {
     expect(SCHEMA_VERSION).toBe(2);
     expect(typeof a.createdAt).toBe('string');
   });
+
+  it('createEmptyAssessment zachowuje opcjonalne pola Traffit', () => {
+    const a = createEmptyAssessment('id-1', {
+      nameOrId: 'Kowalski Jan', date: '2026-06-09', stage1Result: '', stage1Note: '',
+      traffitId: 4242, recruitmentId: 63, recruitmentName: 'C# SQL 05-2026',
+    });
+    expect(a.candidate.traffitId).toBe(4242);
+    expect(a.candidate.recruitmentId).toBe(63);
+    expect(a.candidate.recruitmentName).toBe('C# SQL 05-2026');
+  });
 });

@@ -1,7 +1,9 @@
 import { BLOCKS } from '../content/blocks';
 import { createEmptyAssessment } from '../domain/model';
 import { pickLeastUsed } from '../domain/variants';
-import { repo, session } from '../state';
+import { isOnline, repo, session } from '../state';
+import { selectableCandidates, type TraffitCandidate } from '../domain/traffit-roster';
+import { fetchTraffitCandidates } from '../persistence/traffit-candidates';
 import { navigate, render } from '../app';
 import { startTimer } from './timer-ui';
 import { renderMigrationBanner } from './migration-banner';
@@ -18,7 +20,13 @@ export async function renderStart(host: HTMLElement): Promise<void> {
       <h1>Ustrukturyzowana rozmowa finałowa</h1>
     </section>
     <div class="form">
-      <div class="field"><label for="in-name">Kandydat — imię i nazwisko / ID</label><input id="in-name"></div>
+      <div class="field" id="traffit-pick-field" hidden>
+        <label for="traffit-pick">Kandydat z Traffit (etap Spotkanie BK)</label>
+        <select id="traffit-pick"><option value="">— wybierz kandydata —</option></select>
+        <button type="button" class="btn ghost manual-link" id="manual-toggle" title="Wprowadź dane ręcznie">✎ wprowadź ręcznie</button>
+      </div>
+      <div id="traffit-pick-status" class="hint" hidden></div>
+      <div class="field" id="manual-name-field"><label for="in-name">Kandydat — imię i nazwisko / ID</label><input id="in-name"></div>
       <div class="field two">
         <div><label for="in-date">Data rozmowy</label><input id="in-date" type="date"></div>
         <div><label for="in-stage1">Wynik etapu I</label><input id="in-stage1"></div>
@@ -75,12 +83,78 @@ export async function renderStart(host: HTMLElement): Promise<void> {
     });
   }
 
+  // Wybrany kandydat z Traffit (null = tryb ręczny / brak wyboru).
+  let picked: TraffitCandidate | null = null;
+
+  const traffitField = host.querySelector('#traffit-pick-field') as HTMLElement;
+  const manualField = host.querySelector('#manual-name-field') as HTMLElement;
+  const pickSelect = host.querySelector('#traffit-pick') as HTMLSelectElement;
+  const pickStatus = host.querySelector('#traffit-pick-status') as HTMLElement;
+  const nameInput = host.querySelector('#in-name') as HTMLInputElement;
+
+  // Status listy jest poza polem Traffit, więc pozostaje widoczny także po
+  // przełączeniu na tryb ręczny (komunikat „brak / błąd" nie znika).
+  const setStatus = (msg: string): void => {
+    pickStatus.textContent = msg;
+    pickStatus.hidden = msg === '';
+  };
+
+  const showManual = (): void => {
+    picked = null;
+    traffitField.hidden = true;
+    manualField.hidden = false;
+    nameInput.focus();
+  };
+
+  (host.querySelector('#manual-toggle') as HTMLButtonElement).onclick = () => {
+    setStatus('');
+    showManual();
+  };
+
+  if (isOnline) {
+    // Domyślnie ukryj pole ręczne; pokaż dropdown po załadowaniu listy.
+    manualField.hidden = true;
+    traffitField.hidden = false;
+    setStatus('Ładuję kandydatów z Traffit…');
+    void (async () => {
+      try {
+        const [all, assessments] = await Promise.all([fetchTraffitCandidates(), repo.findAll()]);
+        const list = selectableCandidates(all, assessments);
+        if (list.length === 0) {
+          setStatus('Brak kandydatów na etapie „Spotkanie BK". Wprowadź dane ręcznie.');
+          showManual();
+          return;
+        }
+        const byKey = new Map<string, TraffitCandidate>();
+        for (const c of list) {
+          const key = `${c.employeeId}::${c.recruitmentId}`;
+          byKey.set(key, c);
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = `${c.fullName} — ${c.recruitmentName}`;
+          pickSelect.appendChild(opt);
+        }
+        setStatus('');
+        pickSelect.onchange = () => {
+          picked = byKey.get(pickSelect.value) ?? null;
+          if (picked) nameInput.value = picked.fullName;
+        };
+      } catch {
+        setStatus('Nie udało się pobrać listy z Traffit. Wprowadź dane ręcznie.');
+        showManual();
+      }
+    })();
+  }
+
   (host.querySelector('#btn-start') as HTMLButtonElement).onclick = () => {
     const a = createEmptyAssessment(crypto.randomUUID(), {
-      nameOrId: (host.querySelector('#in-name') as HTMLInputElement).value || '(bez nazwy)',
+      nameOrId: (host.querySelector('#in-name') as HTMLInputElement).value || picked?.fullName || '(bez nazwy)',
       date: (host.querySelector('#in-date') as HTMLInputElement).value,
       stage1Result: (host.querySelector('#in-stage1') as HTMLInputElement).value,
       stage1Note: (host.querySelector('#in-stage1-note') as HTMLTextAreaElement).value,
+      ...(picked
+        ? { traffitId: picked.employeeId, recruitmentId: picked.recruitmentId, recruitmentName: picked.recruitmentName }
+        : {}),
     });
     a.useE = (host.querySelector('#chk-e') as HTMLInputElement).checked;
     a.useAChart = chkChart.checked;

@@ -110,14 +110,29 @@ Wszystkie notatki idą na koncie technicznym. Rekruter (zalogowany do SPA
 przez Entra) klika „Wyślij do Traffit", backend wpisuje notatkę pod swoim
 kontem technicznym do profilu kandydata wskazanego przez ID.
 
-UI: w „Podgląd dla rekrutera" → przycisk „Wyślij do Traffit" pyta o ID
-kandydata (z URL profilu), wywołuje backend. Marker idempotencji
+UI: w „Podgląd dla rekrutera" → przycisk „Wyślij do Traffit". Gdy rozmowa ma
+już powiązane ID kandydata (wybrane z listy w „Nowej rozmowie"), wysyłka idzie
+bez pytania. Gdy nie (stary wpis / dane wprowadzone ręcznie), pojawia się picker
+z auto-dopasowaniem po nazwisku i furtką ręcznego ID. Marker idempotencji
 `<!-- bakk-etap2:{assessmentId} -->` w treści notatki pozwala detekcję
 istniejącej notatki dla tej rozmowy → wtedy update zamiast create.
 
 Jeśli Traffit ma niestandardowe ścieżki form login (np. `/auth/login`
 zamiast `/login_check`), nadpisz przez opcjonalne app settings
 `TRAFFIT_LOGIN_PATH` + `TRAFFIT_LOGIN_CHECK_PATH`.
+
+### Lista kandydatów z etapu „Spotkanie BK"
+
+Endpoint `GET /api/v1/traffit/candidates` zwraca kandydatów z etapu
+`stage.id = 15` („Spotkanie BK") ze wszystkich otwartych rekrutacji poza
+`EXCLUDED_RECRUITMENT_IDS = [65]` (Inside Sales). Zasila dropdown w „Nowej
+rozmowie" oraz picker przy „Wyślij do Traffit", dzięki czemu notatka idzie bez
+ręcznego wpisywania ID. ID etapu jest zaszyte w `api/src/lib/traffit-client.ts`
+(`BK_STAGE_ID`), bo otwarte rekrutacje deweloperskie współdzielą `workflow.id = 1`.
+
+Gdyby Traffit zmienił workflow/numerację etapów, ponów discovery: zapytaj
+`GET /api/v2/recruitments/{id}` o `workflow.id`, potem `GET /api/v2/workflows/{id}`
+i odczytaj `states[]` (szukaj `name = "Spotkanie BK"`), zaktualizuj `BK_STAGE_ID`.
 
 ### Monitoring
 
