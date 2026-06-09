@@ -52,7 +52,7 @@ export const AssessmentSchema = z.object({
     oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '',
   }),
   timer: TimerState.optional().default({ elapsedSec: 0, paused: false, offsetSec: 0 }),
-  blockTimes: z.record(BlockId, z.number()).optional().default({}),
+  blockTimes: z.record(BlockId, z.object({ spentSec: z.number() }).passthrough()).optional().default({}),
   useE: z.boolean().optional().default(false),
   useAChart: z.boolean().optional().default(false),
   createdAt: z.string().optional().default(() => new Date().toISOString()),
