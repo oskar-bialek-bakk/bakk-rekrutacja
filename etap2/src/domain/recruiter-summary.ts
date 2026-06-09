@@ -174,6 +174,7 @@ function renderText(sections: Section[]): string {
 
 function renderHtml(sections: Section[], id: string): string {
   const parts: string[] = [];
+  parts.push('<h2>🤖 BAKK Etap II rekrutacji</h2>');
   for (const s of sections) {
     parts.push(`<h3>${escapeHtml(s.heading)}</h3>`);
     if (s.paragraphs) {

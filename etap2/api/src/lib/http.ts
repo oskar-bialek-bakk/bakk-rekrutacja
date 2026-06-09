@@ -51,11 +51,15 @@ export async function parseJsonBody<T extends z.ZodTypeAny>(
 
 /** Maps Cosmos SDK error codes to HTTP status. */
 export function cosmosErrorToApi(err: unknown): ApiError {
-  if (err && typeof err === 'object' && 'code' in err) {
-    const code = (err as { code?: number }).code;
-    if (code === 404) return apiError(404, 'Not found');
-    if (code === 409) return apiError(409, 'Conflict');
-    if (code === 412) return apiError(412, 'Precondition failed');
+  if (err && typeof err === 'object') {
+    const e = err as { code?: number | string; statusCode?: number };
+    // @azure/cosmos rzuca bledy z `code` (number lub string typu 'NotFound')
+    // oraz/lub `statusCode` (number). Sprawdzamy oba.
+    const matches = (target: number, name: string): boolean =>
+      e.code === target || e.code === name || e.statusCode === target;
+    if (matches(404, 'NotFound')) return apiError(404, 'Not found');
+    if (matches(409, 'Conflict')) return apiError(409, 'Conflict');
+    if (matches(412, 'PreconditionFailed')) return apiError(412, 'Precondition failed');
   }
   const msg = err instanceof Error ? err.message : 'Cosmos error';
   return apiError(500, msg);
