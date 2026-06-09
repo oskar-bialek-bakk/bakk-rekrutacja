@@ -664,3 +664,18 @@
     font-size:13px;color:var(--ink);
   }
   .traffit-status[hidden]{display:none}
+  .app-loader{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:50vh;gap:16px;color:var(--muted);font-size:14px;
+  }
+  .app-loader__spinner{
+    width:36px;height:36px;border-radius:50%;
+    border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);
+    animation:app-loader-spin .8s linear infinite;
+  }
+  @keyframes app-loader-spin{to{transform:rotate(360deg)}}
+  .app-error{
+    margin:24px auto;max-width:560px;padding:14px 18px;border-radius:8px;
+    background:rgba(190,90,80,.08);border:1px solid rgba(190,90,80,.3);
+    color:var(--red);font-size:14px;
+  }

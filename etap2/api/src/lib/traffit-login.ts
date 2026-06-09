@@ -69,10 +69,18 @@ function extractLoginAction(html: string, fallback: string): string {
 
 function joinSetCookies(headerValues: string[]): string {
   // Set-Cookie zwykle jest multi-value - wez tylko name=value (przed pierwszym ';')
-  return headerValues
-    .map((c) => c.split(';')[0].trim())
-    .filter(Boolean)
-    .join('; ');
+  // i DEDUPLIKUJ po nazwie - pozniejsza wartosc wygrywa (kluczowe gdy POST /login_check
+  // regeneruje PHPSESSID po loginie: musimy uzyc NOWY, nie stary z GET /login).
+  const byName = new Map<string, string>();
+  for (const raw of headerValues) {
+    const trimmed = raw?.split(';')[0]?.trim();
+    if (!trimmed) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq <= 0) continue;
+    const name = trimmed.slice(0, eq);
+    byName.set(name, trimmed); // overwrite - later wins
+  }
+  return Array.from(byName.values()).join('; ');
 }
 
 function collectSetCookies(headers: Headers): string[] {
