@@ -1,0 +1,30 @@
+{
+  "name": "bakk-rekrutacja-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Azure Functions API dla etap2 (Faza 5) - assessments, variantUsage, settings, Traffit push.",
+  "type": "module",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.2.0",
+    "@azure/functions": "^4.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

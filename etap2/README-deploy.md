@@ -19,6 +19,91 @@ Workflow:
 Persystencja zostaje w `localStorage` przeglądarki (Faza 4). Multi-user,
 Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
+## Faza 5 — backend (✅ ZAKOŃCZONA 2026-06-09)
+
+Backend API w osobnym **Function App `bakk-rekrutacja-api`** (Linux,
+Consumption plan, Node 24, Functions v4), region **germanywestcentral**
+(Linux Consumption nie wspierany w `polandcentral` gdzie jest Cosmos).
+Cosmos DB serverless `bakk-rekrutacja-db` w `polandcentral` (PL data
+residency), kontenery `assessments` / `variantUsage` / `settings`.
+
+Easy Auth (Microsoft Entra) z tym samym app reg co App Service — **BAKK
+Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`), dedykowany secret per
+zasób (per standard Confluence pageId=159417649). `unauthenticatedAction =
+Return401` (API, nie redirect na login). CORS dopuszcza tylko
+`https://bakk-rekrutacja.azurewebsites.net`, `supportCredentials=false`
+(Bearer token, nie cookie).
+
+Frontend (App Service) pobiera access token z `/.auth/me` (audience =
+BAKK Int Apps clientId) i wysyła do Function App jako `Authorization:
+Bearer <token>`. Function App z Easy Auth na tym samym clientId
+akceptuje token i wstawia `X-MS-CLIENT-PRINCIPAL-*` po walidacji.
+
+Sekrety Cosmos i Traffit w app settings Function App (NIE App Service).
+URL: `https://bakk-rekrutacja-api.azurewebsites.net/api/v1/*`.
+
+Koszt szacunkowy Fazy 5:
+- Cosmos serverless: pay-per-RU, < 10 PLN/mc dla typowego ruchu rekrutacji
+- Function App Consumption: ~5-15 PLN/mc
+- Storage account dla Function App: ~1-2 PLN/mc
+- App Service plan `asp-bakk-docs` **zostaje F1 Free** (bez upgrade'u)
+
+Skrypty provisioningowe:
+- `etap2/scripts/provision-cosmos.ps1` — Cosmos DB + 3 kontenery
+- `etap2/scripts/provision-function-app.ps1` — storage + Function App +
+  wpięcie app settings Cosmos (z `%TEMP%/bakk-cosmos-secrets.txt`)
+- `etap2/scripts/configure-function-app-auth.ps1` — redirect URI w BAKK
+  Int Apps, dedykowany secret, `authsettingsV2`, CORS
+- `etap2/scripts/set-traffit-secrets.ps1` — TRAFFIT_BASE_URL +
+  TRAFFIT_SESSION_COOKIE w app settings Function App
+
+### Auto-push do Traffit
+
+Backend ma endpoint `POST /api/v1/traffit/push` który forwarduje notatkę
+podsumowania do Traffit jako notatka na profilu kandydata.
+
+**Ograniczenie:** Linux Consumption Function App nie wspiera bibliotek
+binarnych typu Chromium, więc nie ma auto-login do Traffit (jak w lokalnym
+`traffit-scorer/src/push-notes.js`). Zamiast tego użytkownik wkleja aktywne
+cookie sesji Traffit do app settings raz na ~30 dni:
+
+1. Zaloguj się do Traffit w przeglądarce
+2. DevTools → Network → dowolny request do `/api/v2/*` → Headers → `Cookie`
+3. Skopiuj pełną wartość headera
+4. `./etap2/scripts/set-traffit-secrets.ps1 -BaseUrl 'https://intrum.traffit.com' -Cookie '<wklejone>'`
+
+UI: w „Podgląd dla rekrutera" → przycisk „Wyślij do Traffit" pyta o ID
+kandydata (z URL profilu), wywołuje backend. Marker idempotencji
+`<!-- bakk-etap2:{assessmentId} -->` w treści notatki pozwala detekcję
+istniejącej notatki dla tej rozmowy → wtedy update zamiast create.
+
+### Monitoring
+
+Application Insights wpięte przez Function App automatycznie (Functions v4
+domyślnie). Logi w Azure Portal → Function App → Application Insights →
+Live Metrics, Failures, Performance.
+
+### RODO
+
+Decyzja: brak automatycznego soft-delete. Dane utrzymują się bez retencji.
+Reakcja na żądanie usunięcia danych = ręczne `DELETE /api/v1/assessments/{id}`
+przez UI (po dodaniu UI usuwania) lub bezpośrednio przez `az cosmosdb sql
+container delete-item` na pojedynczych dokumentach. Dla pełnego usunięcia
+konta rekrutera można wyczyścić całą partycję `userPrincipalName`.
+
+### Rotacja sekretów
+
+- **`MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`** dla Function App — ten sam
+  proces co dla App Service. `az ad app credential reset --id 5d588d76-...
+  --display-name bakk-rekrutacja-api --years 2 --append` daje nowy secret,
+  wpiąć przez `az functionapp config appsettings set`. Stare credentials
+  per `bakk-rekrutacja-api` można usunąć ręcznie po weryfikacji.
+- **`COSMOS_KEY`** — `az cosmosdb keys regenerate --key-kind primary`
+  rotuje, potem `az cosmosdb keys list` + `az functionapp config
+  appsettings set COSMOS_KEY=...`.
+- **`TRAFFIT_SESSION_COOKIE`** — ~co miesiąc, ze skryptem
+  `set-traffit-secrets.ps1`.
+
 ## Stan setupu (2026-06-08)
 
 **Zrobione przez Claude:**

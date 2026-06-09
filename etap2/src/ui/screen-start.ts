@@ -2,8 +2,9 @@ import { BLOCKS } from '../content/blocks';
 import { createEmptyAssessment } from '../domain/model';
 import { pickLeastUsed } from '../domain/variants';
 import { repo, session } from '../state';
-import { navigate } from '../app';
+import { navigate, render } from '../app';
 import { startTimer } from './timer-ui';
+import { renderMigrationBanner } from './migration-banner';
 
 export async function renderStart(host: HTMLElement): Promise<void> {
   const usage = await repo.getVariantUsage();
@@ -11,6 +12,7 @@ export async function renderStart(host: HTMLElement): Promise<void> {
   for (const b of BLOCKS) suggested[b.id] = pickLeastUsed(usage, b.id, b.variants.length);
 
   host.innerHTML = `
+    <div id="migration-host"></div>
     <section class="hero">
       <div class="eyebrow">Junior C# / SQL Developer</div>
       <h1>Ustrukturyzowana rozmowa finałowa</h1>
@@ -63,6 +65,11 @@ export async function renderStart(host: HTMLElement): Promise<void> {
   refreshAChips();
 
   (host.querySelector('#in-date') as HTMLInputElement).value = new Date().toISOString().slice(0, 10);
+
+  const migrationHost = host.querySelector('#migration-host') as HTMLElement | null;
+  if (migrationHost) {
+    renderMigrationBanner(migrationHost, { repo, reload: () => render() });
+  }
 
   (host.querySelector('#btn-start') as HTMLButtonElement).onclick = () => {
     const a = createEmptyAssessment(crypto.randomUUID(), {

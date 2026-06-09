@@ -1,0 +1,57 @@
+name: Deploy etap2 API → bakk-rekrutacja-api (Function App)
+
+# Buduje TS i wdraża Azure Functions z `etap2/api/` na Function App
+# `bakk-rekrutacja-api`. Trigger: push na main z paths etap2/api/** lub manualnie.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'etap2/api/**'
+      - '.github/workflows/deploy-bakk-rekrutacja-api.yml'
+  workflow_dispatch:
+
+env:
+  FUNCTION_APP_NAME: bakk-rekrutacja-api
+  NODE_VERSION: '24.x'
+  WORKING_DIR: etap2/api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Install + build
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install production deps for packaging
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm prune --omit=dev
+
+      - name: Deploy to Function App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.FUNCTION_APP_NAME }}
+          package: ${{ env.WORKING_DIR }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA_API }}
+
+      - name: Smoke test - health endpoint should require auth (401)
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://${FUNCTION_APP_NAME}.azurewebsites.net/api/health)
+          echo "GET /api/health without token returned HTTP $status"
+          if [ "$status" != "401" ]; then
+            echo "::error::Expected 401 from Easy Auth, got $status"
+            exit 1
+          fi
