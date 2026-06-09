@@ -22,6 +22,8 @@ export interface MigrationDeps {
   reload: () => void | Promise<void>;
   storage?: { getItem(k: string): string | null; removeItem(k: string): void };
   confirmFn?: (msg: string) => boolean;
+  /** Wywolane po udanym imporcie - typowo navigate('roster') zeby user widzial przeniesione rozmowy. */
+  onImported?: (count: number) => void;
 }
 
 /**
@@ -60,7 +62,7 @@ export function renderMigrationBanner(host: HTMLElement, deps: MigrationDeps): b
         settings: snapshot.settings,
         variantUsage: snapshot.variantUsage,
       });
-      statusEl.textContent = `Zaimportowano ${result.assessments} ${pluralRozmowa(result.assessments)} i ${result.variantUsageIncrements} ${pluralPrzypisanie(result.variantUsageIncrements)}.`;
+      statusEl.textContent = `Zaimportowano ${result.assessments} ${pluralRozmowa(result.assessments)} i ${result.variantUsageIncrements} ${pluralPrzypisanie(result.variantUsageIncrements)}. Przekierowanie do Porównania kandydatów…`;
 
       if (confirmFn('Dane przeniesione. Usunąć kopię z tego urządzenia (zalecane)?')) {
         clearLocalSnapshot(deps.storage);
@@ -68,7 +70,11 @@ export function renderMigrationBanner(host: HTMLElement, deps: MigrationDeps): b
       } else {
         btn.disabled = true;
       }
-      await deps.reload();
+      if (deps.onImported && result.assessments > 0) {
+        deps.onImported(result.assessments);
+      } else {
+        await deps.reload();
+      }
     } catch (err) {
       const e = err as { message?: string; details?: unknown };
       let msg = e.message ?? 'Nieznany błąd';

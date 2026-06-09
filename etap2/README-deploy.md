@@ -21,11 +21,13 @@ Functions/Cosmos i auto-push Traffit są w Fazie 5.
 
 ## Faza 5 — backend (✅ ZAKOŃCZONA 2026-06-09)
 
-Backend API w osobnym **Function App `bakk-rekrutacja-api`** (Linux,
-Consumption plan, Node 24, Functions v4), region **germanywestcentral**
-(Linux Consumption nie wspierany w `polandcentral` gdzie jest Cosmos).
-Cosmos DB serverless `bakk-rekrutacja-db` w `polandcentral` (PL data
-residency), kontenery `assessments` / `variantUsage` / `settings`.
+Backend API w osobnym **Function App `bakk-rekrutacja-api`** (**Windows**
+Consumption plan, Node 24, Functions v4), region **westeurope**.
+Linux Consumption próbowany wcześniej w `germanywestcentral` i `northeurope`
+miał chronic SCM 503 (Function App nie wstawał) - Windows w WE wystartował
+natychmiast (SCM 401). Cosmos DB serverless `bakk-rekrutacja-db` w
+`polandcentral` (PL data residency, cross-region latency ~30ms WE→PL),
+kontenery `assessments` / `variantUsage` / `settings`.
 
 Easy Auth (Microsoft Entra) z tym samym app reg co App Service — **BAKK
 Int Apps** (`5d588d76-2173-49d8-ad6e-4c50b0ca6983`), dedykowany secret per
