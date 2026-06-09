@@ -1,56 +1,63 @@
 import { z } from 'zod';
 
 const BlockId = z.enum(['A', 'B', 'C', 'D', 'E']);
-const Mark = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
+// Mark: front uzywa 1-5 ale akceptujemy szerszy zakres int zeby nie odrzucac legacy danych z localStorage.
+const Mark = z.number().int().min(0).max(10);
 const Decision = z.enum(['yes', 'no', 'wait']);
 
+// Wszystkie pola domyslnie '' zeby legacy localStorage docs bez tych pol nie byly odrzucane.
 const Candidate = z.object({
-  nameOrId: z.string(),
-  date: z.string(),
-  stage1Result: z.string(),
-  stage1Note: z.string(),
-});
+  nameOrId: z.string().optional().default(''),
+  date: z.string().optional().default(''),
+  stage1Result: z.string().optional().default(''),
+  stage1Note: z.string().optional().default(''),
+}).passthrough();
 
 const Negotiation = z.object({
-  oczekiwania: z.string(),
-  widelki: z.string(),
-  formaUmowy: z.string(),
-  dostepnosc: z.string(),
-  uwagi: z.string(),
-});
+  oczekiwania: z.string().optional().default(''),
+  widelki: z.string().optional().default(''),
+  formaUmowy: z.string().optional().default(''),
+  dostepnosc: z.string().optional().default(''),
+  uwagi: z.string().optional().default(''),
+}).passthrough();
 
 const TimerState = z.object({
-  elapsedSec: z.number(),
-  paused: z.boolean(),
-  offsetSec: z.number(),
+  elapsedSec: z.number().optional().default(0),
+  paused: z.boolean().optional().default(false),
+  offsetSec: z.number().optional().default(0),
   phase45Notified: z.boolean().optional(),
-});
+}).passthrough();
 
-const Flags = z.object({ red: z.boolean(), green: z.boolean() });
+const Flags = z.object({
+  red: z.boolean().optional().default(false),
+  green: z.boolean().optional().default(false),
+}).passthrough();
 
 const partialByBlock = <T extends z.ZodTypeAny>(value: T) =>
   z.record(BlockId, value).optional().default({});
 
 export const AssessmentSchema = z.object({
   id: z.string().min(1),
-  schemaVersion: z.number().int(),
+  schemaVersion: z.number().int().optional().default(2),
   candidate: Candidate,
   selectedVariants: partialByBlock(z.number().int()),
   deepenAsked: partialByBlock(z.boolean()),
   marks: partialByBlock(Mark),
   flags: partialByBlock(Flags),
   notes: partialByBlock(z.string()),
-  decision: Decision.nullable(),
-  decisionNote: z.string(),
+  decision: Decision.nullable().optional().default(null),
+  decisionNote: z.string().optional().default(''),
   askedQuestions: partialByBlock(z.record(z.string(), z.boolean())),
-  negotiation: Negotiation,
-  timer: TimerState,
+  negotiation: Negotiation.optional().default({
+    oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '',
+  }),
+  timer: TimerState.optional().default({ elapsedSec: 0, paused: false, offsetSec: 0 }),
   blockTimes: z.record(BlockId, z.number()).optional().default({}),
-  useE: z.boolean(),
-  useAChart: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
+  useE: z.boolean().optional().default(false),
+  useAChart: z.boolean().optional().default(false),
+  createdAt: z.string().optional().default(() => new Date().toISOString()),
+  updatedAt: z.string().optional().default(() => new Date().toISOString()),
+}).passthrough();
 
 export type Assessment = z.infer<typeof AssessmentSchema>;
 

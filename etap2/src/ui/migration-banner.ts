@@ -70,7 +70,11 @@ export function renderMigrationBanner(host: HTMLElement, deps: MigrationDeps): b
       }
       await deps.reload();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Nieznany błąd';
+      const e = err as { message?: string; details?: unknown };
+      let msg = e.message ?? 'Nieznany błąd';
+      if (e.details) {
+        try { msg += ' | ' + JSON.stringify(e.details); } catch { /* ignore */ }
+      }
       statusEl.textContent = `Błąd importu: ${msg}. Dane lokalne zostają.`;
       btn.disabled = false;
     }

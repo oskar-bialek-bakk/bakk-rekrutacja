@@ -214,7 +214,11 @@ export async function renderRoster(host: HTMLElement): Promise<void> {
       }
     } catch (error: unknown) {
       console.error('Import JSON nie powiódł się', error);
-      const message = error instanceof Error ? error.message : 'nieznany błąd.';
+      const e = error as { message?: string; details?: unknown };
+      let message = e.message ?? 'nieznany błąd.';
+      if (e.details) {
+        try { message += ' | ' + JSON.stringify(e.details); } catch { /* ignore */ }
+      }
       showStatus(`Błąd importu: ${message}`, 'error');
     }
   };
