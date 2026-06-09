@@ -68,7 +68,11 @@ export async function renderStart(host: HTMLElement): Promise<void> {
 
   const migrationHost = host.querySelector('#migration-host') as HTMLElement | null;
   if (migrationHost) {
-    renderMigrationBanner(migrationHost, { repo, reload: () => render() });
+    renderMigrationBanner(migrationHost, {
+      repo,
+      reload: () => render(),
+      onImported: () => navigate('roster'),
+    });
   }
 
   (host.querySelector('#btn-start') as HTMLButtonElement).onclick = () => {

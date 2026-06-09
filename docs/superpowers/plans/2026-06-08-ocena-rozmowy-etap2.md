@@ -1405,12 +1405,17 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 # FAZA 5 — Finałowa (multi-user persistence + auto-push Traffit, gotowość do udostępnienia firmowego) ✅ ZAKOŃCZONA (2026-06-09, PR #12, #13, #14, #15, #16, #17, #18, #19, #20 → feature/etap2-faza5)
 
 > **Faza 5 zakończona 2026-06-09.** Cosmos DB serverless w polandcentral,
-> Function App Linux Consumption Node 24 w germanywestcentral, Easy Auth
-> Bearer cross-origin z BAKK Int Apps, AzureStore + build flag
-> VITE_PERSISTENCE=azure, UI migracji z localStorage, deploy workflow,
-> auto-push do Traffit (manualne cookie session bo Linux Consumption nie
-> wspiera Chromium). 31 testów backend + 216 testów frontu = 247/247
-> zielonych. Build front 107.57 kB.
+> Function App **Windows** Consumption Node 24 w **westeurope** (Linux
+> Consumption padał z chronic SCM 503 w germanywestcentral i northeurope),
+> Easy Auth Bearer cross-origin z BAKK Int Apps (frontend bierze id_token
+> z `/.auth/me`, nie access_token, bo audience match), AzureStore + build
+> flag VITE_PERSISTENCE=azure, UI migracji z localStorage, deploy workflow
+> przez publish profile + Azure/functions-action (OIDC + UAMI próbowane
+> ale wymagałyby Reader na sub-level, klasifier security zablokował),
+> auto-push do Traffit z **kontem technicznym** (HTTP form login Symfony,
+> session cookie cache w Function App z TTL 7h + auto-relogin). Tests:
+> backend + frontend zielone. Build front ~108 kB. Backend deploy idzie
+> przez publish profile Azure/functions-action (nie OIDC).
 
 
 
@@ -1430,7 +1435,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
 
 ### Architektura wynikowa
 
-- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Consumption plan** w `rg-bakk-docs`, region **germanywestcentral** (Linux Consumption nie wspierany w polandcentral; DE West Central blisko PL ~30ms do Cosmos). Storage account `stbakkrekrutacjaapi` (germanywestcentral, w tej samej grupie). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
+- **Backend:** osobny **Function App `bakk-rekrutacja-api`** na **Windows Consumption plan** w `rg-bakk-docs`, region **westeurope**. (Linux Consumption próbowany wcześniej w germanywestcentral i northeurope - oba miały chronic SCM 503; Windows wystartował od razu). Storage account `stbakkrekrutacjaapi` (westeurope, w tej samej grupie). Koszt: Consumption ~5-15 PLN/mc + storage ~1-2 PLN/mc. Bez upgrade'u `asp-bakk-docs` z F1.
 - **Język Functions:** **TypeScript Node 24**, model v4 (`@azure/functions` 4.x). Node 20 osiągnął EOL 2026-04-30, Azure odmawia tworzenia Functions na Node 20. W `etap2/api/` osobny `package.json` i `tsconfig.json`. Wspólne typy `Assessment`/`VariantUsage`/`Settings` przez relative import z `etap2/src/domain/model.ts`.
 - **Baza:** **Cosmos DB serverless**, konto `bakk-rekrutacja-db` w `rg-bakk-docs`, baza `etap2`, kontenery:
   - `assessments` — partition key `/userPrincipalName`. Lista filtruje per upn (scope=mine) lub cross-partition (scope=team).
@@ -1445,7 +1450,7 @@ Wzorzec do skopiowania: `C:/GIT/Intrum` deployuje `integration-api/` i `migratio
   - Brak MSAL we froncie, brak tokenów w localStorage. Token pobierany tuż przed requestem przez `AzureStore` (cache na 30 min z early refresh).
 - **Format URL API:** `https://bakk-rekrutacja-api.azurewebsites.net/api/v1/*`. Stała w `etap2/src/persistence/azure-store.ts` (`VITE_API_BASE_URL` env).
 - **Migracja z localStorage:** UI „Importuj z localStorage" na ekranie startowym (widoczny gdy `repo instanceof AzureStore` oraz nieskonsumowany localStorage istnieje), wywołuje `AzureStore.importBulk` we froncie. Implementacja forwarduje rekordy przez istniejące endpointy `PUT /api/v1/assessments/{id}` + `PUT /api/v1/settings` + `POST /api/v1/variant-usage/increment` (delta vs `{}`). Brak dedykowanego endpointu `/api/v1/migrate` po stronie backendu, żeby uniknąć duplikacji logiki upsertu i walidacji.
-- **Sekrety Cosmos i Traffit:** wpięte do **app settings Function App** (nie App Service). Function App ma osobne `COSMOS_ENDPOINT`, `COSMOS_KEY`, `COSMOS_DB`, `TRAFFIT_BASE_URL`, `TRAFFIT_SESSION_COOKIE`. **Brak `TRAFFIT_EMAIL`/`TRAFFIT_PASSWORD`** — Linux Consumption nie wspiera Chromium, więc auto-login niemożliwy. User wkleja aktywne cookie sesji Traffit z DevTools raz na ~30 dni przez `etap2/scripts/set-traffit-secrets.ps1`.
+- **Sekrety Cosmos i Traffit:** wpięte do **app settings Function App** (nie App Service). Function App ma osobne `COSMOS_ENDPOINT`, `COSMOS_KEY`, `COSMOS_DB`, `TRAFFIT_BASE_URL`, `TRAFFIT_USERNAME`, `TRAFFIT_PASSWORD` (konto techniczne BAKK). Auto-login Symfony Security HTTP form (bez Chromium) - cookie sesji cache w pamięci modułu z TTL 7h, auto-relogin na 401/403.
 
 ## Taski
 
