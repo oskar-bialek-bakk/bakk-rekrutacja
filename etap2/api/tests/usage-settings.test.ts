@@ -50,6 +50,17 @@ const variantUsageContainerMock = {
   }),
   items: {
     upsert: vi.fn(),
+    create: vi.fn(async (doc: Record<string, unknown>) => {
+      const pk = (doc as { scope?: string }).scope ?? 'global';
+      const id = doc.id as string;
+      if (store.find((x) => x.id === id && x.pk === pk)) {
+        const err: Error & { code?: number } = new Error('Conflict');
+        err.code = 409;
+        throw err;
+      }
+      store.push({ id, pk, data: doc });
+      return { resource: doc };
+    }),
   },
 };
 
@@ -124,10 +135,13 @@ describe('variant-usage', () => {
     expect((res.jsonBody as { id: string }).id).toBe('global');
   });
 
-  it('GET zwraca 404 gdy global nie zaseedowany', async () => {
+  it('GET lazy-seed global gdy nie istnieje, zwraca 200 z zerowymi countsami', async () => {
     const { variantUsageGet } = await import('../src/functions/variant-usage-get.js');
     const res = await variantUsageGet(fakeReq({ upn: 'alice@bakk.com', oid: 'oid-a' }) as never, ctx);
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
+    const body = res.jsonBody as { id: string; counts: { A: number[] } };
+    expect(body.id).toBe('global');
+    expect(body.counts.A).toEqual([0, 0, 0, 0]);
   });
 
   it('POST increment dorzuca patch incr na C[2]', async () => {
