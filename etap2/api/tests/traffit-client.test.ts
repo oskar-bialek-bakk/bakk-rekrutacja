@@ -101,4 +101,38 @@ describe('TraffitClient', () => {
     expect(invalidateSession).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('listBkCandidates: zwraca tylko stage 15 non-rejected, pomija rekrutacje 65, sortuje po employeeId', async () => {
+    fetchMock.mockImplementation(async (url: string, init: { body?: string }) => {
+      const u = String(url);
+      if (u.endsWith('/api/recruitment/filter')) {
+        return resp(200, { count: 3, items: [
+          { id: 63, name: 'C# SQL 05-2026', isClosed: false },
+          { id: 65, name: 'Inside Sales', isClosed: false },
+          { id: 61, name: 'Stara', isClosed: true },
+        ]});
+      }
+      if (u.endsWith('/api/employee/filter')) {
+        const body = init.body ?? '';
+        const recId = body.includes('job.id%5D%5B%5D=63') ? 63 : 0;
+        if (recId === 63) {
+          return resp(200, { count: 3, items: [
+            { id: 30, name: 'Anna', lastname: 'Nowak', email: 'a@x.pl',
+              activeRecruitments: [{ recruitment: { id: 63 }, state: { id: 15, name: 'Spotkanie BK', color: 'green' } }] },
+            { id: 10, name: 'Jan', lastname: 'Kowalski', email: null,
+              activeRecruitments: [{ recruitment: { id: 63 }, state: { id: 15, name: 'Spotkanie BK', color: 'red' } }] },
+            { id: 20, name: 'Ewa', lastname: 'Lis', email: null,
+              activeRecruitments: [{ recruitment: { id: 63 }, state: { id: 4, name: 'Spotkanie techniczne', color: 'green' } }] },
+          ]});
+        }
+      }
+      return resp(200, { count: 0, items: [] });
+    });
+
+    const c = createTraffitClient(config);
+    const list = await c.listBkCandidates();
+    expect(list).toEqual([
+      { employeeId: 30, recruitmentId: 63, recruitmentName: 'C# SQL 05-2026', fullName: 'Nowak Anna', email: 'a@x.pl' },
+    ]);
+  });
 });
