@@ -42,7 +42,8 @@ Stałe w kodzie (nie env, zaszyte na sztywno):
 
 ```
 const BK_STAGE_ID = 15;
-const BK_STAGE_NAME = 'Spotkanie BK';   // lokalny guard po nazwie/id
+const BK_STAGE_NAME = 'Spotkanie BK';        // lokalny guard po nazwie/id
+const EXCLUDED_RECRUITMENT_IDS = [65];       // Inside Sales - nie dla etapu II
 ```
 
 ## Endpointy Traffit (przez sesję konta technicznego)
@@ -102,8 +103,9 @@ listBkCandidates(): Promise<Array<{
 ```
 
 Przepływ:
-1. `listOpenRecruitments()` → `POST /api/recruitment/filter`, filtr `!isClosed`.
-2. Dla każdej otwartej rekrutacji: `POST /api/employee/filter` z
+1. `listOpenRecruitments()` → `POST /api/recruitment/filter`, filtr `!isClosed`
+   oraz odrzuć `EXCLUDED_RECRUITMENT_IDS` (65 = Inside Sales).
+2. Dla każdej pozostałej rekrutacji: `POST /api/employee/filter` z
    `recruitmentId` + `stage.id = 15`.
 3. Lokalny guard: zostaw `state.id === 15` i `state.color !== 'red'`.
 4. Spłaszcz do listy z tagiem rekrutacji.
@@ -113,10 +115,11 @@ Wymaga rozszerzenia warstwy `req()` w `traffit-client.ts` o obsługę
 tylko JSON). Endpointy `/api/recruitment/filter` i `/api/employee/filter` nie
 są pod `/api/v2`, więc metoda buduje pełną ścieżkę względem `baseUrl`.
 
-Uwaga zakresowa: lista obejmuje **wszystkie** otwarte rekrutacje mające etap
-„Spotkanie BK" (w tym np. Inside Sales, bo współdzieli workflow 1). Rekruter
-rozróżnia je po nazwie rekrutacji w etykiecie. Ewentualne zawężenie do ról
-deweloperskich (allowlista) to późniejsza iteracja, poza zakresem.
+Uwaga zakresowa: lista obejmuje otwarte rekrutacje mające etap „Spotkanie BK",
+z jawnym wykluczeniem rekrutacji 65 (Inside Sales) przez
+`EXCLUDED_RECRUITMENT_IDS`. Innych rekrutacji nie-deweloperskich tego typu nie
+ma, więc to wykluczenie wystarcza. Rekruter rozróżnia pozostałe po nazwie
+rekrutacji w etykiecie.
 
 ### 3. Frontend — serwis `src/persistence/traffit-candidates.ts`
 
@@ -202,7 +205,8 @@ Cel pokrycia domeny/logiki 80% (jak reszta etap II).
 ## Poza zakresem (świadomie)
 
 - Selektor rekrutacji w UI (rekrutacja wynika z wybranej pozycji listy).
-- Allowlista rekrutacji (zawężenie do ról deweloperskich).
+- Konfigurowalna allowlista/blocklista rekrutacji (na teraz wystarcza zaszyte
+  `EXCLUDED_RECRUITMENT_IDS = [65]`).
 - Cache TTL listy kandydatów po stronie backendu (do dodania, gdyby liczba
   otwartych rekrutacji urosła).
 - Tryb offline single-file: lista Traffit niedostępna z założenia (brak
