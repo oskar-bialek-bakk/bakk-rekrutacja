@@ -25,7 +25,7 @@ $tempDir = [System.IO.Path]::GetTempPath()
 
 $rg   = 'rg-bakk-docs'
 $sub  = '28b7c9a4-317a-495c-99ed-6a6cec116a44'
-$loc  = 'northeurope'  # germanywestcentral mial chronic SCM 503; northeurope (Dublin) ma najsolidniejsze wsparcie Linux Consumption
+$loc  = 'westeurope'  # Windows Consumption w WE (Linux Consumption w germanywestcentral i northeurope mial chronic SCM 503)
 $func = 'bakk-rekrutacja-api'
 $stg  = 'stbakkrekrutacjaapi'
 
@@ -80,7 +80,7 @@ $funcs = @(az functionapp list -g $rg --query "[].name" -o tsv)
 if ($funcs -contains $func) {
     Write-Host "    Istnieje - pomijam tworzenie."
 } else {
-    Write-Host "    Tworze Function App $func (Linux Consumption, Node 24, Functions v4, $loc)..."
+    Write-Host "    Tworze Function App $func (Windows Consumption, Node 24, Functions v4, $loc)..."
     az functionapp create `
         -g $rg -n $func `
         --consumption-plan-location $loc `
@@ -88,7 +88,7 @@ if ($funcs -contains $func) {
         --runtime-version 24 `
         --functions-version 4 `
         --storage-account $stg `
-        --os-type Linux `
+        --os-type Windows `
         --only-show-errors | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "az functionapp create sie nie powiodlo." }
     Write-Host "    Utworzony."
