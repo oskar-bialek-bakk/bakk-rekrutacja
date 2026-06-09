@@ -11,6 +11,9 @@ function createRepo(): Repository {
 
 export const repo: Repository = createRepo();
 
+/** Czy backend (Azure) jest aktywny — bramka funkcji Traffit (lista + push). */
+export const isOnline: boolean = repo instanceof AzureStore;
+
 export interface Session {
   current: Assessment | null;
   screen: 'start' | 'assess' | 'summary' | 'roster' | 'detail' | 'settings';
