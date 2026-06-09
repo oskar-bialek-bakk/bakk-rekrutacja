@@ -72,8 +72,25 @@ describe('openRecruiterPreview — Traffit push', () => {
     const sel = document.querySelector('#traffit-link-pick') as HTMLSelectElement;
     expect(sel.value).toBe('30::63');
     (document.querySelector('#traffit-link-confirm') as HTMLButtonElement).click();
-    await vi.waitFor(() => expect(h.pushToTraffit).toHaveBeenCalledOnce());
-    expect(h.save).toHaveBeenCalledOnce();
+    // Powiązanie zapisywane DOPIERO po udanym pushu, więc czekamy na save.
+    await vi.waitFor(() => expect(h.save).toHaveBeenCalledOnce());
+    expect(h.pushToTraffit).toHaveBeenCalledOnce();
     expect(a.candidate.traffitId).toBe(30);
+  });
+
+  it('gdy push się nie powiedzie, NIE utrwala powiązania i zostawia picker', async () => {
+    h.fetchTraffitCandidates.mockResolvedValue([
+      { employeeId: 30, recruitmentId: 63, recruitmentName: 'R', fullName: 'Próbna Janina', email: null },
+    ]);
+    h.pushToTraffit.mockRejectedValue(new Error('boom'));
+    const a = makeAssessment();
+    void openRecruiterPreview(a, settings());
+    (document.querySelector('#recruiter-traffit') as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(document.querySelector('#traffit-link-pick')).not.toBeNull());
+    (document.querySelector('#traffit-link-confirm') as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(h.pushToTraffit).toHaveBeenCalledOnce());
+    expect(h.save).not.toHaveBeenCalled();
+    expect(a.candidate.traffitId).toBeUndefined();
+    expect(document.querySelector('#traffit-link-pick')).not.toBeNull(); // picker nadal otwarty
   });
 });

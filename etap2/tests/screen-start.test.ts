@@ -75,6 +75,27 @@ describe('renderStart dropdown Traffit', () => {
     expect(a.candidate.nameOrId).toBe('Nowak Anna');
   });
 
+  it('pusta lista pokazuje widoczny komunikat i przełącza na tryb ręczny', async () => {
+    h.fetchTraffitCandidates.mockResolvedValue([]);
+    const host = document.createElement('div');
+    await renderStart(host);
+    await flush();
+    const status = host.querySelector('#traffit-pick-status') as HTMLElement;
+    expect(status.hidden).toBe(false);
+    expect(status.textContent ?? '').toContain('Brak kandydatów');
+    expect((host.querySelector('#manual-name-field') as HTMLElement).hidden).toBe(false);
+  });
+
+  it('błąd pobrania listy pokazuje widoczny komunikat (status poza ukrywanym polem)', async () => {
+    h.fetchTraffitCandidates.mockRejectedValue(new Error('net'));
+    const host = document.createElement('div');
+    await renderStart(host);
+    await flush();
+    const status = host.querySelector('#traffit-pick-status') as HTMLElement;
+    expect(status.hidden).toBe(false);
+    expect(status.textContent ?? '').toContain('Nie udało się');
+  });
+
   it('przełącznik "wprowadź ręcznie" pokazuje pole tekstowe i czyści wybór', async () => {
     const host = document.createElement('div');
     await renderStart(host);

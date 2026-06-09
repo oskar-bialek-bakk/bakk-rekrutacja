@@ -152,18 +152,20 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
       const ok = await copyHtmlSafe(html, text);
       flashLabel(copyHtmlBtn, original, ok);
     };
-    async function doPush(employeeId: number): Promise<void> {
+    async function doPush(employeeId: number): Promise<boolean> {
       traffitBtn.disabled = true;
       traffitStatus.hidden = false;
       traffitStatus.textContent = 'Wysyłam do Traffit…';
       try {
         const result = await pushToTraffit({ assessmentId: a.id, employeeId, html });
         traffitStatus.textContent = `Gotowe: notatka ${result.action === 'created' ? 'utworzona' : 'zaktualizowana'} (id ${result.noteId}).`;
+        return true;
       } catch (err) {
         const msg = err instanceof TraffitPushError
           ? `Błąd ${err.status}: ${err.message}`
           : err instanceof Error ? err.message : 'Nieznany błąd';
         traffitStatus.textContent = `Push się nie powiódł. ${msg}`;
+        return false;
       } finally {
         traffitBtn.disabled = false;
       }
@@ -179,8 +181,9 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
       const options = candidates
         .map((c) => {
           const sel = best && c.employeeId === best.employeeId && c.recruitmentId === best.recruitmentId ? ' selected' : '';
+          const value = escapeHtml(`${c.employeeId}::${c.recruitmentId}`);
           const label = escapeHtml(`${c.fullName} — ${c.recruitmentName}`);
-          return `<option value="${c.employeeId}::${c.recruitmentId}"${sel}>${label}</option>`;
+          return `<option value="${value}"${sel}>${label}</option>`;
         })
         .join('');
       box.innerHTML = `
@@ -208,15 +211,18 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
           traffitStatus.textContent = 'Wybierz kandydata z listy lub podaj poprawne ID.';
           return;
         }
-        // Utrwal powiązanie na ocenie (kolejne wysyłki bez pytania).
+        // Najpierw push. Powiązanie utrwalamy DOPIERO po sukcesie, żeby błędne
+        // ID / nieudany push nie zostawił oceny trwale powiązanej z błędnym
+        // traffitId (i nie omijał pickera przy kolejnych próbach).
+        const ok = await doPush(employeeId);
+        if (!ok) return; // picker zostaje otwarty do korekty
         a.candidate = {
           ...a.candidate,
           traffitId: employeeId,
           ...(chosen ? { recruitmentId: chosen.recruitmentId, recruitmentName: chosen.recruitmentName } : {}),
         };
-        try { await repo.save(a); } catch { /* zapis best-effort; push i tak spróbuje */ }
+        try { await repo.save(a); } catch { /* zapis best-effort; notatka już wysłana */ }
         box.remove();
-        await doPush(employeeId);
       };
     }
 

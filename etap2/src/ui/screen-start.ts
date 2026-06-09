@@ -24,8 +24,8 @@ export async function renderStart(host: HTMLElement): Promise<void> {
         <label for="traffit-pick">Kandydat z Traffit (etap Spotkanie BK)</label>
         <select id="traffit-pick"><option value="">— wybierz kandydata —</option></select>
         <button type="button" class="btn ghost manual-link" id="manual-toggle" title="Wprowadź dane ręcznie">✎ wprowadź ręcznie</button>
-        <div id="traffit-pick-status" class="hint"></div>
       </div>
+      <div id="traffit-pick-status" class="hint" hidden></div>
       <div class="field" id="manual-name-field"><label for="in-name">Kandydat — imię i nazwisko / ID</label><input id="in-name"></div>
       <div class="field two">
         <div><label for="in-date">Data rozmowy</label><input id="in-date" type="date"></div>
@@ -92,6 +92,13 @@ export async function renderStart(host: HTMLElement): Promise<void> {
   const pickStatus = host.querySelector('#traffit-pick-status') as HTMLElement;
   const nameInput = host.querySelector('#in-name') as HTMLInputElement;
 
+  // Status listy jest poza polem Traffit, więc pozostaje widoczny także po
+  // przełączeniu na tryb ręczny (komunikat „brak / błąd" nie znika).
+  const setStatus = (msg: string): void => {
+    pickStatus.textContent = msg;
+    pickStatus.hidden = msg === '';
+  };
+
   const showManual = (): void => {
     picked = null;
     traffitField.hidden = true;
@@ -99,19 +106,22 @@ export async function renderStart(host: HTMLElement): Promise<void> {
     nameInput.focus();
   };
 
-  (host.querySelector('#manual-toggle') as HTMLButtonElement).onclick = showManual;
+  (host.querySelector('#manual-toggle') as HTMLButtonElement).onclick = () => {
+    setStatus('');
+    showManual();
+  };
 
   if (isOnline) {
     // Domyślnie ukryj pole ręczne; pokaż dropdown po załadowaniu listy.
     manualField.hidden = true;
     traffitField.hidden = false;
-    pickStatus.textContent = 'Ładuję kandydatów z Traffit…';
+    setStatus('Ładuję kandydatów z Traffit…');
     void (async () => {
       try {
         const [all, assessments] = await Promise.all([fetchTraffitCandidates(), repo.findAll()]);
         const list = selectableCandidates(all, assessments);
         if (list.length === 0) {
-          pickStatus.textContent = 'Brak kandydatów na etapie „Spotkanie BK". Wprowadź dane ręcznie.';
+          setStatus('Brak kandydatów na etapie „Spotkanie BK". Wprowadź dane ręcznie.');
           showManual();
           return;
         }
@@ -124,13 +134,13 @@ export async function renderStart(host: HTMLElement): Promise<void> {
           opt.textContent = `${c.fullName} — ${c.recruitmentName}`;
           pickSelect.appendChild(opt);
         }
-        pickStatus.textContent = '';
+        setStatus('');
         pickSelect.onchange = () => {
           picked = byKey.get(pickSelect.value) ?? null;
           if (picked) nameInput.value = picked.fullName;
         };
       } catch {
-        pickStatus.textContent = 'Nie udało się pobrać listy z Traffit. Wprowadź dane ręcznie.';
+        setStatus('Nie udało się pobrać listy z Traffit. Wprowadź dane ręcznie.');
         showManual();
       }
     })();
