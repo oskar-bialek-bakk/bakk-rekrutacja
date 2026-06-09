@@ -57,6 +57,30 @@ Skrypty provisioningowe:
 - `etap2/scripts/set-traffit-secrets.ps1` — TRAFFIT_BASE_URL +
   TRAFFIT_SESSION_COOKIE w app settings Function App
 
+### Basic publishing credentials (Function App)
+
+Function App, podobnie jak App Service w naszej subskrypcji, domyślnie ma
+**wyłączone** basic SCM i FTP creds. `Azure/functions-action@v1` używa
+publish profile z basic SCM auth → bez tego deploy pada na
+`Failed to fetch Kudu App Settings. Site Unavailable (CODE: 503)`.
+
+Po `provision-function-app.ps1` trzeba jednorazowo:
+
+```powershell
+az resource update -g rg-bakk-docs --name scm --namespace Microsoft.Web `
+  --resource-type basicPublishingCredentialsPolicies `
+  --parent sites/bakk-rekrutacja-api --set properties.allow=true
+az resource update -g rg-bakk-docs --name ftp --namespace Microsoft.Web `
+  --resource-type basicPublishingCredentialsPolicies `
+  --parent sites/bakk-rekrutacja-api --set properties.allow=true
+
+# Publish profile -> GitHub secret (uwaga: dopiero PO włączeniu basic creds)
+az webapp deployment list-publishing-profiles -g rg-bakk-docs `
+  -n bakk-rekrutacja-api --xml `
+  | gh secret set AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA_API `
+    --repo oskar-bialek-bakk/bakk-rekrutacja
+```
+
 ### Auto-push do Traffit
 
 Backend ma endpoint `POST /api/v1/traffit/push` który forwarduje notatkę

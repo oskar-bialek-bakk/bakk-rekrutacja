@@ -30,15 +30,11 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
 
-      - name: Install + build
+      - name: Install + build (build is required so dist/ is in package)
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           npm ci
           npm run build
-
-      - name: Install production deps for packaging
-        working-directory: ${{ env.WORKING_DIR }}
-        run: npm prune --omit=dev
 
       - name: Deploy to Function App
         uses: Azure/functions-action@v1
@@ -46,6 +42,10 @@ jobs:
           app-name: ${{ env.FUNCTION_APP_NAME }}
           package: ${{ env.WORKING_DIR }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BAKK_REKRUTACJA_API }}
+          # Linux Consumption: build deps po stronie Oryx zeby zainstalowac native packages w PROD env.
+          # Bez tego SCM /api/settings zwraca 503 i deploy faluje.
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
 
       - name: Smoke test - health endpoint should require auth (401)
         run: |
