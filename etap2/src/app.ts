@@ -19,15 +19,24 @@ export function openDetail(id: string): void {
   render();
 }
 
+const LOADER_HTML = '<div class="app-loader" role="status" aria-live="polite"><div class="app-loader__spinner" aria-hidden="true"></div><div class="app-loader__text">Ładowanie…</div></div>';
+
+function showLoaderThen(host: HTMLElement, asyncRender: (h: HTMLElement) => Promise<void>): void {
+  host.innerHTML = LOADER_HTML;
+  asyncRender(host).catch((err) => {
+    const msg = err instanceof Error ? err.message : 'Nieznany błąd';
+    host.innerHTML = `<div class="app-error">Błąd ładowania: ${msg}</div>`;
+  });
+}
+
 export function render(): void {
   const host = document.getElementById('app')!;
-  host.innerHTML = '';
   switch (session.screen) {
-    case 'start': void renderStart(host); break;
-    case 'assess': renderAssess(host); break;
-    case 'summary': renderSummary(host); break;
-    case 'roster': void renderRoster(host); break;
-    case 'detail': void renderDetail(host); break;
-    case 'settings': void renderSettings(host); break;
+    case 'start': showLoaderThen(host, renderStart); break;
+    case 'assess': host.innerHTML = ''; renderAssess(host); break;
+    case 'summary': host.innerHTML = ''; renderSummary(host); break;
+    case 'roster': showLoaderThen(host, renderRoster); break;
+    case 'detail': showLoaderThen(host, renderDetail); break;
+    case 'settings': showLoaderThen(host, renderSettings); break;
   }
 }
