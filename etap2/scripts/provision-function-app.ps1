@@ -25,7 +25,7 @@ $tempDir = [System.IO.Path]::GetTempPath()
 
 $rg   = 'rg-bakk-docs'
 $sub  = '28b7c9a4-317a-495c-99ed-6a6cec116a44'
-$loc  = 'germanywestcentral'  # Linux Consumption nie wspierany w polandcentral; DE West Central blisko PL (~30ms do Cosmos)
+$loc  = 'northeurope'  # germanywestcentral mial chronic SCM 503; northeurope (Dublin) ma najsolidniejsze wsparcie Linux Consumption
 $func = 'bakk-rekrutacja-api'
 $stg  = 'stbakkrekrutacjaapi'
 
