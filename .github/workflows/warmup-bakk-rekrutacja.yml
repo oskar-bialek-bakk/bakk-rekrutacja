@@ -1,0 +1,45 @@
+name: Warmup bakk-rekrutacja (anty cold-start)
+
+# Utrzymuje App Service (frontend) i Function App (API) w cieple w godzinach pracy,
+# zeby po zalogowaniu nie bylo ~30 s zimnego startu (F1 Free, brak Always On).
+# Pingujemy oba URL-e i tolerujemy kazdy kod HTTP (302 z Easy Auth / 401 / 200) —
+# chodzi tylko o wybudzenie instancji, nie o udane uwierzytelnienie.
+#
+# UWAGA: harmonogram (schedule) odpala sie WYLACZNIE z pliku na galezi domyslnej (main),
+# wiec warmup zacznie dzialac dopiero po zmergowaniu tego PR-a. workflow_dispatch
+# dziala recznie z dowolnej galezi (np. do testu).
+#
+# Czas: cron jest w UTC i nie zna DST. 6-15 UTC pokrywa ~08:00-17:50 czasu PL latem
+# (CEST, UTC+2) i ~07:00-16:50 zima (CET, UTC+1). Poza tym oknem cold start jest
+# akceptowalny. Repo jest publiczne, wiec minuty GitHub Actions sa darmowe; jedyny
+# realny koszt to mikroskopijne RU Cosmos per ping /api/health.
+#
+# Chcesz strzelac calodobowo? Zmien cron na: '*/10 * * * *'.
+
+on:
+  schedule:
+    - cron: '*/10 6-15 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: warmup-bakk-rekrutacja
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping frontend + API
+        run: |
+          set -u
+          urls=(
+            "https://bakk-rekrutacja.azurewebsites.net/"
+            "https://bakk-rekrutacja-api.azurewebsites.net/api/health"
+          )
+          for url in "${urls[@]}"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 90 --retry 2 --retry-all-errors "$url" || echo "000")
+            echo "warmup: $url -> HTTP $code"
+          done
