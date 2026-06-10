@@ -1,6 +1,6 @@
 import './ui/theme.css';
 import { navigate, render } from './app';
-import { reloadSettings } from './state';
+import { reloadSettings, session } from './state';
 import { isRedirectingToLogin } from './auth/access-token';
 
 // Najpierw maluj UI z defaultowymi ustawieniami, POTEM dociągaj ustawienia w tle.
@@ -10,12 +10,21 @@ import { isRedirectingToLogin } from './auth/access-token';
 // (wagi/score dotyczą dopiero oceny i podsumowania), więc render od razu jest bezpieczny,
 // a zanim prowadzący dojdzie do oceny, ustawienia są już wczytane.
 render();
-reloadSettings().catch((err: unknown) => {
-  // Relogin Easy Auth to nie awaria — strona już się przekierowuje, nie loguj.
-  if (!isRedirectingToLogin(err)) {
-    console.error('etap2: nie udało się wczytać ustawień, używam domyślnych', err);
-  }
-});
+reloadSettings()
+  .then(() => {
+    // Ustawienia doszły w tle. Odśwież ekran, który z nich korzysta (np. „Ustawienia"
+    // pokazujące wagi), ale NIE ekran startowy (reset formularza) ani aktywnej oceny /
+    // podsumowania (utrata niezapisanego stanu rozmowy).
+    if (session.screen !== 'start' && session.screen !== 'assess' && session.screen !== 'summary') {
+      render();
+    }
+  })
+  .catch((err: unknown) => {
+    // Relogin Easy Auth to nie awaria — strona już się przekierowuje, nie loguj.
+    if (!isRedirectingToLogin(err)) {
+      console.error('etap2: nie udało się wczytać ustawień, używam domyślnych', err);
+    }
+  });
 
 document.getElementById('nav-roster')?.addEventListener('click', () => {
   navigate('roster');

@@ -70,8 +70,13 @@ export function bindQnaEditable(scope: ParentNode, a: Assessment, kind: QnaKind)
     const sid = lbl.dataset.sig!;
     const cb = lbl.querySelector('input[type=checkbox]') as HTMLInputElement;
     cb.onchange = () => {
-      const cur = a.signalChecks[qid] ?? {};
-      a.signalChecks[qid] = { ...cur, [sid]: cb.checked };
+      // Trzymamy tylko zaznaczone (true). Odznaczenie usuwa wpis, a pusta mapa
+      // pytania znika — spójnie z migracją/testem i bez rozdymania zapisu.
+      const cur = { ...(a.signalChecks[qid] ?? {}) };
+      if (cb.checked) cur[sid] = true;
+      else delete cur[sid];
+      if (Object.keys(cur).length > 0) a.signalChecks[qid] = cur;
+      else delete a.signalChecks[qid];
       lbl.classList.toggle('on', cb.checked);
     };
   });

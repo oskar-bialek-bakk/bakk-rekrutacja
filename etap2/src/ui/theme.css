@@ -414,6 +414,7 @@
   .qsignal.good input[type=checkbox]:checked{background:var(--green);border-color:var(--green)}
   .qsignal.bad input[type=checkbox]:checked{background:var(--red);border-color:var(--red)}
   .qsignal input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #1a1714;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .qsignal input[type=checkbox]:focus-visible{outline:2px solid var(--accent-soft);outline-offset:2px}
   .qsignal.good.on{border-color:rgba(127,174,110,.5);background:rgba(127,174,110,.08);color:var(--ink)}
   .qsignal.bad.on{border-color:rgba(207,107,90,.5);background:rgba(207,107,90,.08);color:var(--ink)}
   .qna-flagrow{margin-top:2px}

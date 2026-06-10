@@ -17,7 +17,9 @@ const FRONTEND_URL = process.env.WARMUP_FRONTEND_URL ?? 'https://bakk-rekrutacja
  */
 export async function warmup(_timer: Timer, ctx: InvocationContext): Promise<void> {
   try {
-    const res = await fetch(FRONTEND_URL, { method: 'GET', redirect: 'manual' });
+    // Twardy timeout, żeby przy problemie sieci/DNS request nie wisiał i nie trzymał
+    // instancji funkcji (oraz nie nakładał się na kolejne odpalenia timera).
+    const res = await fetch(FRONTEND_URL, { method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(15_000) });
     ctx.log(`warmup: frontend ${FRONTEND_URL} -> HTTP ${res.status}`);
   } catch (err) {
     // Każdy kod (200/302/401) jest OK — chodzi o wybudzenie. Logujemy tylko realny błąd sieci.
