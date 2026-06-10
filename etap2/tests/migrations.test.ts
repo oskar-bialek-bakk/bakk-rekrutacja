@@ -15,23 +15,27 @@ describe('migrateAssessment → bieżący schemat', () => {
     expect(out.blockTimes).toEqual({});
   });
 
-  it('stary rekord bez intro/closing dostaje puste mapy', () => {
+  it('stary rekord bez intro/closing/signalChecks dostaje puste mapy', () => {
     const out = migrateAssessment({ id: 'x', schemaVersion: 2 });
     expect(out.intro).toEqual({});
     expect(out.closing).toEqual({});
     expect(out.closingFlags).toEqual({});
+    expect(out.signalChecks).toEqual({});
   });
 
-  it('zachowuje intro/closing/closingFlags i sanityzuje typy', () => {
+  it('zachowuje intro/closing/closingFlags/signalChecks i sanityzuje typy', () => {
     const out = migrateAssessment({
       id: 'x',
       intro: { kompetencje: 'solidny SQL', smiec: 123 },
       closing: { 'obecna-praca-usprawnienia': 'narzeka na szefa' },
       closingFlags: { 'obecna-praca-usprawnienia': { red: true, green: false } },
+      signalChecks: { kompetencje: { g1: true, b1: false }, 'obecna-praca-usprawnienia': { b2: true } },
     });
     expect(out.intro).toEqual({ kompetencje: 'solidny SQL' });
     expect(out.closing['obecna-praca-usprawnienia']).toBe('narzeka na szefa');
     expect(out.closingFlags['obecna-praca-usprawnienia']).toEqual({ red: true, green: false });
+    // false/niepoprawne odznaczenia są odfiltrowane, zostają tylko true
+    expect(out.signalChecks).toEqual({ kompetencje: { g1: true }, 'obecna-praca-usprawnienia': { b2: true } });
   });
 
   it('zachowuje istniejący blockTimes jeśli jest', () => {

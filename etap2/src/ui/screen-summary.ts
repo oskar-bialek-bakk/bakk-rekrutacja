@@ -1,5 +1,6 @@
 import { BLOCKS, rotatingBlockIds } from '../content/blocks';
 import { CLOSING_QUESTIONS } from '../content/interview-questions';
+import { qnaEditableListHtml, bindQnaEditable } from './qna';
 import { computeScore } from '../domain/scoring';
 import { recordSelectedVariants } from '../domain/variants';
 import type { Decision } from '../domain/model';
@@ -96,23 +97,7 @@ export function renderSummary(host: HTMLElement): void {
         <textarea id="dec-note" placeholder="Uzasadnienie decyzji"></textarea>
 
         <div class="section-title">Pytania zamykające <span class="muted">— poza oceną</span></div>
-        <div class="qna-list closing">
-          ${CLOSING_QUESTIONS.map((q) => `
-            <div class="qna-item">
-              <div class="qna-q">${escapeHtml(q.question)}</div>
-              ${q.hint ? `<div class="qna-hint">${escapeHtml(q.hint)}</div>` : ''}
-              ${q.redFlags && q.redFlags.length
-                ? `<details class="qna-redflags"><summary>Na co uważać (sygnały ostrzegawcze)</summary><ul>${q.redFlags.map((rf) => `<li>${escapeHtml(rf)}</li>`).join('')}</ul></details>`
-                : ''}
-              <textarea class="qna-input" data-q="${escapeHtml(q.id)}" placeholder="Notatka z odpowiedzi…"></textarea>
-              ${q.flag
-                ? `<div class="flagrow closing-flagrow" data-q="${escapeHtml(q.id)}">
-                    <button type="button" class="flagbtn red" data-flag="red">⚑ Czerwona</button>
-                    <button type="button" class="flagbtn green" data-flag="green">⚑ Zielona</button>
-                  </div>`
-                : ''}
-            </div>`).join('')}
-        </div>
+        ${qnaEditableListHtml(CLOSING_QUESTIONS, a, 'closing')}
 
         <div class="section-title">Negocjacje i warunki <span class="muted">— poza oceną</span></div>
         <div class="neg-grid">
@@ -152,32 +137,8 @@ export function renderSummary(host: HTMLElement): void {
   };
   bind('#neg-ocz', 'oczekiwania'); bind('#neg-wid', 'widelki'); bind('#neg-forma', 'formaUmowy'); bind('#neg-dost', 'dostepnosc'); bind('#neg-uwagi', 'uwagi');
 
-  // Pytania zamykające: notatka per pytanie + opcjonalne flagi (red-flag „narzekanie").
-  host.querySelectorAll<HTMLTextAreaElement>('.qna-list.closing .qna-input').forEach((ta) => {
-    const id = ta.dataset.q!;
-    ta.value = a.closing[id] ?? '';
-    ta.oninput = () => { a.closing[id] = ta.value; };
-  });
-  host.querySelectorAll<HTMLElement>('.closing-flagrow').forEach((row) => {
-    const id = row.dataset.q!;
-    const redBtn = row.querySelector('[data-flag="red"]') as HTMLButtonElement;
-    const greenBtn = row.querySelector('[data-flag="green"]') as HTMLButtonElement;
-    const cur = a.closingFlags[id] ?? { red: false, green: false };
-    redBtn.classList.toggle('on', cur.red);
-    greenBtn.classList.toggle('on', cur.green);
-    redBtn.onclick = () => {
-      const c = a.closingFlags[id] ?? { red: false, green: false };
-      const next = { red: !c.red, green: c.green };
-      a.closingFlags[id] = next;
-      redBtn.classList.toggle('on', next.red);
-    };
-    greenBtn.onclick = () => {
-      const c = a.closingFlags[id] ?? { red: false, green: false };
-      const next = { red: c.red, green: !c.green };
-      a.closingFlags[id] = next;
-      greenBtn.classList.toggle('on', next.green);
-    };
-  });
+  // Pytania zamykające: notatki, sygnały i flagi (wspólny moduł qna).
+  bindQnaEditable(host, a, 'closing');
 
   (host.querySelector('#back') as HTMLButtonElement).onclick = () => navigate('assess');
   (host.querySelector('#export-json') as HTMLButtonElement).onclick = () => {

@@ -47,8 +47,10 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
   await expect(page.locator('#detail-name')).toHaveText('Detal Kandydat');
   await expect(page.locator('#detail-score')).toHaveText('80');
 
-  // Edytuj → powrót do oceny (stepper widoczny).
+  // Edytuj → start od ekranu intro, potem przejście do oceny (stepper widoczny).
   await page.click('#edit');
+  await expect(page.locator('h2:has-text("Pytania wstępne")')).toBeVisible();
+  await page.click('#intro-next');
   await expect(page.locator('.stepper')).toBeVisible();
 
   // W trybie edycji dostępny jest szybki zapis zmian bez przechodzenia przez bloki.
@@ -60,6 +62,7 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
 
   // Ponowna edycja: tym razem zakończ przez podsumowanie.
   await page.click('#edit');
+  await page.click('#intro-next');
   await expect(page.locator('.stepper')).toBeVisible();
 
   // Przejdź przez bloki do podsumowania i zapisz, by wrócić na zestawienie.

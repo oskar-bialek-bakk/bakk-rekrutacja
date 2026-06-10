@@ -88,12 +88,15 @@ function buildSections(a: Assessment, settings: Settings): Section[] {
     paragraphs: [`Wynik: ${score.score}/100`, verdictLabel(score.score)],
   });
 
-  // 2b. Pytania wstępne (wywiad otwierający)
+  // 2b. Pytania wstępne (wywiad otwierający) — notatka + odznaczone sygnały
   const introBullets: string[] = [];
   for (const q of INTRO_QUESTIONS) {
     const ans = (a.intro[q.id] ?? '').trim();
-    if (!ans) continue;
-    introBullets.push(`${q.short}: ${truncate(ans)}`);
+    const checks = a.signalChecks[q.id] ?? {};
+    const checked = (q.signals ?? []).filter((s) => checks[s.id]);
+    if (!ans && checked.length === 0) continue;
+    const sigPart = checked.length ? ` [${checked.map((s) => s.text).join('; ')}]` : '';
+    introBullets.push(`${q.short}: ${ans ? truncate(ans) : '(bez notatki)'}${sigPart}`);
   }
   if (introBullets.length > 0) {
     sections.push({ heading: 'Wywiad otwierający', bullets: introBullets });
@@ -146,14 +149,17 @@ function buildSections(a: Assessment, settings: Settings): Section[] {
     sections.push({ heading: 'Decyzja', paragraphs: paras });
   }
 
-  // 6b. Pytania zamykające (+ flaga red-flag „narzekanie")
+  // 6b. Pytania zamykające — notatka + odznaczone sygnały + flaga „narzekanie"
   const closingBullets: string[] = [];
   for (const q of CLOSING_QUESTIONS) {
     const ans = (a.closing[q.id] ?? '').trim();
+    const checks = a.signalChecks[q.id] ?? {};
+    const checked = (q.signals ?? []).filter((s) => checks[s.id]);
     const f = a.closingFlags[q.id];
     const flagTag = f?.red ? ' [czerwona flaga]' : f?.green ? ' [zielona flaga]' : '';
-    if (!ans && !flagTag) continue;
-    closingBullets.push(`${q.short}: ${ans ? truncate(ans) : '(bez notatki)'}${flagTag}`);
+    if (!ans && checked.length === 0 && !flagTag) continue;
+    const sigPart = checked.length ? ` [${checked.map((s) => s.text).join('; ')}]` : '';
+    closingBullets.push(`${q.short}: ${ans ? truncate(ans) : '(bez notatki)'}${sigPart}${flagTag}`);
   }
   if (closingBullets.length > 0) {
     sections.push({ heading: 'Pytania zamykające', bullets: closingBullets });

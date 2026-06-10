@@ -59,6 +59,20 @@ function ensureClosingFlags(v: unknown): Record<string, Flags> {
   return out;
 }
 
+function ensureSignalChecks(v: unknown): Record<string, Record<string, boolean>> {
+  if (!v || typeof v !== 'object') return {};
+  const out: Record<string, Record<string, boolean>> = {};
+  for (const [qid, sigs] of Object.entries(v as Record<string, unknown>)) {
+    if (!sigs || typeof sigs !== 'object') continue;
+    const inner: Record<string, boolean> = {};
+    for (const [sid, on] of Object.entries(sigs as Record<string, unknown>)) {
+      if (on === true) inner[sid] = true;
+    }
+    if (Object.keys(inner).length > 0) out[qid] = inner;
+  }
+  return out;
+}
+
 function ensureTimer(t: unknown): TimerState {
   const obj = (t ?? {}) as Partial<TimerState>;
   return {
@@ -87,6 +101,7 @@ export function migrateAssessment(raw: unknown): Assessment {
     intro: ensureQna(r.intro),
     closing: ensureQna(r.closing),
     closingFlags: ensureClosingFlags(r.closingFlags),
+    signalChecks: ensureSignalChecks(r.signalChecks),
     negotiation: ensureNegotiation(r.negotiation),
     timer: ensureTimer(r.timer),
     blockTimes: ensureBlockTimes(r.blockTimes),

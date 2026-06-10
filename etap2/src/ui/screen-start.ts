@@ -9,9 +9,13 @@ import { startTimer } from './timer-ui';
 import { renderMigrationBanner } from './migration-banner';
 
 export async function renderStart(host: HTMLElement): Promise<void> {
-  const usage = await repo.getVariantUsage();
+  // Prowizoryczne sugestie z pustego usage, żeby formularz pojawił się NATYCHMIAST,
+  // bez czekania na API. Realne liczniki wariantów dociągamy w tle (niżej) — przy
+  // zimnym starcie Function App to różnica między pustym ekranem a działającym formularzem.
   const suggested: Record<string, number> = {};
-  for (const b of BLOCKS) suggested[b.id] = pickLeastUsed(usage, b.id, b.variants.length);
+  for (const b of BLOCKS) suggested[b.id] = pickLeastUsed({}, b.id, b.variants.length);
+  // Bloki, w których prowadzący sam wskazał wariant — nie nadpisujemy ich po dociągnięciu usage.
+  const touchedVariants = new Set<string>();
 
   host.innerHTML = `
     <div id="migration-host"></div>
@@ -54,6 +58,7 @@ export async function renderStart(host: HTMLElement): Promise<void> {
     row.querySelectorAll<HTMLButtonElement>('.vchip').forEach((chip) => {
       chip.onclick = () => {
         if (chip.disabled) return;
+        touchedVariants.add(row.dataset.block ?? '');
         row.querySelectorAll('.vchip').forEach((c) => c.classList.remove('on'));
         chip.classList.add('on');
       };
@@ -71,6 +76,25 @@ export async function renderStart(host: HTMLElement): Promise<void> {
   };
   chkChart.onchange = refreshAChips;
   refreshAChips();
+
+  // W tle: realne liczniki wariantów. Aktualizujemy sugestię tylko dla bloków,
+  // których prowadzący jeszcze nie tknął. Błąd / zimny start / timeout zostawia
+  // prowizoryczne sugestie — formularz i tak jest w pełni użyteczny.
+  void (async () => {
+    try {
+      const usage = await repo.getVariantUsage();
+      for (const b of BLOCKS) {
+        if (b.variants.length <= 1 || touchedVariants.has(b.id)) continue;
+        const idx = pickLeastUsed(usage, b.id, b.variants.length);
+        const row = vp.querySelector<HTMLElement>(`.vchips[data-block="${b.id}"]`);
+        if (!row) continue;
+        row.querySelectorAll<HTMLButtonElement>('.vchip').forEach((c, i) => c.classList.toggle('on', i === idx));
+      }
+      refreshAChips();
+    } catch {
+      // zostaw prowizoryczne sugestie
+    }
+  })();
 
   (host.querySelector('#in-date') as HTMLInputElement).value = new Date().toISOString().slice(0, 10);
 

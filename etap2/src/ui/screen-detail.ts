@@ -1,10 +1,13 @@
 import { BLOCKS } from '../content/blocks';
 import type { Block } from '../content/blocks';
+import { INTRO_QUESTIONS, CLOSING_QUESTIONS } from '../content/interview-questions';
+import type { InterviewQuestion } from '../content/interview-questions';
 import { computeScore } from '../domain/scoring';
 import type { Assessment } from '../domain/model';
 import { repo, session, settings } from '../state';
 import { navigate } from '../app';
 import { escapeHtml } from './escape';
+import { qnaSummaryHtml, hasQnaContent, type QnaKind } from './qna';
 import { confirmDialog } from './confirm-dialog';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
@@ -90,6 +93,12 @@ function renderNotes(a: Assessment, blocks: Block[]): string {
     : '<div class="section-title">Notatki z bloków</div><div class="notes-empty">Brak notatek z bloków.</div>';
 }
 
+function renderQnaSection(a: Assessment, title: string, questions: InterviewQuestion[], kind: QnaKind): string {
+  if (!hasQnaContent(questions, a, kind)) return '';
+  return `<div class="section-title">${title} <span class="muted">— poza oceną</span></div>
+    <div class="notes-section">${qnaSummaryHtml(questions, a, kind)}</div>`;
+}
+
 function renderNegotiation(a: Assessment): string {
   const fields: ReadonlyArray<[string, string]> = [
     ['Oczekiwania finansowe', a.negotiation.oczekiwania],
@@ -166,7 +175,11 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
 
         ${renderFlags(a, blocks)}
 
+        ${renderQnaSection(a, 'Wywiad otwierający', INTRO_QUESTIONS, 'intro')}
+
         ${renderNotes(a, blocks)}
+
+        ${renderQnaSection(a, 'Pytania zamykające', CLOSING_QUESTIONS, 'closing')}
 
         ${renderNegotiation(a)}
 
@@ -191,11 +204,13 @@ export async function renderDetail(host: HTMLElement): Promise<void> {
 
   (host.querySelector('#edit') as HTMLButtonElement).onclick = () => {
     // Edycja istniejącej oceny: nie wznawiamy zegara (to korekta, nie nowa mierzona rozmowa).
+    // Start od ekranu „Wywiad otwierający", żeby cały przebieg (wstęp → bloki →
+    // zakończenie) był edytowalny po kolei; każdy ekran ma „Zapisz zmiany".
     session.current = record;
     session.cur = 0;
     session.visited = new Set();
     session.editing = true;
-    navigate('assess');
+    navigate('intro');
   };
 
   (host.querySelector('#recruiter-summary') as HTMLButtonElement).onclick = () => {
