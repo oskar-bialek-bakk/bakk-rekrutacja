@@ -393,21 +393,38 @@
   .neg-grid .field select,.neg-grid > select{appearance:none}
 
   /* ---------- pytania wstępne / zamykające (qna) ---------- */
-  .qna-lead{color:var(--ink-dim);font-size:14px;margin-bottom:20px;max-width:680px}
-  .qna-list{display:flex;flex-direction:column;gap:22px}
+  .qna-lead{color:var(--ink-dim);font-size:14px;margin-bottom:18px;max-width:680px}
+  .qna-list{display:flex;flex-direction:column;gap:14px}
   .qna-list.closing{margin:8px 0 4px}
-  .qna-item{display:flex;flex-direction:column}
-  .qna-q{font-size:15px;font-weight:500;color:var(--ink);line-height:1.45;margin-bottom:6px}
-  .qna-hint{font-size:12.5px;color:var(--ink-faint);line-height:1.45;margin-bottom:10px}
-  .qna-item textarea{min-height:64px}
-  .qna-redflags{margin:0 0 10px}
-  .qna-redflags summary{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--red);font-weight:600;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;user-select:none}
-  .qna-redflags summary::before{content:"⚑";font-size:12px}
-  .qna-redflags summary::-webkit-details-marker{display:none}
-  .qna-redflags ul{margin:10px 0 0;padding:12px 14px 12px 30px;background:rgba(207,107,90,.07);border:1px solid rgba(207,107,90,.25);border-radius:10px}
-  .qna-redflags li{font-size:12.5px;color:var(--ink-dim);line-height:1.5;margin-bottom:5px}
-  .qna-redflags li:last-child{margin-bottom:0}
-  .closing-flagrow{margin-top:10px}
+  .qna-item{display:flex;flex-direction:column;gap:10px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+  .qna-q{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.45}
+  .qna-hint-box{font-size:12.5px}
+  .qna-hint-box summary{color:var(--ink-faint);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;user-select:none;letter-spacing:.02em}
+  .qna-hint-box summary::-webkit-details-marker{display:none}
+  .qna-hint-box summary::before{content:"▸";display:inline-block;transition:transform .15s}
+  .qna-hint-box[open] summary::before{transform:rotate(90deg)}
+  .qna-hint-box>div{margin-top:8px;color:var(--ink-dim);line-height:1.5;padding-left:16px}
+  .qna-item textarea{min-height:58px}
+  /* sygnały do odznaczenia */
+  .qna-signals{display:flex;flex-direction:column;gap:6px}
+  .qna-signals-head{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:2px}
+  .qsignal{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.4;color:var(--ink-dim);cursor:pointer;padding:7px 11px;border:1px solid var(--line);border-radius:8px;user-select:none;transition:.15s}
+  .qsignal:hover{border-color:#4a4339}
+  .qsignal input[type=checkbox]{appearance:none;-webkit-appearance:none;width:17px;height:17px;border:1.5px solid var(--line);border-radius:5px;background:#15120f;cursor:pointer;margin:1px 0 0;position:relative;flex-shrink:0;transition:.15s}
+  .qsignal.good input[type=checkbox]:checked{background:var(--green);border-color:var(--green)}
+  .qsignal.bad input[type=checkbox]:checked{background:var(--red);border-color:var(--red)}
+  .qsignal input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #1a1714;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .qsignal.good.on{border-color:rgba(127,174,110,.5);background:rgba(127,174,110,.08);color:var(--ink)}
+  .qsignal.bad.on{border-color:rgba(207,107,90,.5);background:rgba(207,107,90,.08);color:var(--ink)}
+  .qna-flagrow{margin-top:2px}
+  /* read-only podsumowanie (szczegóły) */
+  .qna-sum-signals{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}
+  .qna-chip{font-size:12px;padding:4px 9px;border-radius:6px;line-height:1.3}
+  .qna-chip.good{background:rgba(127,174,110,.12);border:1px solid rgba(127,174,110,.3);color:#a5cb96}
+  .qna-chip.bad{background:rgba(207,107,90,.12);border:1px solid rgba(207,107,90,.3);color:#e89384}
+  .qna-flagtag{font-size:11px;padding:2px 8px;border-radius:6px;margin-left:8px;font-weight:600}
+  .qna-flagtag.red{background:rgba(207,107,90,.14);color:#e89384}
+  .qna-flagtag.green{background:rgba(127,174,110,.14);color:#a5cb96}
   .neg-grid .full{grid-column:1/-1}
 
   .section-title{font-family:'Newsreader',serif;font-size:20px;font-weight:600;margin:30px 0 16px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px}

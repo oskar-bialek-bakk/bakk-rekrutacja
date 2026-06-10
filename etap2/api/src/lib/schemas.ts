@@ -52,6 +52,7 @@ export const AssessmentSchema = z.object({
   intro: z.record(z.string(), z.string()).optional().default({}),
   closing: z.record(z.string(), z.string()).optional().default({}),
   closingFlags: z.record(z.string(), Flags).optional().default({}),
+  signalChecks: z.record(z.string(), z.record(z.string(), z.boolean())).optional().default({}),
   negotiation: Negotiation.optional().default({
     oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '',
   }),

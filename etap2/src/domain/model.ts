@@ -46,6 +46,8 @@ export interface Assessment {
   closing: QnaAnswers;
   /** Flagi czerwona/zielona dla wybranych pytań zamykających (np. red-flag „narzekanie”). */
   closingFlags: Record<string, Flags>;
+  /** Odznaczone sygnały per pytanie wstępne/zamykające: signalChecks[questionId][signalId] = true. */
+  signalChecks: Record<string, Record<string, boolean>>;
   negotiation: Negotiation;
   timer: TimerState;
   blockTimes: BlockTimes;
@@ -71,7 +73,7 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
     id, schemaVersion: SCHEMA_VERSION, candidate,
     selectedVariants: {}, deepenAsked: {}, marks: {}, flags: {}, notes: {},
     decision: null, decisionNote: '', askedQuestions: {},
-    intro: {}, closing: {}, closingFlags: {}, negotiation: emptyNegotiation(),
+    intro: {}, closing: {}, closingFlags: {}, signalChecks: {}, negotiation: emptyNegotiation(),
     timer: { elapsedSec: 0, paused: false, offsetSec: 0, phase45Notified: false },
     blockTimes: {},
     useE: false, useAChart: false, createdAt: now, updatedAt: now,

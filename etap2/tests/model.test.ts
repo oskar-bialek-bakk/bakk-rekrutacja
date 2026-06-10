@@ -14,6 +14,7 @@ describe('createEmptyAssessment', () => {
     expect(a.intro).toEqual({});
     expect(a.closing).toEqual({});
     expect(a.closingFlags).toEqual({});
+    expect(a.signalChecks).toEqual({});
     expect(a.decision).toBeNull();
     expect(a.negotiation.oczekiwania).toBe('');
     expect(a.useE).toBe(false);
