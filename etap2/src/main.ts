@@ -3,7 +3,14 @@ import { navigate, render } from './app';
 import { reloadSettings } from './state';
 
 (async () => {
-  await reloadSettings();
+  // Ładowanie ustawień NIE może blokować pierwszego renderu. Gdy backend chwilowo
+  // nie odpowie (albo trwa relogin), aplikacja i tak musi się pokazać z defaultami,
+  // a nie zawisnąć na pustym ekranie (regresja: „nie wstaje póki nie wyczyścisz cookies").
+  try {
+    await reloadSettings();
+  } catch (err) {
+    console.error('etap2: nie udało się wczytać ustawień, używam domyślnych', err);
+  }
   render();
 })();
 

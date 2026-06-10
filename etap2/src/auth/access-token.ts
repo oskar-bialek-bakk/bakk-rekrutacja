@@ -30,12 +30,18 @@ function parseExpiry(raw?: string): number {
   return Number.isFinite(t) ? t : fallback;
 }
 
+// Przekierowanie na logowanie Easy Auth. Czyści ewentualną nieświeżą sesję
+// (stary cookie AppServiceAuthSession), a po zalogowaniu wraca na bieżący URL.
+function redirectToLogin(): never {
+  const next = encodeURIComponent(window.location.href);
+  window.location.assign(`/.auth/login/aad?post_login_redirect_url=${next}`);
+  throw new Error('Redirecting to login');
+}
+
 async function fetchToken(): Promise<string> {
   const res = await fetch('/.auth/me', { credentials: 'include' });
-  if (res.status === 401) {
-    const next = encodeURIComponent(window.location.href);
-    window.location.assign(`/.auth/login/aad?post_login_redirect_url=${next}`);
-    throw new Error('Redirecting to login');
+  if (res.status === 401 || res.status === 403) {
+    redirectToLogin();
   }
   if (!res.ok) {
     throw new Error(`/.auth/me HTTP ${res.status}`);
@@ -49,9 +55,17 @@ async function fetchToken(): Promise<string> {
               ?? entries.find((e) => typeof e.access_token === 'string' && e.access_token.length > 0);
   const token = entry?.id_token ?? entry?.access_token;
   if (!token) {
-    throw new Error('Brak id_token/access_token w /.auth/me. Sprawdz Easy Auth na App Service.');
+    // Cookie sesyjny obecny, ale `/.auth/me` nie zwraca użytecznego tokenu
+    // (wygasła/nieświeża sesja Easy Auth — typowy stan po dłuższej nieaktywności).
+    // Dawniej rzucaliśmy tu wyjątek, co przy starcie aplikacji wieszało ją na pustym
+    // ekranie i wymuszało ręczne czyszczenie cookies. Teraz wymuszamy ponowne logowanie.
+    redirectToLogin();
   }
   const expiresAt = parseExpiry(entry?.expires_on);
+  if (expiresAt <= Date.now()) {
+    // Token formalnie obecny, ale już wygasł — relogin zamiast wysyłania martwego tokenu.
+    redirectToLogin();
+  }
   cache = { token, expiresAt };
   return token;
 }
