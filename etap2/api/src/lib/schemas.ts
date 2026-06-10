@@ -38,7 +38,7 @@ const partialByBlock = <T extends z.ZodTypeAny>(value: T) =>
 
 export const AssessmentSchema = z.object({
   id: z.string().min(1),
-  schemaVersion: z.number().int().optional().default(2),
+  schemaVersion: z.number().int().optional().default(3),
   candidate: Candidate,
   selectedVariants: partialByBlock(z.number().int()),
   deepenAsked: partialByBlock(z.boolean()),

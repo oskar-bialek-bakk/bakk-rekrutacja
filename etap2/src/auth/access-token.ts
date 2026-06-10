@@ -30,12 +30,21 @@ function parseExpiry(raw?: string): number {
   return Number.isFinite(t) ? t : fallback;
 }
 
+// Sentinel wyjątku rzucanego, gdy zlecamy przeglądarce przejście na logowanie.
+// To NIE jest błąd — strona właśnie się przekierowuje; pozwala wołającym
+// (np. main.ts) odróżnić relogin od realnej awarii i nie logować go jako error.
+export const REDIRECTING_TO_LOGIN = 'Redirecting to login';
+
+export function isRedirectingToLogin(err: unknown): boolean {
+  return err instanceof Error && err.message === REDIRECTING_TO_LOGIN;
+}
+
 // Przekierowanie na logowanie Easy Auth. Czyści ewentualną nieświeżą sesję
 // (stary cookie AppServiceAuthSession), a po zalogowaniu wraca na bieżący URL.
 function redirectToLogin(): never {
   const next = encodeURIComponent(window.location.href);
   window.location.assign(`/.auth/login/aad?post_login_redirect_url=${next}`);
-  throw new Error('Redirecting to login');
+  throw new Error(REDIRECTING_TO_LOGIN);
 }
 
 async function fetchToken(): Promise<string> {

@@ -1,6 +1,7 @@
 import './ui/theme.css';
 import { navigate, render } from './app';
 import { reloadSettings } from './state';
+import { isRedirectingToLogin } from './auth/access-token';
 
 (async () => {
   // Ładowanie ustawień NIE może blokować pierwszego renderu. Gdy backend chwilowo
@@ -9,7 +10,10 @@ import { reloadSettings } from './state';
   try {
     await reloadSettings();
   } catch (err) {
-    console.error('etap2: nie udało się wczytać ustawień, używam domyślnych', err);
+    // Relogin Easy Auth to nie awaria — strona już się przekierowuje, nie loguj.
+    if (!isRedirectingToLogin(err)) {
+      console.error('etap2: nie udało się wczytać ustawień, używam domyślnych', err);
+    }
   }
   render();
 })();

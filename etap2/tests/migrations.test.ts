@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { migrateAssessment } from '../src/persistence/migrations';
 import { SCHEMA_VERSION } from '../src/domain/model';
 
-describe('migrateAssessment v1 → v2', () => {
-  it('surowy rekord schemaVersion=1 bez blockTimes dostaje blockTimes:{} i schemaVersion=2', () => {
+describe('migrateAssessment → bieżący schemat', () => {
+  it('surowy rekord schemaVersion=1 bez blockTimes dostaje blockTimes:{} i schemaVersion=3', () => {
     const raw = {
       id: 'x',
       schemaVersion: 1,
