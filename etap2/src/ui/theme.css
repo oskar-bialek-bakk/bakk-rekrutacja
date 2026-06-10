@@ -332,6 +332,20 @@
   .field input:focus{outline:none;border-color:var(--accent)}
   .field.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .field.two>div>label{margin-top:0}
+  /* Dropdown (np. wybór kandydata z Traffit) — spójny z .field input, własny chevron. */
+  .field select{
+    width:100%;background:#15120f;border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-family:'IBM Plex Sans';font-size:15px;padding:13px 42px 13px 15px;cursor:pointer;
+    appearance:none;-webkit-appearance:none;-moz-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%237d7264' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:16px;
+    transition:border-color .15s,background-color .15s;
+  }
+  .field select:hover{border-color:#4a4339}
+  .field select:focus{outline:none;border-color:var(--accent);background-color:#1a1612}
+  .field select option{background:#221e1a;color:var(--ink)}
+  /* Link „wprowadź ręcznie" pod dropdownem — dyskretny, wyrównany do lewej. */
+  .field .manual-link{margin-top:10px;align-self:flex-start;font-size:12.5px;padding:6px 10px}
 
   /* ---------- summary ---------- */
   .sum-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:24px}
@@ -377,6 +391,23 @@
   .neg-grid > input:focus,.neg-grid > select:focus{outline:none;border-color:var(--accent);background:#1a1612}
   .neg-grid > input::placeholder{color:var(--ink-faint)}
   .neg-grid .field select,.neg-grid > select{appearance:none}
+
+  /* ---------- pytania wstępne / zamykające (qna) ---------- */
+  .qna-lead{color:var(--ink-dim);font-size:14px;margin-bottom:20px;max-width:680px}
+  .qna-list{display:flex;flex-direction:column;gap:22px}
+  .qna-list.closing{margin:8px 0 4px}
+  .qna-item{display:flex;flex-direction:column}
+  .qna-q{font-size:15px;font-weight:500;color:var(--ink);line-height:1.45;margin-bottom:6px}
+  .qna-hint{font-size:12.5px;color:var(--ink-faint);line-height:1.45;margin-bottom:10px}
+  .qna-item textarea{min-height:64px}
+  .qna-redflags{margin:0 0 10px}
+  .qna-redflags summary{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--red);font-weight:600;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px;user-select:none}
+  .qna-redflags summary::before{content:"⚑";font-size:12px}
+  .qna-redflags summary::-webkit-details-marker{display:none}
+  .qna-redflags ul{margin:10px 0 0;padding:12px 14px 12px 30px;background:rgba(207,107,90,.07);border:1px solid rgba(207,107,90,.25);border-radius:10px}
+  .qna-redflags li{font-size:12.5px;color:var(--ink-dim);line-height:1.5;margin-bottom:5px}
+  .qna-redflags li:last-child{margin-bottom:0}
+  .closing-flagrow{margin-top:10px}
   .neg-grid .full{grid-column:1/-1}
 
   .section-title{font-family:'Newsreader',serif;font-size:20px;font-weight:600;margin:30px 0 16px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px}

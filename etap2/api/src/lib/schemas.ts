@@ -38,7 +38,7 @@ const partialByBlock = <T extends z.ZodTypeAny>(value: T) =>
 
 export const AssessmentSchema = z.object({
   id: z.string().min(1),
-  schemaVersion: z.number().int().optional().default(2),
+  schemaVersion: z.number().int().optional().default(3),
   candidate: Candidate,
   selectedVariants: partialByBlock(z.number().int()),
   deepenAsked: partialByBlock(z.boolean()),
@@ -48,6 +48,10 @@ export const AssessmentSchema = z.object({
   decision: Decision.nullable().optional().default(null),
   decisionNote: z.string().optional().default(''),
   askedQuestions: partialByBlock(z.record(z.string(), z.boolean())),
+  // Pytania wstępne / zamykające — keyed po id pytania, poza punktacją.
+  intro: z.record(z.string(), z.string()).optional().default({}),
+  closing: z.record(z.string(), z.string()).optional().default({}),
+  closingFlags: z.record(z.string(), Flags).optional().default({}),
   negotiation: Negotiation.optional().default({
     oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '',
   }),

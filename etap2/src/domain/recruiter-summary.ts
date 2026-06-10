@@ -1,6 +1,7 @@
 import type { Assessment, Settings, BlockId } from './model';
 import { computeScore } from './scoring';
 import { BLOCKS } from '../content/blocks';
+import { INTRO_QUESTIONS, CLOSING_QUESTIONS } from '../content/interview-questions';
 import { escapeHtml } from './escape';
 
 export interface RecruiterSummary {
@@ -87,6 +88,17 @@ function buildSections(a: Assessment, settings: Settings): Section[] {
     paragraphs: [`Wynik: ${score.score}/100`, verdictLabel(score.score)],
   });
 
+  // 2b. Pytania wstępne (wywiad otwierający)
+  const introBullets: string[] = [];
+  for (const q of INTRO_QUESTIONS) {
+    const ans = (a.intro[q.id] ?? '').trim();
+    if (!ans) continue;
+    introBullets.push(`${q.short}: ${truncate(ans)}`);
+  }
+  if (introBullets.length > 0) {
+    sections.push({ heading: 'Wywiad otwierający', bullets: introBullets });
+  }
+
   // 3. Profile per block
   const profileBullets: string[] = [];
   for (const id of activeBlocks(a)) {
@@ -132,6 +144,19 @@ function buildSections(a: Assessment, settings: Settings): Section[] {
     const note = a.decisionNote.trim();
     if (note) paras.push(`Komentarz: ${note}`);
     sections.push({ heading: 'Decyzja', paragraphs: paras });
+  }
+
+  // 6b. Pytania zamykające (+ flaga red-flag „narzekanie")
+  const closingBullets: string[] = [];
+  for (const q of CLOSING_QUESTIONS) {
+    const ans = (a.closing[q.id] ?? '').trim();
+    const f = a.closingFlags[q.id];
+    const flagTag = f?.red ? ' [czerwona flaga]' : f?.green ? ' [zielona flaga]' : '';
+    if (!ans && !flagTag) continue;
+    closingBullets.push(`${q.short}: ${ans ? truncate(ans) : '(bez notatki)'}${flagTag}`);
+  }
+  if (closingBullets.length > 0) {
+    sections.push({ heading: 'Pytania zamykające', bullets: closingBullets });
   }
 
   // 7. Negotiation

@@ -16,7 +16,7 @@ export const isOnline: boolean = repo instanceof AzureStore;
 
 export interface Session {
   current: Assessment | null;
-  screen: 'start' | 'assess' | 'summary' | 'roster' | 'detail' | 'settings';
+  screen: 'start' | 'intro' | 'assess' | 'summary' | 'roster' | 'detail' | 'settings';
   cur: number;
   visited: Set<BlockId>;
   detailId: string | null;

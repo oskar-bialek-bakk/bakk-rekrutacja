@@ -11,11 +11,14 @@ describe('createEmptyAssessment', () => {
     expect(a.flags).toEqual({});
     expect(a.notes).toEqual({});
     expect(a.askedQuestions).toEqual({});
+    expect(a.intro).toEqual({});
+    expect(a.closing).toEqual({});
+    expect(a.closingFlags).toEqual({});
     expect(a.decision).toBeNull();
     expect(a.negotiation.oczekiwania).toBe('');
     expect(a.useE).toBe(false);
     expect(a.blockTimes).toEqual({});
-    expect(SCHEMA_VERSION).toBe(2);
+    expect(SCHEMA_VERSION).toBe(3);
     expect(typeof a.createdAt).toBe('string');
   });
 

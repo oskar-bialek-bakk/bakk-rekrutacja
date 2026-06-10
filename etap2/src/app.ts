@@ -1,6 +1,7 @@
 import type { Session } from './state';
 import { session } from './state';
 import { renderStart } from './ui/screen-start';
+import { renderIntro } from './ui/screen-intro';
 import { renderAssess } from './ui/screen-assess';
 import { renderSummary } from './ui/screen-summary';
 import { renderRoster } from './ui/screen-roster';
@@ -33,6 +34,7 @@ export function render(): void {
   const host = document.getElementById('app')!;
   switch (session.screen) {
     case 'start': showLoaderThen(host, renderStart); break;
+    case 'intro': host.innerHTML = ''; renderIntro(host); break;
     case 'assess': host.innerHTML = ''; renderAssess(host); break;
     case 'summary': host.innerHTML = ''; renderSummary(host); break;
     case 'roster': showLoaderThen(host, renderRoster); break;

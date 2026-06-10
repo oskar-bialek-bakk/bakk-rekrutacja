@@ -5,6 +5,9 @@ test('pełny przepływ: start → ocena → podsumowanie → zestawienie', async
   await page.fill('#in-name', 'Test Kandydat');
   await page.click('#btn-start');
 
+  // Ekran „Wywiad otwierający" (pytania wstępne) → przejdź do oceny.
+  await page.click('#intro-next');
+
   for (let i = 0; i < 4; i++) {
     await page.click('label.lvl[data-lvl="4"]');
     await page.click('#next');
@@ -23,6 +26,9 @@ test('szczegóły kandydata: otwarcie, edycja i powrót do zestawienia', async (
   await page.goto('/');
   await page.fill('#in-name', 'Detal Kandydat');
   await page.click('#btn-start');
+
+  // Ekran „Wywiad otwierający" (pytania wstępne) → przejdź do oceny.
+  await page.click('#intro-next');
 
   for (let i = 0; i < 4; i++) {
     await page.click('label.lvl[data-lvl="4"]');
