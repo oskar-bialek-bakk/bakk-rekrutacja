@@ -1,4 +1,4 @@
-import type { Assessment, Candidate, Negotiation, TimerState } from '../domain/model';
+import type { Assessment, Candidate, Flags, Negotiation, QnaAnswers, TimerState } from '../domain/model';
 import { SCHEMA_VERSION } from '../domain/model';
 import type { BlockTimes } from '../domain/timer';
 
@@ -40,6 +40,25 @@ function ensureNegotiation(n: unknown): Negotiation {
   };
 }
 
+function ensureQna(v: unknown): QnaAnswers {
+  if (!v || typeof v !== 'object') return {};
+  const out: QnaAnswers = {};
+  for (const [key, val] of Object.entries(v as Record<string, unknown>)) {
+    if (typeof val === 'string') out[key] = val;
+  }
+  return out;
+}
+
+function ensureClosingFlags(v: unknown): Record<string, Flags> {
+  if (!v || typeof v !== 'object') return {};
+  const out: Record<string, Flags> = {};
+  for (const [key, val] of Object.entries(v as Record<string, unknown>)) {
+    const f = (val ?? {}) as Partial<Flags>;
+    out[key] = { red: f.red === true, green: f.green === true };
+  }
+  return out;
+}
+
 function ensureTimer(t: unknown): TimerState {
   const obj = (t ?? {}) as Partial<TimerState>;
   return {
@@ -65,6 +84,9 @@ export function migrateAssessment(raw: unknown): Assessment {
     decision: (r.decision ?? null) as Assessment['decision'],
     decisionNote: typeof r.decisionNote === 'string' ? r.decisionNote : '',
     askedQuestions: (r.askedQuestions ?? {}) as Assessment['askedQuestions'],
+    intro: ensureQna(r.intro),
+    closing: ensureQna(r.closing),
+    closingFlags: ensureClosingFlags(r.closingFlags),
     negotiation: ensureNegotiation(r.negotiation),
     timer: ensureTimer(r.timer),
     blockTimes: ensureBlockTimes(r.blockTimes),

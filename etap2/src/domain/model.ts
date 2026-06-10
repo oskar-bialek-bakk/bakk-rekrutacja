@@ -25,6 +25,9 @@ export interface Negotiation {
 export interface TimerState { elapsedSec: number; paused: boolean; offsetSec: number; phase45Notified?: boolean; }
 export interface Flags { red: boolean; green: boolean; }
 
+/** Odpowiedzi na pytania wstępne / zamykające — keyed po `id` pytania (poza punktacją). */
+export type QnaAnswers = Record<string, string>;
+
 export interface Assessment {
   id: string;
   schemaVersion: number;
@@ -37,6 +40,12 @@ export interface Assessment {
   decision: Decision | null;
   decisionNote: string;
   askedQuestions: Partial<Record<BlockId, Record<number, boolean>>>;
+  /** Pytania wstępne (otwierające wywiad) — notatki per pytanie, poza punktacją. */
+  intro: QnaAnswers;
+  /** Pytania zamykające (przed negocjacjami) — notatki per pytanie, poza punktacją. */
+  closing: QnaAnswers;
+  /** Flagi czerwona/zielona dla wybranych pytań zamykających (np. red-flag „narzekanie”). */
+  closingFlags: Record<string, Flags>;
   negotiation: Negotiation;
   timer: TimerState;
   blockTimes: BlockTimes;
@@ -50,7 +59,7 @@ export type VariantUsage = Partial<Record<BlockId, Record<number, number>>>;
 export interface Weights { A: number; B: number; C: number; D: number; E: number; }
 export interface Settings { weights: Weights; showScoreLive: boolean; includeEInScore: boolean; }
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 function emptyNegotiation(): Negotiation {
   return { oczekiwania: '', widelki: '', formaUmowy: '', dostepnosc: '', uwagi: '' };
@@ -61,7 +70,8 @@ export function createEmptyAssessment(id: string, candidate: Candidate): Assessm
   return {
     id, schemaVersion: SCHEMA_VERSION, candidate,
     selectedVariants: {}, deepenAsked: {}, marks: {}, flags: {}, notes: {},
-    decision: null, decisionNote: '', askedQuestions: {}, negotiation: emptyNegotiation(),
+    decision: null, decisionNote: '', askedQuestions: {},
+    intro: {}, closing: {}, closingFlags: {}, negotiation: emptyNegotiation(),
     timer: { elapsedSec: 0, paused: false, offsetSec: 0, phase45Notified: false },
     blockTimes: {},
     useE: false, useAChart: false, createdAt: now, updatedAt: now,

@@ -1,5 +1,6 @@
 import type { Assessment, BlockId, Settings, VariantUsage } from '../domain/model';
 import type { Repository } from './repository';
+import { migrateAssessment } from './migrations';
 import { forceRefresh, getAccessToken } from '../auth/access-token';
 
 type RotatingBlock = 'A' | 'B' | 'C' | 'D';
@@ -87,18 +88,22 @@ export class AzureStore implements Repository {
   }
 
   async findAll(): Promise<Assessment[]> {
-    const data = await this.request<{ assessments: Assessment[] }>('GET', '/api/v1/assessments?scope=mine');
-    return data.assessments;
+    const data = await this.request<{ assessments: unknown[] }>('GET', '/api/v1/assessments?scope=mine');
+    // Migracja na odczycie: starsze dokumenty z Cosmos mogą nie mieć nowych pól
+    // (intro/closing/closingFlags). Backend zwraca surowe dokumenty bez defaultów,
+    // więc normalizujemy je tutaj — analogicznie do LocalStore.
+    return data.assessments.map(migrateAssessment);
   }
 
   async findAllTeam(): Promise<Assessment[]> {
-    const data = await this.request<{ assessments: Assessment[] }>('GET', '/api/v1/assessments?scope=team');
-    return data.assessments;
+    const data = await this.request<{ assessments: unknown[] }>('GET', '/api/v1/assessments?scope=team');
+    return data.assessments.map(migrateAssessment);
   }
 
   async get(id: string): Promise<Assessment | null> {
     try {
-      return await this.request<Assessment>('GET', `/api/v1/assessments/${encodeURIComponent(id)}`);
+      const doc = await this.request<unknown>('GET', `/api/v1/assessments/${encodeURIComponent(id)}`);
+      return migrateAssessment(doc);
     } catch (err) {
       // 404 = doc nie istnieje (najczestszy case przy pierwszym save).
       // 500 ze backendu dla nieistniejacego doca tez tolerujemy (Cosmos czasem zwraca non-404 code
