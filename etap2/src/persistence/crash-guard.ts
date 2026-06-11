@@ -58,7 +58,7 @@ export async function maybeRestoreDraft(): Promise<void> {
   const name = draft.assessment.candidate.nameOrId || 'bez nazwy';
   const restore = await confirmDialog({
     title: 'Przywrócić niezapisaną ocenę?',
-    message: `Znaleziono niezapisaną ocenę kandydata „${name}"${formatSavedAt(draft.savedAt)}.\n\nPrzywrócić ją i kontynuować, czy zacząć od nowa?`,
+    message: `Znaleziono niezapisaną ocenę kandydata „${name}”${formatSavedAt(draft.savedAt)}.\n\nPrzywrócić ją i kontynuować, czy zacząć od nowa?`,
     okLabel: 'Przywróć',
     cancelLabel: 'Odrzuć',
   });
