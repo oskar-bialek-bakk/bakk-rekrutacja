@@ -4,6 +4,7 @@ import { navigate } from '../app';
 import { escapeHtml } from './escape';
 import { confirmDialog } from './confirm-dialog';
 import { qnaEditableListHtml, bindQnaEditable } from './qna';
+import { clearDraft } from '../persistence/draft';
 
 // Ekran „Wywiad otwierający" — pytania wstępne zadawane na początku rozmowy.
 // Zegar już leci (startTimer odpalany na ekranie startowym). Notatki i sygnały
@@ -51,6 +52,7 @@ export function renderIntro(host: HTMLElement): void {
     saveBtn.onclick = async () => {
       try {
         await repo.save(a);
+        clearDraft();
         session.editing = false;
         session.detailId = a.id;
         navigate('detail');

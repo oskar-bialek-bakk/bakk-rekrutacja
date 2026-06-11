@@ -11,6 +11,7 @@ import { escapeHtml } from './escape';
 import { copyToClipboard, htmlToPlain } from './copy';
 import { confirmDialog } from './confirm-dialog';
 import { togglePause } from './timer-ui';
+import { clearDraft } from '../persistence/draft';
 
 let kbInstalled = false;
 function installKeyboardHandlers(host: HTMLElement): void {
@@ -279,6 +280,7 @@ export function renderAssess(host: HTMLElement): void {
       try {
         // Edycja istniejącego rekordu: zapis bez podbijania licznika wariantów.
         await repo.save(a);
+        clearDraft();
         session.editing = false;
         session.detailId = a.id;
         navigate('detail');

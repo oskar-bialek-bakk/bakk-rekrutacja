@@ -157,6 +157,10 @@ export function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> 
       traffitStatus.hidden = false;
       traffitStatus.textContent = 'Wysyłam do Traffit…';
       try {
+        // Backend pushu czyta ocenę z Cosmos po (id, upn). Upewnij się, że jest
+        // utrwalona ZANIM wyślemy push — inaczej dostaniemy „Assessment not found
+        // in user partition" (ocena otwarta w podglądzie bywała jeszcze niezapisana).
+        await repo.save(a);
         const result = await pushToTraffit({ assessmentId: a.id, employeeId, html });
         traffitStatus.textContent = `Gotowe: notatka ${result.action === 'created' ? 'utworzona' : 'zaktualizowana'} (id ${result.noteId}).`;
         return true;

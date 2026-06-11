@@ -72,10 +72,12 @@ describe('openRecruiterPreview — Traffit push', () => {
     const sel = document.querySelector('#traffit-link-pick') as HTMLSelectElement;
     expect(sel.value).toBe('30::63');
     (document.querySelector('#traffit-link-confirm') as HTMLButtonElement).click();
-    // Powiązanie zapisywane DOPIERO po udanym pushu, więc czekamy na save.
-    await vi.waitFor(() => expect(h.save).toHaveBeenCalledOnce());
-    expect(h.pushToTraffit).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(h.pushToTraffit).toHaveBeenCalledOnce());
     expect(a.candidate.traffitId).toBe(30);
+    // Zapis dwa razy: PRZED pushem (utrwalenie oceny, żeby backend ją znalazł)
+    // oraz PO udanym pushu (utrwalenie powiązania traffitId).
+    expect(h.save).toHaveBeenCalledTimes(2);
+    expect((h.save.mock.calls.at(-1)![0] as Assessment).candidate.traffitId).toBe(30);
   });
 
   it('gdy push się nie powiedzie, NIE utrwala powiązania i zostawia picker', async () => {
@@ -89,8 +91,11 @@ describe('openRecruiterPreview — Traffit push', () => {
     await vi.waitFor(() => expect(document.querySelector('#traffit-link-pick')).not.toBeNull());
     (document.querySelector('#traffit-link-confirm') as HTMLButtonElement).click();
     await vi.waitFor(() => expect(h.pushToTraffit).toHaveBeenCalledOnce());
-    expect(h.save).not.toHaveBeenCalled();
+    // Ocena jest utrwalana PRZED pushem (backend musi ją znaleźć), ale gdy push
+    // się nie powiedzie, powiązanie (traffitId) NIE jest zapisywane.
     expect(a.candidate.traffitId).toBeUndefined();
+    const savedWithBinding = h.save.mock.calls.some((c) => (c[0] as Assessment).candidate.traffitId != null);
+    expect(savedWithBinding).toBe(false);
     expect(document.querySelector('#traffit-link-pick')).not.toBeNull(); // picker nadal otwarty
   });
 });
