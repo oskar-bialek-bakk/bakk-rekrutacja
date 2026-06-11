@@ -11,6 +11,7 @@ import { escapeHtml } from './escape';
 import { downloadTextFile, safeFilenamePart } from './download';
 import { serializeAssessment } from '../export/json';
 import { openRecruiterPreview } from './recruiter-preview-dialog';
+import { clearDraft } from '../persistence/draft';
 
 export function renderSummary(host: HTMLElement): void {
   const a = session.current!;
@@ -152,6 +153,7 @@ export function renderSummary(host: HTMLElement): void {
     stopTimer();
     const isFirstSave = (await repo.get(a.id)) === null;
     await repo.save(a);
+    clearDraft();
     if (isFirstSave) {
       // Licznik rotacji podbijamy tylko przy pierwszym zapisie oceny.
       // Edycja istniejącego rekordu (z ekranu szczegółów) nie zwiększa go ponownie.

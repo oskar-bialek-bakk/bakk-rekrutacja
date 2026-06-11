@@ -2,6 +2,7 @@ import './ui/theme.css';
 import { navigate, render } from './app';
 import { reloadSettings, session } from './state';
 import { isRedirectingToLogin } from './auth/access-token';
+import { installCrashGuard, maybeRestoreDraft } from './persistence/crash-guard';
 
 // Najpierw maluj UI z defaultowymi ustawieniami, POTEM dociągaj ustawienia w tle.
 // Wcześniej `await reloadSettings()` przed render() blokował pierwsze malowanie na
@@ -10,6 +11,12 @@ import { isRedirectingToLogin } from './auth/access-token';
 // (wagi/score dotyczą dopiero oceny i podsumowania), więc render od razu jest bezpieczny,
 // a zanim prowadzący dojdzie do oceny, ustawienia są już wczytane.
 render();
+
+// Siatka bezpieczeństwa przed utratą wypełnianej oceny: autosave do localStorage
+// + propozycja przywrócenia niezapisanej oceny po przeładowaniu / wygaśnięciu sesji.
+installCrashGuard();
+void maybeRestoreDraft();
+
 reloadSettings()
   .then(() => {
     // Ustawienia doszły w tle. Odśwież ekran, który z nich korzysta (np. „Ustawienia"

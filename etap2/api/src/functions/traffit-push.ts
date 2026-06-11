@@ -25,14 +25,22 @@ export async function traffitPush(req: HttpRequest, ctx: InvocationContext): Pro
 
     const body = await parseJsonBody(req, BodySchema);
 
+    let resource: unknown;
     try {
-      const { resource } = await assessmentsContainer().item(body.assessmentId, user.upn).read();
-      if (!resource) throw apiError(404, 'Assessment not found in user partition');
+      ({ resource } = await assessmentsContainer().item(body.assessmentId, user.upn).read());
     } catch (err) {
-      const code = (err as { code?: number }).code;
-      if (code === 404) throw apiError(404, 'Assessment not found in user partition');
-      throw cosmosErrorToApi(err);
+      const e = err as { code?: number | string; statusCode?: number };
+      // Brak dokumentu w partycji użytkownika: traktuj jak 404 poniżej.
+      // Każdy inny błąd Cosmos mapujemy normalnie (nie maskuj 500 jako 404).
+      if (e.code === 404 || e.code === 'NotFound' || e.statusCode === 404) {
+        resource = undefined;
+      } else {
+        throw cosmosErrorToApi(err);
+      }
     }
+    // Rzucamy POZA blokiem try, żeby ten apiError(404) nie został złapany i
+    // przemapowany przez cosmosErrorToApi na 500 (dawny błąd: status 500 zamiast 404).
+    if (!resource) throw apiError(404, 'Assessment not found in user partition');
 
     const client = createTraffitClient(config);
     const result = await client.pushAssessmentNote({
