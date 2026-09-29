@@ -1,0 +1,3991 @@
+{
+  "version": 1,
+  "meta": {
+    "lastScanned": "2026-09-29T09:14:56.306Z",
+    "fileCount": 139,
+    "hits": 0,
+    "misses": 0,
+    "renderedHash": "7b5bc2008e047ccb7c860ff6973ab99c57c59048f04e2fa139ed067f4924ea95",
+    "storeUpdatedAt": "2026-09-29T09:14:56.307Z",
+    "rootHash": "5130cd6c63ac8c04"
+  },
+  "files": {
+    "_config.yml": {
+      "description": "Etap I (index.html, eval.html) jest publiczny. Etap II i dokumentacja NIE są publikowane.",
+      "tokens": 48,
+      "hash": "8643256e295c005e",
+      "size": 166,
+      "mtimeMs": 1780920680743.9485,
+      "updatedAt": "2026-09-29T09:14:56.130Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".github/workflows/deploy-bakk-rekrutacja-api.yml": {
+      "description": "CI: Deploy etap2 API → bakk-rekrutacja-api (Function App)",
+      "tokens": 573,
+      "hash": "2b61b423d96f75c1",
+      "size": 2021,
+      "mtimeMs": 1781018033750.9856,
+      "updatedAt": "2026-09-29T09:14:56.131Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".github/workflows/deploy-bakk-rekrutacja-etap2.yml": {
+      "description": "CI: Deploy etap2 → bakk-rekrutacja (root)",
+      "tokens": 174,
+      "hash": "a682804e8e3536cb",
+      "size": 610,
+      "mtimeMs": 1780952448695.5146,
+      "updatedAt": "2026-09-29T09:14:56.131Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".github/workflows/deploy-vite-to-azure.yml": {
+      "description": "CI: Reusable — deploy Vite app to Azure App Service",
+      "tokens": 1119,
+      "hash": "856e7fba81eb6682",
+      "size": 3960,
+      "mtimeMs": 1780952448695.5146,
+      "updatedAt": "2026-09-29T09:14:56.131Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".github/workflows/etap2-ci.yml": {
+      "description": "CI: etap2 CI (PR smoke)",
+      "tokens": 374,
+      "hash": "e9fa3daef4320ef9",
+      "size": 1310,
+      "mtimeMs": 1781018033751.9805,
+      "updatedAt": "2026-09-29T09:14:56.132Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".gitignore": {
+      "description": "Git ignore rules",
+      "tokens": 43,
+      "hash": "4eedf9ddeb60d774",
+      "size": 164,
+      "mtimeMs": 1778761161540.6025,
+      "updatedAt": "2026-09-29T09:14:56.132Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    ".staticrypt.json": {
+      "description": "",
+      "tokens": 15,
+      "hash": "7f0bdeb41f8ef379",
+      "size": 52,
+      "mtimeMs": 1778761161540.6025,
+      "updatedAt": "2026-09-29T09:14:56.132Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "AGENTS.md": {
+      "description": "OpenWolf",
+      "tokens": 75,
+      "hash": "e401f79554a8d796",
+      "size": 297,
+      "mtimeMs": 1790673295418.3245,
+      "updatedAt": "2026-09-29T09:14:56.133Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "CLAUDE.md": {
+      "description": "OpenWolf",
+      "tokens": 99,
+      "hash": "074d6b42b583729a",
+      "size": 395,
+      "mtimeMs": 1790673295283.7664,
+      "updatedAt": "2026-09-29T09:14:56.133Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "docs/superpowers/plans/2026-06-08-ocena-rozmowy-etap2.md": {
+      "description": "Aplikacja oceny II etapu rozmowy — Implementation Plan",
+      "tokens": 22316,
+      "hash": "ef1d2b7a35d6a7d3",
+      "size": 90398,
+      "mtimeMs": 1781018033752.988,
+      "updatedAt": "2026-09-29T09:14:56.134Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "docs/superpowers/plans/2026-06-09-traffit-wybor-kandydata.md": {
+      "description": "Wybór kandydata z Traffit w „Nowej rozmowie\" — plan implementacji",
+      "tokens": 13104,
+      "hash": "3d5085ddbcf4b7e2",
+      "size": 52869,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.134Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "docs/superpowers/specs/2026-06-08-ocena-rozmowy-etap2-design.md": {
+      "description": "Spec: Aplikacja do prowadzenia i oceny II etapu rozmowy rekrutacyjnej",
+      "tokens": 2944,
+      "hash": "bba29c633db17ab5",
+      "size": 12138,
+      "mtimeMs": 1780913943747.6956,
+      "updatedAt": "2026-09-29T09:14:56.135Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "docs/superpowers/specs/2026-06-09-traffit-wybor-kandydata-design.md": {
+      "description": "Wybór kandydata z Traffit w „Nowej rozmowie\" (etap II)",
+      "tokens": 2237,
+      "hash": "68f1712fe9912ad5",
+      "size": 9155,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.135Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/.gitignore": {
+      "description": "Git ignore rules",
+      "tokens": 86,
+      "hash": "2d099d2798cbfa8b",
+      "size": 320,
+      "mtimeMs": 1780920680743.9485,
+      "updatedAt": "2026-09-29T09:14:56.137Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/.gitignore": {
+      "description": "Git ignore rules",
+      "tokens": 16,
+      "hash": "2c1b3b380ec3ce9f",
+      "size": 59,
+      "mtimeMs": 1781018033753.9873,
+      "updatedAt": "2026-09-29T09:14:56.138Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/host.json": {
+      "description": "",
+      "tokens": 87,
+      "hash": "c59959b38cd380c8",
+      "size": 304,
+      "mtimeMs": 1781018033753.9873,
+      "updatedAt": "2026-09-29T09:14:56.138Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/local.settings.json.example": {
+      "description": "",
+      "tokens": 152,
+      "hash": "b0818fac3676fc8b",
+      "size": 571,
+      "mtimeMs": 1781018033754.9849,
+      "updatedAt": "2026-09-29T09:14:56.138Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/package.json": {
+      "description": "Node.js package manifest",
+      "tokens": 233,
+      "hash": "b674e5eb1fc93b65",
+      "size": 814,
+      "mtimeMs": 1781018033757.9841,
+      "updatedAt": "2026-09-29T09:14:56.138Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/assessments-delete.ts": {
+      "description": "Exports assessmentsDelete",
+      "tokens": 281,
+      "hash": "5e1e8237c612dd63",
+      "size": 983,
+      "mtimeMs": 1781018033758.9844,
+      "updatedAt": "2026-09-29T09:14:56.139Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/assessments-get.ts": {
+      "description": "API routes: GET (1 endpoints)",
+      "tokens": 430,
+      "hash": "296682883f1023ea",
+      "size": 1505,
+      "mtimeMs": 1781018033758.9844,
+      "updatedAt": "2026-09-29T09:14:56.140Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/assessments-list.ts": {
+      "description": "API routes: GET (1 endpoints)",
+      "tokens": 393,
+      "hash": "093c2b4629a8fb73",
+      "size": 1374,
+      "mtimeMs": 1781018033758.9844,
+      "updatedAt": "2026-09-29T09:14:56.140Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/assessments-upsert.ts": {
+      "description": "Exports assessmentsUpsert",
+      "tokens": 681,
+      "hash": "a4204a6a7e927e70",
+      "size": 2382,
+      "mtimeMs": 1781018033759.9854,
+      "updatedAt": "2026-09-29T09:14:56.140Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "assessmentsUpsert",
+          "kind": "fn",
+          "startLine": 7,
+          "endLine": 61,
+          "tokens": 529
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts",
+        "etap2/api/src/lib/schemas.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/health.ts": {
+      "description": "Exports health",
+      "tokens": 493,
+      "hash": "302d6399d76ae0b6",
+      "size": 1724,
+      "mtimeMs": 1781018033759.9854,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/settings-get.ts": {
+      "description": "Exports settingsGet",
+      "tokens": 301,
+      "hash": "36f3e35bdd749bc5",
+      "size": 1051,
+      "mtimeMs": 1781018033760.986,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/settings-put.ts": {
+      "description": "Exports settingsPut",
+      "tokens": 330,
+      "hash": "57587d393b2dfa9a",
+      "size": 1155,
+      "mtimeMs": 1781018033760.986,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts",
+        "etap2/api/src/lib/schemas.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/traffit-candidates.ts": {
+      "description": "Exports traffitCandidates",
+      "tokens": 438,
+      "hash": "5395d849ac2d7341",
+      "size": 1533,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0121
+    },
+    "etap2/api/src/functions/traffit-push.ts": {
+      "description": "Zod schemas: BodySchema",
+      "tokens": 787,
+      "hash": "9386eb967dc034be",
+      "size": 2762,
+      "mtimeMs": 1781188758550.4443,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "traffitPush",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 68,
+          "tokens": 563
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0121
+    },
+    "etap2/api/src/functions/variant-usage-get.ts": {
+      "description": "Exports variantUsageGet",
+      "tokens": 522,
+      "hash": "ab4ef1a9b11fffa1",
+      "size": 1826,
+      "mtimeMs": 1781018033761.9846,
+      "updatedAt": "2026-09-29T09:14:56.141Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "variantUsageGet",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 46,
+          "tokens": 350
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/variant-usage-increment.ts": {
+      "description": "Exports variantUsageIncrement",
+      "tokens": 434,
+      "hash": "6f133e7fcfe8afb7",
+      "size": 1517,
+      "mtimeMs": 1781018033761.9846,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "imports": [
+        "etap2/api/src/lib/auth.ts",
+        "etap2/api/src/lib/cosmos.ts",
+        "etap2/api/src/lib/http.ts",
+        "etap2/api/src/lib/schemas.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/src/functions/warmup.ts": {
+      "description": "Timer anty cold-start.",
+      "tokens": 552,
+      "hash": "293a62f920eaefb6",
+      "size": 1974,
+      "mtimeMs": 1781102013500.9663,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "warmup",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 28,
+          "tokens": 195
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0065
+    },
+    "etap2/api/src/lib/auth.ts": {
+      "description": "Reads identity from Easy Auth headers injected by Azure App Service / Function App",
+      "tokens": 824,
+      "hash": "614118cf012c0413",
+      "size": 2881,
+      "mtimeMs": 1781018033761.9846,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "CurrentUser",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 7,
+          "tokens": 24
+        },
+        {
+          "name": "ClientPrincipal",
+          "kind": "section",
+          "startLine": 9,
+          "endLine": 14,
+          "tokens": 42
+        },
+        {
+          "name": "decodePrincipal",
+          "kind": "fn",
+          "startLine": 34,
+          "endLine": 41,
+          "tokens": 69
+        },
+        {
+          "name": "findClaim",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 49,
+          "tokens": 69
+        },
+        {
+          "name": "getCurrentUser",
+          "kind": "fn",
+          "startLine": 56,
+          "endLine": 93,
+          "tokens": 356
+        },
+        {
+          "name": "requireUser",
+          "kind": "fn",
+          "startLine": 95,
+          "endLine": 103,
+          "tokens": 72
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0368
+    },
+    "etap2/api/src/lib/cosmos.ts": {
+      "description": "Lightweight ping for health endpoint - reads database metadata.",
+      "tokens": 412,
+      "hash": "a02355b067c091a4",
+      "size": 1442,
+      "mtimeMs": 1781018033761.9846,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "importance": 0.0261
+    },
+    "etap2/api/src/lib/http.ts": {
+      "description": "Maps Cosmos SDK error codes to HTTP status.",
+      "tokens": 641,
+      "hash": "aecdba353b1409d6",
+      "size": 2242,
+      "mtimeMs": 1781018033762.9846,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ApiError",
+          "kind": "section",
+          "startLine": 4,
+          "endLine": 7,
+          "tokens": 25
+        },
+        {
+          "name": "apiError",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 14,
+          "tokens": 59
+        },
+        {
+          "name": "jsonResponse",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 21,
+          "tokens": 39
+        },
+        {
+          "name": "errorResponse",
+          "kind": "fn",
+          "startLine": 23,
+          "endLine": 33,
+          "tokens": 128
+        },
+        {
+          "name": "parseJsonBody",
+          "kind": "fn",
+          "startLine": 35,
+          "endLine": 50,
+          "tokens": 125
+        },
+        {
+          "name": "cosmosErrorToApi",
+          "kind": "fn",
+          "startLine": 53,
+          "endLine": 66,
+          "tokens": 222
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0285
+    },
+    "etap2/api/src/lib/schemas.ts": {
+      "description": "Assessment as stored in Cosmos: extends client shape with userPrincipalName partition key.",
+      "tokens": 1218,
+      "hash": "053e7a7f3d0a2c5c",
+      "size": 4267,
+      "mtimeMs": 1781102013500.9663,
+      "updatedAt": "2026-09-29T09:14:56.142Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "partialByBlock",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 37,
+          "tokens": 33
+        },
+        {
+          "name": "Assessment",
+          "kind": "section",
+          "startLine": 67,
+          "endLine": 67,
+          "tokens": 17
+        },
+        {
+          "name": "StoredAssessment",
+          "kind": "section",
+          "startLine": 74,
+          "endLine": 74,
+          "tokens": 21
+        },
+        {
+          "name": "VariantUsage",
+          "kind": "section",
+          "startLine": 87,
+          "endLine": 87,
+          "tokens": 18
+        },
+        {
+          "name": "StoredSettings",
+          "kind": "section",
+          "startLine": 109,
+          "endLine": 109,
+          "tokens": 18
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0107
+    },
+    "etap2/api/src/lib/traffit-client.ts": {
+      "description": "Traffit REST client z auto-loginem konta technicznego.",
+      "tokens": 3103,
+      "hash": "3be385eacc75ce92",
+      "size": 10859,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.143Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "TraffitActivity",
+          "kind": "section",
+          "startLine": 29,
+          "endLine": 35,
+          "tokens": 54
+        },
+        {
+          "name": "TraffitNotConfiguredError",
+          "kind": "class",
+          "startLine": 37,
+          "endLine": 42,
+          "tokens": 70
+        },
+        {
+          "name": "TraffitNotConfiguredError.constructor",
+          "kind": "method",
+          "startLine": 38,
+          "endLine": 41,
+          "tokens": 53
+        },
+        {
+          "name": "TraffitSessionExpiredError",
+          "kind": "class",
+          "startLine": 44,
+          "endLine": 51,
+          "tokens": 85
+        },
+        {
+          "name": "TraffitSessionExpiredError.constructor",
+          "kind": "method",
+          "startLine": 46,
+          "endLine": 50,
+          "tokens": 60
+        },
+        {
+          "name": "buildMarker",
+          "kind": "fn",
+          "startLine": 56,
+          "endLine": 58,
+          "tokens": 30
+        },
+        {
+          "name": "extractInnerContent",
+          "kind": "fn",
+          "startLine": 60,
+          "endLine": 78,
+          "tokens": 188
+        },
+        {
+          "name": "TraffitBkCandidate",
+          "kind": "section",
+          "startLine": 80,
+          "endLine": 86,
+          "tokens": 47
+        },
+        {
+          "name": "TraffitClient",
+          "kind": "section",
+          "startLine": 88,
+          "endLine": 94,
+          "tokens": 140
+        },
+        {
+          "name": "createTraffitClient",
+          "kind": "fn",
+          "startLine": 96,
+          "endLine": 274,
+          "tokens": 2212
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export interface TraffitActivity {\nexport class TraffitNotConfiguredError extends Error {\n  constructor() {\nexport class TraffitSessionExpiredError extends Error {\n  constructor(status: number) {\nfunction buildMarker(assessmentId: string): string {\nfunction extractInnerContent(rawContent: TraffitActivity['content']): string {\nexport interface TraffitBkCandidate {\nexport interface TraffitClient {\nexport function createTraffitClient(config: TraffitLoginConfig): TraffitClient {",
+      "importance": 0.0093
+    },
+    "etap2/api/src/lib/traffit-login.ts": {
+      "description": "HTTP-based login flow do Traffit dla konta technicznego BAKK.",
+      "tokens": 1994,
+      "hash": "41460c4f6675efc3",
+      "size": 6986,
+      "mtimeMs": 1781018033763.9844,
+      "updatedAt": "2026-09-29T09:14:56.143Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "TraffitLoginConfig",
+          "kind": "section",
+          "startLine": 30,
+          "endLine": 36,
+          "tokens": 44
+        },
+        {
+          "name": "TraffitSession",
+          "kind": "section",
+          "startLine": 38,
+          "endLine": 41,
+          "tokens": 23
+        },
+        {
+          "name": "TraffitLoginError",
+          "kind": "class",
+          "startLine": 43,
+          "endLine": 50,
+          "tokens": 64
+        },
+        {
+          "name": "TraffitLoginError.constructor",
+          "kind": "method",
+          "startLine": 45,
+          "endLine": 49,
+          "tokens": 41
+        },
+        {
+          "name": "_resetCache",
+          "kind": "fn",
+          "startLine": 55,
+          "endLine": 58,
+          "tokens": 23
+        },
+        {
+          "name": "extractCsrf",
+          "kind": "fn",
+          "startLine": 60,
+          "endLine": 63,
+          "tokens": 46
+        },
+        {
+          "name": "extractLoginAction",
+          "kind": "fn",
+          "startLine": 65,
+          "endLine": 68,
+          "tokens": 42
+        },
+        {
+          "name": "joinSetCookies",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 84,
+          "tokens": 200
+        },
+        {
+          "name": "collectSetCookies",
+          "kind": "fn",
+          "startLine": 86,
+          "endLine": 92,
+          "tokens": 106
+        },
+        {
+          "name": "performLogin",
+          "kind": "fn",
+          "startLine": 94,
+          "endLine": 151,
+          "tokens": 706
+        },
+        {
+          "name": "readLoginConfig",
+          "kind": "fn",
+          "startLine": 153,
+          "endLine": 165,
+          "tokens": 126
+        },
+        {
+          "name": "getSessionCookie",
+          "kind": "fn",
+          "startLine": 171,
+          "endLine": 183,
+          "tokens": 127
+        },
+        {
+          "name": "invalidateSession",
+          "kind": "fn",
+          "startLine": 185,
+          "endLine": 187,
+          "tokens": 19
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0093
+    },
+    "etap2/api/tests/assessments.test.ts": {
+      "description": "CosmosItem: fakeReq, sampleAssessment",
+      "tokens": 2781,
+      "hash": "f2be4c5bc465bcd1",
+      "size": 9732,
+      "mtimeMs": 1781018033763.9844,
+      "updatedAt": "2026-09-29T09:14:56.144Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "CosmosItem",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 7,
+          "tokens": 29
+        },
+        {
+          "name": "itemMock",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 31,
+          "tokens": 182
+        },
+        {
+          "name": "queryMock",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 52,
+          "tokens": 313
+        },
+        {
+          "name": "containerMock",
+          "kind": "fn",
+          "startLine": 54,
+          "endLine": 70,
+          "tokens": 226
+        },
+        {
+          "name": "fakeReq",
+          "kind": "fn",
+          "startLine": 91,
+          "endLine": 108,
+          "tokens": 175
+        },
+        {
+          "name": "sampleAssessment",
+          "kind": "fn",
+          "startLine": 112,
+          "endLine": 133,
+          "tokens": 192
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "interface CosmosItem {\nconst itemMock = (id: string, pk: string) => ({\nconst queryMock = (sql: string | { query: string; parameters?: Array<{ name: string; value: unknown }> }) => ({\nconst containerMock = {\nfunction fakeReq(opts: {\nfunction sampleAssessment(id: string): Record<string, unknown> {",
+      "importance": 0.0065
+    },
+    "etap2/api/tests/auth.test.ts": {
+      "description": "Declares fakeReq",
+      "tokens": 812,
+      "hash": "58a06dd9fc077023",
+      "size": 2841,
+      "mtimeMs": 1781018033764.9834,
+      "updatedAt": "2026-09-29T09:14:56.144Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "fakeReq",
+          "kind": "fn",
+          "startLine": 4,
+          "endLine": 9,
+          "tokens": 82
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/lib/auth.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/tests/traffit-candidates.test.ts": {
+      "description": "listBkCandidates: fakeReq",
+      "tokens": 673,
+      "hash": "7f04538b65c12939",
+      "size": 2357,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.144Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "fakeReq",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 21,
+          "tokens": 88
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/functions/traffit-candidates.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/tests/traffit-client.test.ts": {
+      "description": "Mock traffit-login zeby uniknac realnego GET/POST do Traffit i zwracac stale cookie.",
+      "tokens": 1704,
+      "hash": "2d8a60cfd6e34567",
+      "size": 5962,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.144Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "resp",
+          "kind": "fn",
+          "startLine": 28,
+          "endLine": 34,
+          "tokens": 95
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/lib/traffit-client.ts",
+        "etap2/api/src/lib/traffit-login.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/tests/traffit-login.test.ts": {
+      "description": "API routes: GET (3 endpoints)",
+      "tokens": 1495,
+      "hash": "4382609290f98a79",
+      "size": 5230,
+      "mtimeMs": 1781018033764.9834,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "htmlResp",
+          "kind": "fn",
+          "startLine": 21,
+          "endLine": 26,
+          "tokens": 100
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0065
+    },
+    "etap2/api/tests/traffit-push.test.ts": {
+      "description": "CosmosItem: fakeReq",
+      "tokens": 1210,
+      "hash": "4c113343abc48769",
+      "size": 4237,
+      "mtimeMs": 1781188758551.5503,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "CosmosItem",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 3,
+          "tokens": 26
+        },
+        {
+          "name": "itemMock",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 17,
+          "tokens": 119
+        },
+        {
+          "name": "containerMock",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 19,
+          "tokens": 23
+        },
+        {
+          "name": "fakeReq",
+          "kind": "fn",
+          "startLine": 42,
+          "endLine": 50,
+          "tokens": 104
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/api/src/functions/traffit-push.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/api/tests/usage-settings.test.ts": {
+      "description": "StoreDoc: fakeReq",
+      "tokens": 2411,
+      "hash": "ca16385ee12e3d1a",
+      "size": 8438,
+      "mtimeMs": 1781018033765.9824,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "StoreDoc",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 3,
+          "tokens": 22
+        },
+        {
+          "name": "variantUsageContainerMock",
+          "kind": "fn",
+          "startLine": 8,
+          "endLine": 65,
+          "tokens": 592
+        },
+        {
+          "name": "settingsContainerMock",
+          "kind": "fn",
+          "startLine": 67,
+          "endLine": 88,
+          "tokens": 229
+        },
+        {
+          "name": "fakeReq",
+          "kind": "fn",
+          "startLine": 98,
+          "endLine": 108,
+          "tokens": 126
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "interface StoreDoc { id: string; pk: string; data: Record<string, unknown> }\nconst variantUsageContainerMock = {\nconst settingsContainerMock = {\nfunction fakeReq(opts: { upn?: string; oid?: string; body?: unknown }) {",
+      "importance": 0.0065
+    },
+    "etap2/api/tsconfig.json": {
+      "description": "TypeScript configuration",
+      "tokens": 130,
+      "hash": "f3d53e60840c1df3",
+      "size": 455,
+      "mtimeMs": 1781018033767.2446,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/api/vitest.config.ts": {
+      "description": "Vitest test configuration",
+      "tokens": 54,
+      "hash": "e8467b750d376526",
+      "size": 187,
+      "mtimeMs": 1781018033767.2446,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/index.html": {
+      "description": "Ocena rozmowy — II etap · BAKK",
+      "tokens": 556,
+      "hash": "1886ac2ef43c3a8b",
+      "size": 2098,
+      "mtimeMs": 1780944946853.0066,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/package.json": {
+      "description": "Node.js package manifest",
+      "tokens": 164,
+      "hash": "f190821489f45f74",
+      "size": 573,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/playwright.config.ts": {
+      "description": "Playwright test configuration",
+      "tokens": 74,
+      "hash": "542512811fc95d11",
+      "size": 258,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.145Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/public/web.config": {
+      "description": "",
+      "tokens": 169,
+      "hash": "027fcc76f6d059cb",
+      "size": 651,
+      "mtimeMs": 1781102013500.9663,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/README-deploy.md": {
+      "description": "etap2 — deployment na Azure App Service",
+      "tokens": 3190,
+      "hash": "0bac05a2f2a3d720",
+      "size": 13039,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/scripts/configure-function-app-auth.ps1": {
+      "description": "Konfiguracja Easy Auth (Microsoft Entra) + CORS na Function App `bakk-rekrutacja-api`.",
+      "tokens": 1790,
+      "hash": "2c5ff7b2cd454dc8",
+      "size": 6712,
+      "mtimeMs": 1781018033767.2446,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/scripts/enable-easy-auth.ps1": {
+      "description": "Włącza Easy Auth (Microsoft Entra) na App Service `bakk-rekrutacja`.",
+      "tokens": 1394,
+      "hash": "15573fa7578235e3",
+      "size": 5256,
+      "mtimeMs": 1780952448695.5146,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/scripts/provision-cosmos.ps1": {
+      "description": "Provisioning Cosmos DB serverless dla etap2 (Faza 5).",
+      "tokens": 1661,
+      "hash": "69c493e47ca197bf",
+      "size": 6228,
+      "mtimeMs": 1781018033768.2627,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/scripts/provision-function-app.ps1": {
+      "description": "Provisioning Function App `bakk-rekrutacja-api` (Faza 5 Task 2).",
+      "tokens": 1517,
+      "hash": "75cf2e03df8aa7cb",
+      "size": 5686,
+      "mtimeMs": 1781018033768.2627,
+      "updatedAt": "2026-09-29T09:14:56.146Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/scripts/set-traffit-secrets.ps1": {
+      "description": "Konfiguracja sekretow Traffit dla Function App `bakk-rekrutacja-api`.",
+      "tokens": 822,
+      "hash": "5163d558c44b4fd2",
+      "size": 3082,
+      "mtimeMs": 1781018033768.2627,
+      "updatedAt": "2026-09-29T09:14:56.147Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/src/app.ts": {
+      "description": "Exports navigate, openDetail, render",
+      "tokens": 523,
+      "hash": "7b619e1a5db599ba",
+      "size": 1838,
+      "mtimeMs": 1781102013501.9673,
+      "updatedAt": "2026-09-29T09:14:56.147Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "navigate",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 15,
+          "tokens": 45
+        },
+        {
+          "name": "openDetail",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 21,
+          "tokens": 34
+        },
+        {
+          "name": "showLoaderThen",
+          "kind": "fn",
+          "startLine": 25,
+          "endLine": 31,
+          "tokens": 94
+        },
+        {
+          "name": "render",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 44,
+          "tokens": 165
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/state.ts",
+        "etap2/src/ui/screen-start.ts",
+        "etap2/src/ui/screen-intro.ts",
+        "etap2/src/ui/screen-assess.ts",
+        "etap2/src/ui/screen-summary.ts",
+        "etap2/src/ui/screen-roster.ts",
+        "etap2/src/ui/screen-detail.ts",
+        "etap2/src/ui/screen-settings.ts"
+      ],
+      "importance": 0.0159
+    },
+    "etap2/src/auth/access-token.ts": {
+      "description": "Exports REDIRECTING_TO_LOGIN, isRedirectingToLogin, getAccessToken, forceRefresh",
+      "tokens": 1051,
+      "hash": "4be1b15ad1477c01",
+      "size": 3724,
+      "mtimeMs": 1781102013501.9673,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "AuthMeEntry",
+          "kind": "section",
+          "startLine": 1,
+          "endLine": 5,
+          "tokens": 29
+        },
+        {
+          "name": "CachedToken",
+          "kind": "section",
+          "startLine": 7,
+          "endLine": 10,
+          "tokens": 20
+        },
+        {
+          "name": "parseExpiry",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 31,
+          "tokens": 166
+        },
+        {
+          "name": "isRedirectingToLogin",
+          "kind": "fn",
+          "startLine": 38,
+          "endLine": 40,
+          "tokens": 40
+        },
+        {
+          "name": "redirectToLogin",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 48,
+          "tokens": 63
+        },
+        {
+          "name": "fetchToken",
+          "kind": "fn",
+          "startLine": 50,
+          "endLine": 80,
+          "tokens": 458
+        },
+        {
+          "name": "getAccessToken",
+          "kind": "fn",
+          "startLine": 82,
+          "endLine": 91,
+          "tokens": 82
+        },
+        {
+          "name": "forceRefresh",
+          "kind": "fn",
+          "startLine": 93,
+          "endLine": 96,
+          "tokens": 23
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0278
+    },
+    "etap2/src/content/blocks.ts": {
+      "description": "Poprawne wyniki/odpowiedzi per wariant (równolegle do variants[]). Opcjonalne.",
+      "tokens": 4322,
+      "hash": "f3da1328e58f106f",
+      "size": 15756,
+      "mtimeMs": 1780944946854.003,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "Variant",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 3,
+          "tokens": 17
+        },
+        {
+          "name": "Block",
+          "kind": "section",
+          "startLine": 4,
+          "endLine": 24,
+          "tokens": 189
+        },
+        {
+          "name": "rotatingBlockIds",
+          "kind": "fn",
+          "startLine": 136,
+          "endLine": 138,
+          "tokens": 36
+        },
+        {
+          "name": "buildChartSvg",
+          "kind": "fn",
+          "startLine": 145,
+          "endLine": 163,
+          "tokens": 278
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export interface Variant { label: string; read: string; }\nexport interface Block {\nexport function rotatingBlockIds(): BlockId[] {\nfunction buildChartSvg(): string {",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0195
+    },
+    "etap2/src/content/interview-questions.ts": {
+      "description": "Klucz stabilny — pod nim trzymamy zaznaczenie w Assessment.signalChecks[questionId].",
+      "tokens": 2134,
+      "hash": "7daaedc3aeebcc48",
+      "size": 7778,
+      "mtimeMs": 1781102013502.966,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "SignalOption",
+          "kind": "section",
+          "startLine": 6,
+          "endLine": 13,
+          "tokens": 82
+        },
+        {
+          "name": "InterviewQuestion",
+          "kind": "section",
+          "startLine": 15,
+          "endLine": 28,
+          "tokens": 177
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export interface SignalOption {\nexport interface InterviewQuestion {",
+      "importance": 0.0128
+    },
+    "etap2/src/domain/block-state.ts": {
+      "description": "Exports BlockState, blockState",
+      "tokens": 282,
+      "hash": "9c5ca6b576e0b604",
+      "size": 984,
+      "mtimeMs": 1780933264721.8564,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0101
+    },
+    "etap2/src/domain/completeness.ts": {
+      "description": "Zwraca aktywne bloki (w kolejności wejścia), które nie mają notatki",
+      "tokens": 121,
+      "hash": "bb008c1ab2384446",
+      "size": 437,
+      "mtimeMs": 1780933264721.8564,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0101
+    },
+    "etap2/src/domain/escape.ts": {
+      "description": "Exports escapeHtml",
+      "tokens": 80,
+      "hash": "f514c606009dc875",
+      "size": 277,
+      "mtimeMs": 1780944946854.9976,
+      "updatedAt": "2026-09-29T09:14:56.148Z",
+      "source": "scan",
+      "importance": 0.0249
+    },
+    "etap2/src/domain/model.ts": {
+      "description": "Odpowiedzi na pytania wstępne / zamykające — keyed po `id` pytania (poza punktacją).",
+      "tokens": 893,
+      "hash": "6e1b5a2f843ca90c",
+      "size": 3147,
+      "mtimeMs": 1781102013502.966,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "BlockId",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 3,
+          "tokens": 15
+        },
+        {
+          "name": "Mark",
+          "kind": "section",
+          "startLine": 4,
+          "endLine": 4,
+          "tokens": 11
+        },
+        {
+          "name": "Decision",
+          "kind": "section",
+          "startLine": 5,
+          "endLine": 5,
+          "tokens": 14
+        },
+        {
+          "name": "Candidate",
+          "kind": "section",
+          "startLine": 7,
+          "endLine": 15,
+          "tokens": 81
+        },
+        {
+          "name": "Negotiation",
+          "kind": "section",
+          "startLine": 17,
+          "endLine": 23,
+          "tokens": 41
+        },
+        {
+          "name": "TimerState",
+          "kind": "section",
+          "startLine": 25,
+          "endLine": 25,
+          "tokens": 33
+        },
+        {
+          "name": "Flags",
+          "kind": "section",
+          "startLine": 26,
+          "endLine": 26,
+          "tokens": 17
+        },
+        {
+          "name": "QnaAnswers",
+          "kind": "section",
+          "startLine": 29,
+          "endLine": 29,
+          "tokens": 14
+        },
+        {
+          "name": "Assessment",
+          "kind": "section",
+          "startLine": 31,
+          "endLine": 58,
+          "tokens": 326
+        },
+        {
+          "name": "VariantUsage",
+          "kind": "section",
+          "startLine": 60,
+          "endLine": 60,
+          "tokens": 22
+        },
+        {
+          "name": "Weights",
+          "kind": "section",
+          "startLine": 61,
+          "endLine": 61,
+          "tokens": 24
+        },
+        {
+          "name": "Settings",
+          "kind": "section",
+          "startLine": 62,
+          "endLine": 62,
+          "tokens": 28
+        },
+        {
+          "name": "emptyNegotiation",
+          "kind": "fn",
+          "startLine": 66,
+          "endLine": 68,
+          "tokens": 38
+        },
+        {
+          "name": "createEmptyAssessment",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 81,
+          "tokens": 174
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/timer.ts"
+      ],
+      "importance": 1
+    },
+    "etap2/src/domain/recruiter-summary.ts": {
+      "description": "Exports RecruiterSummary, buildRecruiterSummary",
+      "tokens": 2282,
+      "hash": "38d5af84dd4142b6",
+      "size": 8012,
+      "mtimeMs": 1781102013502.966,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "RecruiterSummary",
+          "kind": "section",
+          "startLine": 7,
+          "endLine": 10,
+          "tokens": 21
+        },
+        {
+          "name": "formatElapsed",
+          "kind": "fn",
+          "startLine": 23,
+          "endLine": 28,
+          "tokens": 66
+        },
+        {
+          "name": "verdictLabel",
+          "kind": "fn",
+          "startLine": 30,
+          "endLine": 34,
+          "tokens": 54
+        },
+        {
+          "name": "decisionLabel",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 41,
+          "tokens": 58
+        },
+        {
+          "name": "truncate",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 46,
+          "tokens": 34
+        },
+        {
+          "name": "blockTitle",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 52,
+          "tokens": 60
+        },
+        {
+          "name": "activeBlocks",
+          "kind": "fn",
+          "startLine": 54,
+          "endLine": 59,
+          "tokens": 44
+        },
+        {
+          "name": "block",
+          "kind": "fn",
+          "startLine": 61,
+          "endLine": 63,
+          "tokens": 32
+        },
+        {
+          "name": "Section",
+          "kind": "section",
+          "startLine": 65,
+          "endLine": 69,
+          "tokens": 27
+        },
+        {
+          "name": "buildSections",
+          "kind": "fn",
+          "startLine": 71,
+          "endLine": 190,
+          "tokens": 1324
+        },
+        {
+          "name": "renderText",
+          "kind": "fn",
+          "startLine": 192,
+          "endLine": 206,
+          "tokens": 123
+        },
+        {
+          "name": "renderHtml",
+          "kind": "fn",
+          "startLine": 208,
+          "endLine": 223,
+          "tokens": 170
+        },
+        {
+          "name": "buildRecruiterSummary",
+          "kind": "fn",
+          "startLine": 225,
+          "endLine": 231,
+          "tokens": 67
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export interface RecruiterSummary {\nfunction formatElapsed(sec: number): string {\nfunction verdictLabel(score: number): string {\nfunction decisionLabel(d: Assessment['decision']): string | null {\nfunction truncate(s: string): string {\nfunction blockTitle(id: BlockId, a: Assessment): string {\nfunction activeBlocks(a: Assessment): BlockId[] {\nfunction block(id: BlockId): typeof BLOCKS[number] | undefined {\ninterface Section {\nfunction buildSections(a: Assessment, settings: Settings): Section[] {\nfunction renderText(sections: Section[]): string {\nfunction renderHtml(sections: Section[], id: string): string {\nexport function buildRecruiterSummary(a: Assessment, settings: Settings): RecruiterSummary {",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/content/blocks.ts",
+        "etap2/src/content/interview-questions.ts",
+        "etap2/src/domain/escape.ts"
+      ],
+      "importance": 0.0098
+    },
+    "etap2/src/domain/roster.ts": {
+      "description": "Exports SortKey, SortDir, DecisionFilter, RosterEntry + 2 more",
+      "tokens": 405,
+      "hash": "034fddf727ec3473",
+      "size": 1416,
+      "mtimeMs": 1780933264721.8564,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/src/domain/scoring.ts": {
+      "description": "Exports ScoreResult, computeScore",
+      "tokens": 323,
+      "hash": "2c265b4fda56fc86",
+      "size": 1128,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0137
+    },
+    "etap2/src/domain/settings.ts": {
+      "description": "Laduje ustawienia z repo, scalajac z defaultami (defensive merge).",
+      "tokens": 328,
+      "hash": "50eb839f1bbe11e1",
+      "size": 1147,
+      "mtimeMs": 1780944946855.9966,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/domain/weights.config.ts"
+      ],
+      "importance": 0.0215
+    },
+    "etap2/src/domain/timer.ts": {
+      "description": "Parsuje string typu \"5 min\", \"10 min\", \"30 s\", \"1 h\" do liczby sekund.",
+      "tokens": 938,
+      "hash": "d7480cdd89e567c6",
+      "size": 3314,
+      "mtimeMs": 1780944946855.9966,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "BlockTime",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 5,
+          "tokens": 16
+        },
+        {
+          "name": "BlockTimes",
+          "kind": "section",
+          "startLine": 7,
+          "endLine": 7,
+          "tokens": 18
+        },
+        {
+          "name": "WarnLevel",
+          "kind": "section",
+          "startLine": 9,
+          "endLine": 9,
+          "tokens": 14
+        },
+        {
+          "name": "parseTargetSec",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 32,
+          "tokens": 180
+        },
+        {
+          "name": "warnLevel",
+          "kind": "fn",
+          "startLine": 38,
+          "endLine": 43,
+          "tokens": 73
+        },
+        {
+          "name": "tickBlock",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 58,
+          "tokens": 91
+        },
+        {
+          "name": "totalSpentSec",
+          "kind": "fn",
+          "startLine": 63,
+          "endLine": 69,
+          "tokens": 56
+        },
+        {
+          "name": "pauseTimer",
+          "kind": "fn",
+          "startLine": 74,
+          "endLine": 76,
+          "tokens": 27
+        },
+        {
+          "name": "resumeTimer",
+          "kind": "fn",
+          "startLine": 81,
+          "endLine": 83,
+          "tokens": 28
+        },
+        {
+          "name": "adjustOffset",
+          "kind": "fn",
+          "startLine": 91,
+          "endLine": 95,
+          "tokens": 82
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.8836
+    },
+    "etap2/src/domain/traffit-roster.ts": {
+      "description": "Ukrywa pary (traffitId, recruitmentId) już obecne w rosterze; sortuje po employeeId rosnąco.",
+      "tokens": 532,
+      "hash": "8be79d5bfc73abd8",
+      "size": 1867,
+      "mtimeMs": 1781024598803.4316,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "TraffitCandidate",
+          "kind": "section",
+          "startLine": 3,
+          "endLine": 9,
+          "tokens": 47
+        },
+        {
+          "name": "pairKey",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 13,
+          "tokens": 34
+        },
+        {
+          "name": "selectableCandidates",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 31,
+          "tokens": 163
+        },
+        {
+          "name": "tokens",
+          "kind": "fn",
+          "startLine": 33,
+          "endLine": 41,
+          "tokens": 58
+        },
+        {
+          "name": "bestNameMatch",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 63,
+          "tokens": 155
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0184
+    },
+    "etap2/src/domain/variants.ts": {
+      "description": "Exports pickLeastUsed, recordUsage, recordSelectedVariants",
+      "tokens": 303,
+      "hash": "9daf4bf9a882dfb6",
+      "size": 1059,
+      "mtimeMs": 1780933264721.8564,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0136
+    },
+    "etap2/src/domain/weights.config.ts": {
+      "description": "Jedyne źródło prawdy dla wag. W Fazie 3 nadpisywalne w ekranie ustawień.",
+      "tokens": 57,
+      "hash": "f004e4ac38355b18",
+      "size": 203,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.149Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0265
+    },
+    "etap2/src/env.d.ts": {
+      "description": "/ <reference types=\"vite/client\" />",
+      "tokens": 64,
+      "hash": "38299ac3116fa061",
+      "size": 222,
+      "mtimeMs": 1781018033770.2554,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/src/export/csv.ts": {
+      "description": "Exports RosterRow, rosterToCsv",
+      "tokens": 492,
+      "hash": "4a8cb3386de8ac7d",
+      "size": 1724,
+      "mtimeMs": 1780933264723.8647,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0101
+    },
+    "etap2/src/export/json.ts": {
+      "description": "Exports serializeAssessment, serializeAll, parseImport",
+      "tokens": 388,
+      "hash": "2a1dad6f5fa7bee1",
+      "size": 1361,
+      "mtimeMs": 1780933264724.3926,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/migrations.ts"
+      ],
+      "importance": 0.0113
+    },
+    "etap2/src/main.ts": {
+      "description": "Najpierw maluj UI z defaultowymi ustawieniami, POTEM dociągaj ustawienia w tle.",
+      "tokens": 616,
+      "hash": "f14d10b531e54e5e",
+      "size": 2188,
+      "mtimeMs": 1781188758553.1028,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/ui/theme.css",
+        "etap2/src/app.ts",
+        "etap2/src/state.ts",
+        "etap2/src/auth/access-token.ts",
+        "etap2/src/persistence/crash-guard.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/src/persistence/azure-store.ts": {
+      "description": "Imports localStorage data into Cloud (Task 7 migration UI).",
+      "tokens": 2060,
+      "hash": "41437ebcc5fb036b",
+      "size": 7214,
+      "mtimeMs": 1781102013504.475,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "RotatingBlock",
+          "kind": "section",
+          "startLine": 6,
+          "endLine": 6,
+          "tokens": 13
+        },
+        {
+          "name": "BackendVariantUsage",
+          "kind": "section",
+          "startLine": 9,
+          "endLine": 13,
+          "tokens": 32
+        },
+        {
+          "name": "ApiError",
+          "kind": "class",
+          "startLine": 15,
+          "endLine": 24,
+          "tokens": 80
+        },
+        {
+          "name": "ApiError.constructor",
+          "kind": "method",
+          "startLine": 18,
+          "endLine": 23,
+          "tokens": 52
+        },
+        {
+          "name": "backendToFrontUsage",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 37,
+          "tokens": 117
+        },
+        {
+          "name": "diffIncrements",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 54,
+          "tokens": 194
+        },
+        {
+          "name": "AzureStore",
+          "kind": "class",
+          "startLine": 58,
+          "endLine": 193,
+          "tokens": 1508
+        },
+        {
+          "name": "AzureStore.constructor",
+          "kind": "method",
+          "startLine": 62,
+          "endLine": 64,
+          "tokens": 42
+        },
+        {
+          "name": "AzureStore.request",
+          "kind": "method",
+          "startLine": 66,
+          "endLine": 88,
+          "tokens": 297
+        },
+        {
+          "name": "AzureStore.findAll",
+          "kind": "method",
+          "startLine": 90,
+          "endLine": 96,
+          "tokens": 126
+        },
+        {
+          "name": "AzureStore.findAllTeam",
+          "kind": "method",
+          "startLine": 98,
+          "endLine": 101,
+          "tokens": 61
+        },
+        {
+          "name": "AzureStore.get",
+          "kind": "method",
+          "startLine": 103,
+          "endLine": 114,
+          "tokens": 172
+        },
+        {
+          "name": "AzureStore.save",
+          "kind": "method",
+          "startLine": 116,
+          "endLine": 118,
+          "tokens": 43
+        },
+        {
+          "name": "AzureStore.delete",
+          "kind": "method",
+          "startLine": 120,
+          "endLine": 127,
+          "tokens": 76
+        },
+        {
+          "name": "AzureStore.getVariantUsage",
+          "kind": "method",
+          "startLine": 129,
+          "endLine": 142,
+          "tokens": 124
+        },
+        {
+          "name": "AzureStore.saveVariantUsage",
+          "kind": "method",
+          "startLine": 144,
+          "endLine": 150,
+          "tokens": 79
+        },
+        {
+          "name": "AzureStore.getSettings",
+          "kind": "method",
+          "startLine": 152,
+          "endLine": 163,
+          "tokens": 118
+        },
+        {
+          "name": "AzureStore.saveSettings",
+          "kind": "method",
+          "startLine": 165,
+          "endLine": 167,
+          "tokens": 35
+        },
+        {
+          "name": "AzureStore.importBulk",
+          "kind": "method",
+          "startLine": 170,
+          "endLine": 187,
+          "tokens": 220
+        },
+        {
+          "name": "AzureStore._setLastUsage",
+          "kind": "method",
+          "startLine": 190,
+          "endLine": 190,
+          "tokens": 18
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "type RotatingBlock = 'A' | 'B' | 'C' | 'D';\ninterface BackendVariantUsage {\nexport class ApiError extends Error {\n  constructor(status: number, message: string, details?: unknown) {\nfunction backendToFrontUsage(backend: BackendVariantUsage): VariantUsage {\nfunction diffIncrements(prev: VariantUsage, next: VariantUsage): Array<{ block: RotatingBlock; variantIdx: number }> {\nexport class AzureStore implements Repository {\n  constructor(baseUrl?: string) {\n  private async request<T>(method: string, path: string, body?: unknown, retried = false): Promise<T> {\n  async findAll(): Promise<Assessment[]> {\n  async findAllTeam(): Promise<Assessment[]> {\n  async get(id: string): Promise<Assessment | null> {\n  async save(a: Assessment): Promise<void> {\n  async delete(id: string): Promise<void> {\n  async getVariantUsage(): Promise<VariantUsage> {\n  async saveVariantUsage(u: VariantUsage): Promise<void> {\n  async getSettings(): Promise<Settings | null> {\n  async saveSettings(s: Settings): Promise<void> {\n  async importBulk(payload: { assessments: Assessment[]; settings: Settings | null; variantUsage: VariantUsage }): Promise<{ assessments: number; settings: boolean; variantUsageIncrements: number }> {\n  _setLastUsage(u: VariantUsage): void { this.lastUsage = u; }",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/persistence/migrations.ts",
+        "etap2/src/auth/access-token.ts"
+      ],
+      "importance": 0.0184
+    },
+    "etap2/src/persistence/crash-guard.ts": {
+      "description": "Spina draft (localStorage) z cyklem życia aplikacji:",
+      "tokens": 828,
+      "hash": "c8fe32f0cb538825",
+      "size": 2958,
+      "mtimeMs": 1781188758553.1028,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "isActiveEditingScreen",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 21,
+          "tokens": 43
+        },
+        {
+          "name": "flushDraft",
+          "kind": "fn",
+          "startLine": 24,
+          "endLine": 28,
+          "tokens": 38
+        },
+        {
+          "name": "installCrashGuard",
+          "kind": "fn",
+          "startLine": 30,
+          "endLine": 39,
+          "tokens": 145
+        },
+        {
+          "name": "formatSavedAt",
+          "kind": "fn",
+          "startLine": 41,
+          "endLine": 47,
+          "tokens": 90
+        },
+        {
+          "name": "maybeRestoreDraft",
+          "kind": "fn",
+          "startLine": 54,
+          "endLine": 77,
+          "tokens": 201
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/state.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/timer-ui.ts",
+        "etap2/src/ui/confirm-dialog.ts",
+        "etap2/src/persistence/draft.ts"
+      ],
+      "importance": 0.009
+    },
+    "etap2/src/persistence/draft.ts": {
+      "description": "Siatka bezpieczeństwa przed utratą wypełnianej oceny. Trzyma JEDNĄ ocenę",
+      "tokens": 619,
+      "hash": "3a30bae6dd3b8e2b",
+      "size": 2192,
+      "mtimeMs": 1781188758553.1028,
+      "updatedAt": "2026-09-29T09:14:56.150Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "StorageLike",
+          "kind": "section",
+          "startLine": 14,
+          "endLine": 18,
+          "tokens": 42
+        },
+        {
+          "name": "AssessmentDraft",
+          "kind": "section",
+          "startLine": 20,
+          "endLine": 24,
+          "tokens": 42
+        },
+        {
+          "name": "writeDraft",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 36,
+          "tokens": 98
+        },
+        {
+          "name": "readDraft",
+          "kind": "fn",
+          "startLine": 38,
+          "endLine": 57,
+          "tokens": 221
+        },
+        {
+          "name": "clearDraft",
+          "kind": "fn",
+          "startLine": 59,
+          "endLine": 65,
+          "tokens": 44
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/migrations.ts"
+      ],
+      "importance": 0.0146
+    },
+    "etap2/src/persistence/local-snapshot.ts": {
+      "description": "Exports LocalSnapshot, readLocalSnapshot, clearLocalSnapshot",
+      "tokens": 580,
+      "hash": "9b6b5bef5e24cec6",
+      "size": 2028,
+      "mtimeMs": 1781018033771.2495,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "LocalSnapshot",
+          "kind": "section",
+          "startLine": 8,
+          "endLine": 13,
+          "tokens": 58
+        },
+        {
+          "name": "StorageLike",
+          "kind": "section",
+          "startLine": 15,
+          "endLine": 18,
+          "tokens": 29
+        },
+        {
+          "name": "safeReadJson",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 28,
+          "tokens": 70
+        },
+        {
+          "name": "countUsage",
+          "kind": "fn",
+          "startLine": 30,
+          "endLine": 37,
+          "tokens": 64
+        },
+        {
+          "name": "readLocalSnapshot",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 61,
+          "tokens": 233
+        },
+        {
+          "name": "clearLocalSnapshot",
+          "kind": "fn",
+          "startLine": 63,
+          "endLine": 67,
+          "tokens": 53
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/migrations.ts"
+      ],
+      "importance": 0.0147
+    },
+    "etap2/src/persistence/local-store.ts": {
+      "description": "Exports LocalStore",
+      "tokens": 543,
+      "hash": "947d66c129784b50",
+      "size": 1901,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "readJSON",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 94
+        },
+        {
+          "name": "writeJSON",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 22,
+          "tokens": 32
+        },
+        {
+          "name": "LocalStore",
+          "kind": "class",
+          "startLine": 24,
+          "endLine": 46,
+          "tokens": 331
+        },
+        {
+          "name": "LocalStore.findAll",
+          "kind": "method",
+          "startLine": 25,
+          "endLine": 28,
+          "tokens": 48
+        },
+        {
+          "name": "LocalStore.get",
+          "kind": "method",
+          "startLine": 29,
+          "endLine": 32,
+          "tokens": 51
+        },
+        {
+          "name": "LocalStore.save",
+          "kind": "method",
+          "startLine": 33,
+          "endLine": 36,
+          "tokens": 59
+        },
+        {
+          "name": "LocalStore.delete",
+          "kind": "method",
+          "startLine": 37,
+          "endLine": 41,
+          "tokens": 54
+        },
+        {
+          "name": "LocalStore.getVariantUsage",
+          "kind": "method",
+          "startLine": 42,
+          "endLine": 42,
+          "tokens": 28
+        },
+        {
+          "name": "LocalStore.saveVariantUsage",
+          "kind": "method",
+          "startLine": 43,
+          "endLine": 43,
+          "tokens": 24
+        },
+        {
+          "name": "LocalStore.getSettings",
+          "kind": "method",
+          "startLine": 44,
+          "endLine": 44,
+          "tokens": 30
+        },
+        {
+          "name": "LocalStore.saveSettings",
+          "kind": "method",
+          "startLine": 45,
+          "endLine": 45,
+          "tokens": 23
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/persistence/migrations.ts"
+      ],
+      "importance": 0.0167
+    },
+    "etap2/src/persistence/migrations.ts": {
+      "description": "Exports migrateAssessment",
+      "tokens": 1348,
+      "hash": "48f217f8f2cce12c",
+      "size": 4715,
+      "mtimeMs": 1781102013505.783,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ensureBlockTimes",
+          "kind": "fn",
+          "startLine": 5,
+          "endLine": 16,
+          "tokens": 159
+        },
+        {
+          "name": "ensureCandidate",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 30,
+          "tokens": 156
+        },
+        {
+          "name": "ensureNegotiation",
+          "kind": "fn",
+          "startLine": 32,
+          "endLine": 41,
+          "tokens": 88
+        },
+        {
+          "name": "ensureQna",
+          "kind": "fn",
+          "startLine": 43,
+          "endLine": 50,
+          "tokens": 78
+        },
+        {
+          "name": "ensureClosingFlags",
+          "kind": "fn",
+          "startLine": 52,
+          "endLine": 60,
+          "tokens": 105
+        },
+        {
+          "name": "ensureSignalChecks",
+          "kind": "fn",
+          "startLine": 62,
+          "endLine": 74,
+          "tokens": 166
+        },
+        {
+          "name": "ensureTimer",
+          "kind": "fn",
+          "startLine": 76,
+          "endLine": 84,
+          "tokens": 121
+        },
+        {
+          "name": "migrateAssessment",
+          "kind": "fn",
+          "startLine": 86,
+          "endLine": 113,
+          "tokens": 411
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/timer.ts"
+      ],
+      "importance": 0.0352
+    },
+    "etap2/src/persistence/repository.ts": {
+      "description": "Exports Repository",
+      "tokens": 132,
+      "hash": "0d8dff9662061152",
+      "size": 461,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0312
+    },
+    "etap2/src/persistence/traffit-api.ts": {
+      "description": "API routes: GET (1 endpoints)",
+      "tokens": 482,
+      "hash": "fa0045523269ca72",
+      "size": 1686,
+      "mtimeMs": 1781018033771.2495,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/auth/access-token.ts"
+      ],
+      "importance": 0.0079
+    },
+    "etap2/src/persistence/traffit-candidates.ts": {
+      "description": "API routes: GET (1 endpoints)",
+      "tokens": 425,
+      "hash": "fa50bb69162801f9",
+      "size": 1487,
+      "mtimeMs": 1781024598817.1194,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/auth/access-token.ts",
+        "etap2/src/domain/traffit-roster.ts"
+      ],
+      "importance": 0.0116
+    },
+    "etap2/src/state.ts": {
+      "description": "Czy backend (Azure) jest aktywny — bramka funkcji Traffit (lista + push).",
+      "tokens": 398,
+      "hash": "01d4d9ff04ee0e28",
+      "size": 1393,
+      "mtimeMs": 1781102013505.783,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/azure-store.ts",
+        "etap2/src/persistence/local-store.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/domain/settings.ts"
+      ],
+      "importance": 0.0324
+    },
+    "etap2/src/ui/confirm-dialog.ts": {
+      "description": "Wewnątrzaplikacyjny dialog potwierdzenia zastępujący window.confirm.",
+      "tokens": 1065,
+      "hash": "59d401dbc363ffd6",
+      "size": 3751,
+      "mtimeMs": 1780933264726.0862,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ConfirmOptions",
+          "kind": "section",
+          "startLine": 1,
+          "endLine": 7,
+          "tokens": 96
+        },
+        {
+          "name": "confirmDialog",
+          "kind": "fn",
+          "startLine": 14,
+          "endLine": 106,
+          "tokens": 895
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0112
+    },
+    "etap2/src/ui/copy.ts": {
+      "description": "Exports htmlToPlain, copyToClipboard",
+      "tokens": 320,
+      "hash": "7c7c0b4c66be99ed",
+      "size": 1127,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.151Z",
+      "source": "scan",
+      "importance": 0.0129
+    },
+    "etap2/src/ui/download.ts": {
+      "description": "Exports downloadTextFile, safeFilenamePart",
+      "tokens": 178,
+      "hash": "b0dffb8c81308bc2",
+      "size": 621,
+      "mtimeMs": 1780933264726.0862,
+      "updatedAt": "2026-09-29T09:14:56.152Z",
+      "source": "scan",
+      "importance": 0.0085
+    },
+    "etap2/src/ui/escape.ts": {
+      "description": "",
+      "tokens": 14,
+      "hash": "1616783cf2718acc",
+      "size": 48,
+      "mtimeMs": 1780944946856.9968,
+      "updatedAt": "2026-09-29T09:14:56.152Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/escape.ts"
+      ],
+      "importance": 0.0197
+    },
+    "etap2/src/ui/migration-banner.ts": {
+      "description": "Wywolane po udanym imporcie - typowo navigate('roster') zeby user widzial przeniesione rozmowy.",
+      "tokens": 1130,
+      "hash": "384be38f95df14b5",
+      "size": 3976,
+      "mtimeMs": 1781018033772.2556,
+      "updatedAt": "2026-09-29T09:14:56.152Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "pluralPl",
+          "kind": "fn",
+          "startLine": 7,
+          "endLine": 15,
+          "tokens": 91
+        },
+        {
+          "name": "pluralRozmowa",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 17,
+          "tokens": 26
+        },
+        {
+          "name": "pluralPrzypisanie",
+          "kind": "fn",
+          "startLine": 18,
+          "endLine": 18,
+          "tokens": 30
+        },
+        {
+          "name": "MigrationDeps",
+          "kind": "section",
+          "startLine": 20,
+          "endLine": 27,
+          "tokens": 105
+        },
+        {
+          "name": "renderMigrationBanner",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 90,
+          "tokens": 689
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/persistence/azure-store.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/persistence/local-snapshot.ts"
+      ],
+      "importance": 0.0093
+    },
+    "etap2/src/ui/qna.ts": {
+      "description": "Edytowalna karta jednego pytania (ekran intro + podsumowanie).",
+      "tokens": 1823,
+      "hash": "ab5ae7e89eb0409b",
+      "size": 6419,
+      "mtimeMs": 1781102013505.783,
+      "updatedAt": "2026-09-29T09:14:56.152Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "QnaKind",
+          "kind": "section",
+          "startLine": 9,
+          "endLine": 9,
+          "tokens": 13
+        },
+        {
+          "name": "notesMap",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 13,
+          "tokens": 37
+        },
+        {
+          "name": "signalsHtml",
+          "kind": "fn",
+          "startLine": 15,
+          "endLine": 27,
+          "tokens": 160
+        },
+        {
+          "name": "editableItemHtml",
+          "kind": "fn",
+          "startLine": 30,
+          "endLine": 47,
+          "tokens": 270
+        },
+        {
+          "name": "qnaEditableListHtml",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 53,
+          "tokens": 88
+        },
+        {
+          "name": "bindQnaEditable",
+          "kind": "fn",
+          "startLine": 59,
+          "endLine": 101,
+          "tokens": 542
+        },
+        {
+          "name": "hasQnaContent",
+          "kind": "fn",
+          "startLine": 104,
+          "endLine": 113,
+          "tokens": 120
+        },
+        {
+          "name": "qnaSummaryHtml",
+          "kind": "fn",
+          "startLine": 116,
+          "endLine": 146,
+          "tokens": 359
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/content/interview-questions.ts",
+        "etap2/src/domain/model.ts",
+        "etap2/src/ui/escape.ts"
+      ],
+      "importance": 0.0087
+    },
+    "etap2/src/ui/recruiter-preview-dialog.ts": {
+      "description": "Exports openRecruiterPreview",
+      "tokens": 3068,
+      "hash": "b69eb11c19ae4747",
+      "size": 10813,
+      "mtimeMs": 1781188758555.9324,
+      "updatedAt": "2026-09-29T09:14:56.153Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "copyTextSafe",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 19,
+          "tokens": 51
+        },
+        {
+          "name": "copyHtmlSafe",
+          "kind": "fn",
+          "startLine": 21,
+          "endLine": 46,
+          "tokens": 272
+        },
+        {
+          "name": "flashLabel",
+          "kind": "fn",
+          "startLine": 48,
+          "endLine": 55,
+          "tokens": 92
+        },
+        {
+          "name": "openRecruiterPreview",
+          "kind": "fn",
+          "startLine": 57,
+          "endLine": 264,
+          "tokens": 2502
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "async function copyTextSafe(text: string): Promise<boolean> {\nasync function copyHtmlSafe(html: string, text: string): Promise<boolean> {\nfunction flashLabel(btn: HTMLButtonElement, original: string, ok: boolean): void {\nexport function openRecruiterPreview(a: Assessment, s: Settings): Promise<void> {",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/recruiter-summary.ts",
+        "etap2/src/persistence/traffit-api.ts",
+        "etap2/src/persistence/traffit-candidates.ts",
+        "etap2/src/domain/traffit-roster.ts",
+        "etap2/src/state.ts",
+        "etap2/src/ui/escape.ts"
+      ],
+      "importance": 0.0114
+    },
+    "etap2/src/ui/screen-assess.ts": {
+      "description": "Exports effectiveBlock, activeBlocks, renderAssess",
+      "tokens": 4124,
+      "hash": "545d1742de52c695",
+      "size": 14520,
+      "mtimeMs": 1781188758556.941,
+      "updatedAt": "2026-09-29T09:14:56.153Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "installKeyboardHandlers",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 60,
+          "tokens": 380
+        },
+        {
+          "name": "effectiveBlock",
+          "kind": "fn",
+          "startLine": 62,
+          "endLine": 64,
+          "tokens": 37
+        },
+        {
+          "name": "activeBlocks",
+          "kind": "fn",
+          "startLine": 66,
+          "endLine": 69,
+          "tokens": 47
+        },
+        {
+          "name": "markLevels",
+          "kind": "fn",
+          "startLine": 71,
+          "endLine": 73,
+          "tokens": 31
+        },
+        {
+          "name": "formatMmSs",
+          "kind": "fn",
+          "startLine": 75,
+          "endLine": 78,
+          "tokens": 53
+        },
+        {
+          "name": "renderAssess",
+          "kind": "fn",
+          "startLine": 92,
+          "endLine": 332,
+          "tokens": 3267
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "function installKeyboardHandlers(host: HTMLElement): void {\nexport function effectiveBlock(b: Block, a: Assessment): Block {\nexport function activeBlocks(): Block[] {\nfunction markLevels(b: Block): number[] {\nfunction formatMmSs(sec: number): string {\nexport function renderAssess(host: HTMLElement): void {",
+      "imports": [
+        "etap2/src/content/blocks.ts",
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/completeness.ts",
+        "etap2/src/domain/block-state.ts",
+        "etap2/src/domain/timer.ts",
+        "etap2/src/state.ts",
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/escape.ts",
+        "etap2/src/ui/copy.ts",
+        "etap2/src/ui/confirm-dialog.ts",
+        "etap2/src/ui/timer-ui.ts",
+        "etap2/src/persistence/draft.ts"
+      ],
+      "importance": 0.0124
+    },
+    "etap2/src/ui/screen-detail.ts": {
+      "description": "Exports renderDetail",
+      "tokens": 2928,
+      "hash": "1d4e7560196392da",
+      "size": 10328,
+      "mtimeMs": 1781102013507.1577,
+      "updatedAt": "2026-09-29T09:14:56.153Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "mmss",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 19,
+          "tokens": 54
+        },
+        {
+          "name": "backCard",
+          "kind": "fn",
+          "startLine": 27,
+          "endLine": 34,
+          "tokens": 114
+        },
+        {
+          "name": "renderProfile",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 49,
+          "tokens": 166
+        },
+        {
+          "name": "renderFlags",
+          "kind": "fn",
+          "startLine": 51,
+          "endLine": 65,
+          "tokens": 175
+        },
+        {
+          "name": "renderNotes",
+          "kind": "fn",
+          "startLine": 67,
+          "endLine": 94,
+          "tokens": 417
+        },
+        {
+          "name": "renderQnaSection",
+          "kind": "fn",
+          "startLine": 96,
+          "endLine": 100,
+          "tokens": 98
+        },
+        {
+          "name": "renderNegotiation",
+          "kind": "fn",
+          "startLine": 102,
+          "endLine": 118,
+          "tokens": 212
+        },
+        {
+          "name": "renderDecision",
+          "kind": "fn",
+          "startLine": 120,
+          "endLine": 127,
+          "tokens": 127
+        },
+        {
+          "name": "renderDetail",
+          "kind": "fn",
+          "startLine": 129,
+          "endLine": 248,
+          "tokens": 1300
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "function mmss(totalSec: number): string {\nfunction backCard(host: HTMLElement, message: string): void {\nfunction renderProfile(a: Assessment, blocks: Block[]): string {\nfunction renderFlags(a: Assessment, blocks: Block[]): string {\nfunction renderNotes(a: Assessment, blocks: Block[]): string {\nfunction renderQnaSection(a: Assessment, title: string, questions: InterviewQuestion[], kind: QnaKind): string {\nfunction renderNegotiation(a: Assessment): string {\nfunction renderDecision(a: Assessment): string {\nexport async function renderDetail(host: HTMLElement): Promise<void> {",
+      "imports": [
+        "etap2/src/content/blocks.ts",
+        "etap2/src/content/interview-questions.ts",
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/domain/model.ts",
+        "etap2/src/state.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/escape.ts",
+        "etap2/src/ui/qna.ts",
+        "etap2/src/ui/confirm-dialog.ts",
+        "etap2/src/ui/download.ts",
+        "etap2/src/export/json.ts",
+        "etap2/src/ui/recruiter-preview-dialog.ts"
+      ],
+      "importance": 0.0082
+    },
+    "etap2/src/ui/screen-intro.ts": {
+      "description": "Ekran „Wywiad otwierający\" — pytania wstępne zadawane na początku rozmowy.",
+      "tokens": 772,
+      "hash": "ae825fa45130c31a",
+      "size": 2748,
+      "mtimeMs": 1781188758556.941,
+      "updatedAt": "2026-09-29T09:14:56.153Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "renderIntro",
+          "kind": "fn",
+          "startLine": 12,
+          "endLine": 71,
+          "tokens": 600
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/content/interview-questions.ts",
+        "etap2/src/state.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/escape.ts",
+        "etap2/src/ui/confirm-dialog.ts",
+        "etap2/src/ui/qna.ts",
+        "etap2/src/persistence/draft.ts"
+      ],
+      "importance": 0.0082
+    },
+    "etap2/src/ui/screen-roster.ts": {
+      "description": "Exports renderRoster",
+      "tokens": 2776,
+      "hash": "837904d91cb83ccb",
+      "size": 9784,
+      "mtimeMs": 1781018033773.2551,
+      "updatedAt": "2026-09-29T09:14:56.154Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "renderRoster",
+          "kind": "fn",
+          "startLine": 23,
+          "endLine": 225,
+          "tokens": 2557
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export async function renderRoster(host: HTMLElement): Promise<void> {",
+      "imports": [
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/state.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/escape.ts",
+        "etap2/src/ui/confirm-dialog.ts",
+        "etap2/src/ui/timer-ui.ts",
+        "etap2/src/ui/download.ts",
+        "etap2/src/export/csv.ts",
+        "etap2/src/export/json.ts"
+      ],
+      "importance": 0.0082
+    },
+    "etap2/src/ui/screen-settings.ts": {
+      "description": "Exports renderSettings",
+      "tokens": 1686,
+      "hash": "02016d48c76cd07f",
+      "size": 5916,
+      "mtimeMs": 1780944946859.9995,
+      "updatedAt": "2026-09-29T09:14:56.154Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "parseWeight",
+          "kind": "fn",
+          "startLine": 8,
+          "endLine": 13,
+          "tokens": 51
+        },
+        {
+          "name": "readWeights",
+          "kind": "fn",
+          "startLine": 15,
+          "endLine": 22,
+          "tokens": 90
+        },
+        {
+          "name": "writeWeights",
+          "kind": "fn",
+          "startLine": 24,
+          "endLine": 29,
+          "tokens": 67
+        },
+        {
+          "name": "updateSumDisplay",
+          "kind": "fn",
+          "startLine": 31,
+          "endLine": 42,
+          "tokens": 124
+        },
+        {
+          "name": "renderSettings",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 159,
+          "tokens": 1267
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/settings.ts",
+        "etap2/src/state.ts",
+        "etap2/src/app.ts"
+      ],
+      "importance": 0.0096
+    },
+    "etap2/src/ui/screen-start.ts": {
+      "description": "Exports renderStart",
+      "tokens": 2563,
+      "hash": "4c3fb46d6dbfa96c",
+      "size": 9057,
+      "mtimeMs": 1781102013507.1577,
+      "updatedAt": "2026-09-29T09:14:56.154Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "renderStart",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 196,
+          "tokens": 2413
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export async function renderStart(host: HTMLElement): Promise<void> {",
+      "imports": [
+        "etap2/src/content/blocks.ts",
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/variants.ts",
+        "etap2/src/state.ts",
+        "etap2/src/domain/traffit-roster.ts",
+        "etap2/src/persistence/traffit-candidates.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/timer-ui.ts",
+        "etap2/src/ui/migration-banner.ts"
+      ],
+      "importance": 0.0101
+    },
+    "etap2/src/ui/screen-summary.ts": {
+      "description": "Exports renderSummary",
+      "tokens": 2412,
+      "hash": "5d4d1e37a170e0a8",
+      "size": 8493,
+      "mtimeMs": 1781188758557.9395,
+      "updatedAt": "2026-09-29T09:14:56.154Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "renderSummary",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 166,
+          "tokens": 2188
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "export function renderSummary(host: HTMLElement): void {",
+      "imports": [
+        "etap2/src/content/blocks.ts",
+        "etap2/src/content/interview-questions.ts",
+        "etap2/src/ui/qna.ts",
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/domain/variants.ts",
+        "etap2/src/domain/model.ts",
+        "etap2/src/state.ts",
+        "etap2/src/app.ts",
+        "etap2/src/ui/timer-ui.ts",
+        "etap2/src/ui/escape.ts",
+        "etap2/src/ui/download.ts",
+        "etap2/src/export/json.ts",
+        "etap2/src/ui/recruiter-preview-dialog.ts",
+        "etap2/src/persistence/draft.ts"
+      ],
+      "importance": 0.0101
+    },
+    "etap2/src/ui/theme.css": {
+      "description": "Styles: 17 vars, 2 animations",
+      "tokens": 13096,
+      "hash": "7b0d992a7c15e2b4",
+      "size": 45894,
+      "mtimeMs": 1781102013508.5251,
+      "updatedAt": "2026-09-29T09:14:56.154Z",
+      "source": "scan",
+      "importance": 0.0076
+    },
+    "etap2/src/ui/timer-ui.ts": {
+      "description": "Dolewa deltaSec do bloku aktywnego (session.cur w activeBlocks).",
+      "tokens": 2044,
+      "hash": "7cef70d7ea01e995",
+      "size": 7165,
+      "mtimeMs": 1780944946861.9976,
+      "updatedAt": "2026-09-29T09:14:56.155Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "GlobalLevel",
+          "kind": "section",
+          "startLine": 8,
+          "endLine": 8,
+          "tokens": 13
+        },
+        {
+          "name": "globalLevel",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 15,
+          "tokens": 48
+        },
+        {
+          "name": "announce",
+          "kind": "fn",
+          "startLine": 17,
+          "endLine": 20,
+          "tokens": 39
+        },
+        {
+          "name": "startTimer",
+          "kind": "fn",
+          "startLine": 22,
+          "endLine": 34,
+          "tokens": 130
+        },
+        {
+          "name": "stopTimer",
+          "kind": "fn",
+          "startLine": 36,
+          "endLine": 45,
+          "tokens": 102
+        },
+        {
+          "name": "maybePhaseBanner",
+          "kind": "fn",
+          "startLine": 49,
+          "endLine": 57,
+          "tokens": 74
+        },
+        {
+          "name": "showPhaseBannerDom",
+          "kind": "fn",
+          "startLine": 59,
+          "endLine": 64,
+          "tokens": 51
+        },
+        {
+          "name": "syncPhaseBannerDom",
+          "kind": "fn",
+          "startLine": 66,
+          "endLine": 72,
+          "tokens": 57
+        },
+        {
+          "name": "tickActiveBlock",
+          "kind": "fn",
+          "startLine": 78,
+          "endLine": 88,
+          "tokens": 121
+        },
+        {
+          "name": "updateBlockChipDom",
+          "kind": "fn",
+          "startLine": 90,
+          "endLine": 104,
+          "tokens": 212
+        },
+        {
+          "name": "renderClock",
+          "kind": "fn",
+          "startLine": 106,
+          "endLine": 111,
+          "tokens": 105
+        },
+        {
+          "name": "tick",
+          "kind": "fn",
+          "startLine": 113,
+          "endLine": 143,
+          "tokens": 316
+        },
+        {
+          "name": "togglePause",
+          "kind": "fn",
+          "startLine": 148,
+          "endLine": 159,
+          "tokens": 94
+        },
+        {
+          "name": "nudgeOffset",
+          "kind": "fn",
+          "startLine": 164,
+          "endLine": 172,
+          "tokens": 98
+        },
+        {
+          "name": "syncPauseDom",
+          "kind": "fn",
+          "startLine": 174,
+          "endLine": 185,
+          "tokens": 136
+        },
+        {
+          "name": "bindTimerControls",
+          "kind": "fn",
+          "startLine": 188,
+          "endLine": 197,
+          "tokens": 155
+        },
+        {
+          "name": "elapsedStr",
+          "kind": "fn",
+          "startLine": 199,
+          "endLine": 202,
+          "tokens": 55
+        }
+      ],
+      "symbolSource": "ts",
+      "skeleton": "type GlobalLevel = 'ok' | 'warn' | 'over';\nfunction globalLevel(elapsedSec: number): GlobalLevel {\nfunction announce(msg: string): void {\nexport function startTimer(): void {\nexport function stopTimer(): void {\nexport function maybePhaseBanner(): void {\nfunction showPhaseBannerDom(): void {\nfunction syncPhaseBannerDom(): void {\nexport function tickActiveBlock(deltaSec: number): void {\nfunction updateBlockChipDom(blockId: string): void {\nfunction renderClock(s: number): void {\nfunction tick(): void {\nexport function togglePause(): void {\nexport function nudgeOffset(deltaSec: number): void {\nfunction syncPauseDom(): void {\nfunction bindTimerControls(): void {\nexport function elapsedStr(): string {",
+      "imports": [
+        "etap2/src/state.ts",
+        "etap2/src/domain/timer.ts",
+        "etap2/src/ui/screen-assess.ts",
+        "etap2/src/content/blocks.ts"
+      ],
+      "importance": 0.0131
+    },
+    "etap2/tests/azure-store.test.ts": {
+      "description": "API routes: DELETE (2 endpoints)",
+      "tokens": 1750,
+      "hash": "a6df80da3d9e3a7b",
+      "size": 6124,
+      "mtimeMs": 1781018033774.259,
+      "updatedAt": "2026-09-29T09:14:56.155Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "jsonResp",
+          "kind": "fn",
+          "startLine": 24,
+          "endLine": 29,
+          "tokens": 53
+        },
+        {
+          "name": "emptyAssessment",
+          "kind": "fn",
+          "startLine": 31,
+          "endLine": 52,
+          "tokens": 188
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/persistence/azure-store.ts",
+        "etap2/src/auth/access-token.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/block-state.test.ts": {
+      "description": "Declares fresh",
+      "tokens": 929,
+      "hash": "ca2c5f255d73bca4",
+      "size": 3259,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.155Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "fresh",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 13,
+          "tokens": 50
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/block-state.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/blocks.test.ts": {
+      "description": "Declares w",
+      "tokens": 492,
+      "hash": "3b6738fe3402cc6b",
+      "size": 1728,
+      "mtimeMs": 1780944946862.9973,
+      "updatedAt": "2026-09-29T09:14:56.155Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/content/blocks.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/completeness.test.ts": {
+      "description": "Declares active",
+      "tokens": 509,
+      "hash": "7239b6d17164cfcc",
+      "size": 1789,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.155Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/completeness.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/copy.test.ts": {
+      "description": "Declares html",
+      "tokens": 328,
+      "hash": "7aecec61c615f15e",
+      "size": 1161,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/ui/copy.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/crash-guard.test.ts": {
+      "description": "Declares newAssessment",
+      "tokens": 346,
+      "hash": "e8ec58a180c67472",
+      "size": 1214,
+      "mtimeMs": 1781188758557.9395,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/state.ts",
+        "etap2/src/persistence/crash-guard.ts",
+        "etap2/src/persistence/draft.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/draft.test.ts": {
+      "description": "AssessmentDraft: sample",
+      "tokens": 933,
+      "hash": "d28268f4d8cc700c",
+      "size": 3271,
+      "mtimeMs": 1781188758557.9395,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "MemoryStorage",
+          "kind": "class",
+          "startLine": 5,
+          "endLine": 11,
+          "tokens": 93
+        },
+        {
+          "name": "MemoryStorage.getItem",
+          "kind": "method",
+          "startLine": 7,
+          "endLine": 7,
+          "tokens": 22
+        },
+        {
+          "name": "MemoryStorage.setItem",
+          "kind": "method",
+          "startLine": 8,
+          "endLine": 8,
+          "tokens": 19
+        },
+        {
+          "name": "MemoryStorage.removeItem",
+          "kind": "method",
+          "startLine": 9,
+          "endLine": 9,
+          "tokens": 16
+        },
+        {
+          "name": "MemoryStorage.has",
+          "kind": "method",
+          "startLine": 10,
+          "endLine": 10,
+          "tokens": 16
+        },
+        {
+          "name": "sample",
+          "kind": "fn",
+          "startLine": 13,
+          "endLine": 18,
+          "tokens": 73
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/persistence/draft.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/e2e/flow.spec.ts": {
+      "description": "Declares previewDialog",
+      "tokens": 1101,
+      "hash": "7ab227ffcfaa18ad",
+      "size": 3919,
+      "mtimeMs": 1781102013508.5251,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/tests/escape.test.ts": {
+      "description": "",
+      "tokens": 260,
+      "hash": "b279759f2d20a034",
+      "size": 932,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/ui/escape.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/export-csv.test.ts": {
+      "description": "BOM: row, stripBom, lines",
+      "tokens": 1658,
+      "hash": "0ca53e205f2a2bdc",
+      "size": 5824,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.156Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "row",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 20,
+          "tokens": 72
+        },
+        {
+          "name": "stripBom",
+          "kind": "fn",
+          "startLine": 22,
+          "endLine": 24,
+          "tokens": 30
+        },
+        {
+          "name": "lines",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 28,
+          "tokens": 24
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/export/csv.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/export-json.test.ts": {
+      "description": "Declares sample",
+      "tokens": 1083,
+      "hash": "454215c5bb36b8e6",
+      "size": 3798,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "sample",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 102
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/export/json.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/local-snapshot.test.ts": {
+      "description": "Declares MemoryStorage",
+      "tokens": 778,
+      "hash": "ddf1d8c5e1fb90bf",
+      "size": 2722,
+      "mtimeMs": 1781018033774.259,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "MemoryStorage",
+          "kind": "class",
+          "startLine": 4,
+          "endLine": 10,
+          "tokens": 93
+        },
+        {
+          "name": "MemoryStorage.getItem",
+          "kind": "method",
+          "startLine": 6,
+          "endLine": 6,
+          "tokens": 22
+        },
+        {
+          "name": "MemoryStorage.setItem",
+          "kind": "method",
+          "startLine": 7,
+          "endLine": 7,
+          "tokens": 19
+        },
+        {
+          "name": "MemoryStorage.removeItem",
+          "kind": "method",
+          "startLine": 8,
+          "endLine": 8,
+          "tokens": 16
+        },
+        {
+          "name": "MemoryStorage.has",
+          "kind": "method",
+          "startLine": 9,
+          "endLine": 9,
+          "tokens": 16
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/persistence/local-snapshot.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/local-store.test.ts": {
+      "description": "API routes: GET, DELETE (3 endpoints)",
+      "tokens": 466,
+      "hash": "b13d44a7be2c86cc",
+      "size": 1632,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/persistence/local-store.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/migration-banner.test.ts": {
+      "description": "MemStorage: seed",
+      "tokens": 1128,
+      "hash": "f0aba989ace35b25",
+      "size": 3948,
+      "mtimeMs": 1781018033774.259,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "MemStorage",
+          "kind": "class",
+          "startLine": 12,
+          "endLine": 18,
+          "tokens": 90
+        },
+        {
+          "name": "MemStorage.getItem",
+          "kind": "method",
+          "startLine": 14,
+          "endLine": 14,
+          "tokens": 21
+        },
+        {
+          "name": "MemStorage.setItem",
+          "kind": "method",
+          "startLine": 15,
+          "endLine": 15,
+          "tokens": 18
+        },
+        {
+          "name": "MemStorage.removeItem",
+          "kind": "method",
+          "startLine": 16,
+          "endLine": 16,
+          "tokens": 16
+        },
+        {
+          "name": "MemStorage.has",
+          "kind": "method",
+          "startLine": 17,
+          "endLine": 17,
+          "tokens": 16
+        },
+        {
+          "name": "seed",
+          "kind": "fn",
+          "startLine": 20,
+          "endLine": 34,
+          "tokens": 213
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/persistence/azure-store.ts",
+        "etap2/src/persistence/local-store.ts",
+        "etap2/src/ui/migration-banner.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/migrations.test.ts": {
+      "description": "Declares raw",
+      "tokens": 1003,
+      "hash": "8a2e4ff6f876cef2",
+      "size": 3519,
+      "mtimeMs": 1781102013509.6855,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/persistence/migrations.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/model.test.ts": {
+      "description": "Declares a",
+      "tokens": 441,
+      "hash": "ee9ca998cf720389",
+      "size": 1541,
+      "mtimeMs": 1781102013509.6855,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/recruiter-preview-dialog.test.ts": {
+      "description": "settings: makeAssessment",
+      "tokens": 1162,
+      "hash": "8167ef52e6800643",
+      "size": 4077,
+      "mtimeMs": 1780944946863.9966,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "settings",
+          "kind": "fn",
+          "startLine": 7,
+          "endLine": 9,
+          "tokens": 37
+        },
+        {
+          "name": "makeAssessment",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 21,
+          "tokens": 81
+        },
+        {
+          "name": "ClipboardStub",
+          "kind": "section",
+          "startLine": 23,
+          "endLine": 26,
+          "tokens": 30
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/weights.config.ts",
+        "etap2/src/ui/recruiter-preview-dialog.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/recruiter-preview-traffit.test.ts": {
+      "description": "h: settings, makeAssessment",
+      "tokens": 1350,
+      "hash": "434eb49c3529b84c",
+      "size": 4739,
+      "mtimeMs": 1781188758558.9395,
+      "updatedAt": "2026-09-29T09:14:56.157Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "h",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 10,
+          "tokens": 34
+        },
+        {
+          "name": "settings",
+          "kind": "fn",
+          "startLine": 26,
+          "endLine": 28,
+          "tokens": 37
+        },
+        {
+          "name": "makeAssessment",
+          "kind": "fn",
+          "startLine": 29,
+          "endLine": 36,
+          "tokens": 78
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/weights.config.ts",
+        "etap2/src/ui/recruiter-preview-dialog.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/recruiter-summary.test.ts": {
+      "description": "settings: baseAssessment",
+      "tokens": 1625,
+      "hash": "942148031e22e8e9",
+      "size": 5721,
+      "mtimeMs": 1781024598820.588,
+      "updatedAt": "2026-09-29T09:14:56.158Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "settings",
+          "kind": "fn",
+          "startLine": 7,
+          "endLine": 9,
+          "tokens": 37
+        },
+        {
+          "name": "baseAssessment",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 18,
+          "tokens": 55
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/weights.config.ts",
+        "etap2/src/domain/recruiter-summary.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/roster.test.ts": {
+      "description": "RosterEntry: entry",
+      "tokens": 1371,
+      "hash": "ad224b034d9289af",
+      "size": 4830,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.158Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "entry",
+          "kind": "fn",
+          "startLine": 8,
+          "endLine": 16,
+          "tokens": 50
+        }
+      ],
+      "symbolSource": "ts",
+      "importance": 0.0065
+    },
+    "etap2/tests/scoring.test.ts": {
+      "description": "Declares r",
+      "tokens": 472,
+      "hash": "5b6fd570de7050a1",
+      "size": 1660,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.158Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/scoring.ts",
+        "etap2/src/domain/weights.config.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/screen-assess.test.ts": {
+      "description": "setShowLive: mount",
+      "tokens": 1700,
+      "hash": "73fd08d1cc29b3d6",
+      "size": 5949,
+      "mtimeMs": 1780944946863.9966,
+      "updatedAt": "2026-09-29T09:14:56.158Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "setShowLive",
+          "kind": "fn",
+          "startLine": 7,
+          "endLine": 14,
+          "tokens": 66
+        },
+        {
+          "name": "mount",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 21,
+          "tokens": 45
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/ui/screen-assess.ts",
+        "etap2/src/state.ts",
+        "etap2/src/domain/settings.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/screen-settings.test.ts": {
+      "description": "K_SETTINGS: mount, setWeights",
+      "tokens": 1536,
+      "hash": "52478f67c431b888",
+      "size": 5379,
+      "mtimeMs": 1780944946864.9973,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "mount",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 14,
+          "tokens": 52
+        },
+        {
+          "name": "setWeights",
+          "kind": "fn",
+          "startLine": 16,
+          "endLine": 27,
+          "tokens": 128
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/ui/screen-settings.ts",
+        "etap2/src/state.ts",
+        "etap2/src/domain/settings.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/screen-start.test.ts": {
+      "description": "h: flush",
+      "tokens": 1501,
+      "hash": "5781fded9abf5810",
+      "size": 5270,
+      "mtimeMs": 1781024598820.588,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "h",
+          "kind": "fn",
+          "startLine": 5,
+          "endLine": 11,
+          "tokens": 73
+        },
+        {
+          "name": "cand",
+          "kind": "fn",
+          "startLine": 27,
+          "endLine": 28,
+          "tokens": 56
+        },
+        {
+          "name": "flush",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 39,
+          "tokens": 34
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/domain/traffit-roster.ts",
+        "etap2/src/ui/screen-start.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/screen-summary.test.ts": {
+      "description": "K_SETTINGS: setupAssessment, mount",
+      "tokens": 632,
+      "hash": "5c5a0ef457d4bdbe",
+      "size": 2221,
+      "mtimeMs": 1780944946865.9968,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "setupAssessment",
+          "kind": "fn",
+          "startLine": 8,
+          "endLine": 20,
+          "tokens": 150
+        },
+        {
+          "name": "mount",
+          "kind": "fn",
+          "startLine": 22,
+          "endLine": 27,
+          "tokens": 50
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/state.ts",
+        "etap2/src/ui/screen-summary.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/settings.test.ts": {
+      "description": "Declares makeRepo",
+      "tokens": 630,
+      "hash": "44c29128e4fc9e2e",
+      "size": 2203,
+      "mtimeMs": 1780944946865.9968,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "makeRepo",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 17,
+          "tokens": 131
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/settings.ts",
+        "etap2/src/persistence/repository.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/state.test.ts": {
+      "description": "Declares stored",
+      "tokens": 268,
+      "hash": "5070b5b3a44322ee",
+      "size": 936,
+      "mtimeMs": 1780944946865.9968,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/state.ts",
+        "etap2/src/domain/settings.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/timer-ui.test.ts": {
+      "description": "Declares setupAnnouncementDom",
+      "tokens": 1700,
+      "hash": "753b10b76857adc3",
+      "size": 5960,
+      "mtimeMs": 1780944946865.9968,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "setupAnnouncementDom",
+          "kind": "fn",
+          "startLine": 6,
+          "endLine": 8,
+          "tokens": 46
+        }
+      ],
+      "symbolSource": "ts",
+      "imports": [
+        "etap2/src/domain/model.ts",
+        "etap2/src/state.ts",
+        "etap2/src/ui/timer-ui.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/timer.test.ts": {
+      "description": "Declares next",
+      "tokens": 1368,
+      "hash": "2530cdca978ad6cd",
+      "size": 4818,
+      "mtimeMs": 1780944946866.9985,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/timer.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/traffit-candidates.test.ts": {
+      "description": "fetchMock: ok",
+      "tokens": 418,
+      "hash": "a3f6b469abcf90ac",
+      "size": 1465,
+      "mtimeMs": 1781024598820.588,
+      "updatedAt": "2026-09-29T09:14:56.159Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/persistence/traffit-candidates.ts",
+        "etap2/src/auth/access-token.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/traffit-roster.test.ts": {
+      "description": "Declares TraffitCandidate",
+      "tokens": 492,
+      "hash": "7a6f162ad88c993e",
+      "size": 1728,
+      "mtimeMs": 1781024598820.588,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/traffit-roster.ts",
+        "etap2/src/domain/model.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/variants.test.ts": {
+      "description": "Declares usage",
+      "tokens": 661,
+      "hash": "c7b9a0080b985fe1",
+      "size": 2326,
+      "mtimeMs": 1780933264727.988,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/variants.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tests/weights.test.ts": {
+      "description": "",
+      "tokens": 105,
+      "hash": "34b80146c789d2c8",
+      "size": 365,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "imports": [
+        "etap2/src/domain/weights.config.ts"
+      ],
+      "importance": 0.0065
+    },
+    "etap2/tsconfig.json": {
+      "description": "TypeScript configuration",
+      "tokens": 156,
+      "hash": "586ff801a2b29afe",
+      "size": 545,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/vite.config.ts": {
+      "description": "Vite build configuration",
+      "tokens": 76,
+      "hash": "74c3ab76774680da",
+      "size": 264,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "etap2/vitest.config.ts": {
+      "description": "Vitest test configuration",
+      "tokens": 92,
+      "hash": "04259587060db5ab",
+      "size": 320,
+      "mtimeMs": 1780920680760.757,
+      "updatedAt": "2026-09-29T09:14:56.160Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "eval.html": {
+      "description": "BAKK · Klucz oceniający",
+      "tokens": 34178,
+      "hash": "f57a217297ce2803",
+      "size": 128188,
+      "mtimeMs": 1778761161541.6008,
+      "updatedAt": "2026-09-29T09:14:56.161Z",
+      "source": "scan",
+      "importance": 0.0065
+    },
+    "index.html": {
+      "description": "Zadanie rekrutacyjne SQL — BAKK",
+      "tokens": 6462,
+      "hash": "07f79fa5e50e277d",
+      "size": 24684,
+      "mtimeMs": 1778761161542.6047,
+      "updatedAt": "2026-09-29T09:14:56.161Z",
+      "source": "scan",
+      "importance": 0.0065
+    }
+  },
+  "preamble": [
+    "> Project structure index. Auto-maintained by OpenWolf hooks and daemon.",
+    "> Run `openwolf scan` to generate, or wait for the first Claude Code session.",
+    "> Status: Pending initial scan"
+  ]
+}
